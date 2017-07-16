@@ -208,10 +208,19 @@ class Mesh {
         var samplerIndex = this.scene.getNextSamplerIndex();
         this.localState.uniforms[uniformName] = { 'funcName': funcName, 'vals': [samplerIndex] };
 
+        var samplerSettings = {};
+        if (defined(textureInfo.sampler) && gltf.samplers.length > textureInfo.sampler) {
+            samplerSettings = gltf.samplers[textureInfo.sampler];
+        }
+
         return {
             'uri': uri,
             'samplerIndex': samplerIndex,
-            'colorSpace': colorSpace
+            'colorSpace': colorSpace,
+            'magFilter': (defined(samplerSettings.magFilter) ? samplerSettings.magFilter : gl.LINEAR),
+            'minFilter': (defined(samplerSettings.minFilter) ? samplerSettings.minFilter : gl.LINEAR),
+            'wrapS': (defined(samplerSettings.wrapS) ? samplerSettings.wrapS : gl.REPEAT),
+            'wrapT': (defined(samplerSettings.wrapT) ? samplerSettings.wrapT : gl.REPEAT)
         };
     }
 
@@ -263,7 +272,15 @@ class Mesh {
         // brdfLUT
         var brdfLUT = 'textures/brdfLUT.png';
         samplerIndex = this.scene.getNextSamplerIndex();
-        imageInfos['brdfLUT'] = { 'uri': brdfLUT, 'samplerIndex': samplerIndex, 'colorSpace': gl.RGBA, 'clamp': true };
+        imageInfos['brdfLUT'] = {
+            'uri': brdfLUT,
+            'samplerIndex': samplerIndex,
+            'colorSpace': gl.RGBA,
+            'magFilter': gl.LINEAR,
+            'minFilter': gl.LINEAR,
+            'wrapS': gl.CLAMP_TO_EDGE,
+            'wrapT': gl.CLAMP_TO_EDGE
+        };
         this.localState.uniforms['u_brdfLUT'] = { 'funcName': 'uniform1i', 'vals': [samplerIndex] };
 
         // Emissive

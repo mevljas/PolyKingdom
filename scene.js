@@ -91,10 +91,17 @@ class Scene {
             gl.activeTexture(glIndex);
             gl.bindTexture(gl.TEXTURE_2D, texture);
 
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, imageInfo.clamp ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, imageInfo.clamp ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+// ** DEBUGGING ONLY **
+window.gl = gl;
+console.log('imageInfo', imageInfo);
+            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, imageInfo.clamp ? gl.CLAMP_TO_EDGE : gl.REPEAT);
+            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, imageInfo.clamp ? gl.CLAMP_TO_EDGE : gl.REPEAT);
+            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, imageInfo.wrapS);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, imageInfo.wrapT);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, imageInfo.minFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, imageInfo.magFilter);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,/*imageInfo.colorSpace, imageInfo.colorSpace,*/ gl.UNSIGNED_BYTE, image);
 
