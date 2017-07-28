@@ -199,10 +199,6 @@ function init(vertSource, fragSource) {
     glState.uniforms['u_ScaleFGDSpec'] = { 'funcName': 'uniform4f', vals: [0.0, 0.0, 0.0, 0.0] };
     glState.uniforms['u_ScaleIBLAmbient'] = { 'funcName': 'uniform4f', vals: [1.0, 1.0, 1.0, 1.0] };
 
-    // Load scene
-    var defaultModelName = 'DamagedHelmet';
-    updateModel(defaultModelName, gl, glState, viewMatrix, projectionMatrix, canvas, ctx2d);
-
     // Set clear color
     gl.clearColor(0.2, 0.2, 0.2, 1.0);
 
@@ -234,12 +230,34 @@ function init(vertSource, fragSource) {
     var gui = new dat.GUI();
     var folder = gui.addFolder("Metallic-Roughness Material");
 
-
+    var defaultModelName = 'DamagedHelmet';
     var text = { Model: defaultModelName };
-    folder.add(text, 'Model', ['MetalRoughSpheres', 'AppleTree', 'Avocado', 'BarramundiFish', 'BoomBox', 'Corset', 'DamagedHelmet', 'FarmLandDiorama', 'NormalTangentTest', 'Telephone', 'TextureSettingsTest', 'Triangle', 'WaterBottle']).onChange(function(value) {
-        updateModel(value, gl, glState, viewMatrix, projectionMatrix, canvas, ctx2d);
+    var modelUi = folder.add(text, 'Model', ['MetalRoughSpheres', 'AppleTree', 'Avocado', 'BarramundiFish', 'BoomBox', 'Corset', 'DamagedHelmet', 'FarmLandDiorama', 'NormalTangentTest', 'Telephone', 'TextureSettingsTest', 'Triangle', 'WaterBottle']).onChange(function(value) {
+        window.location.hash = '#model=' + value;
     });
     folder.open();
+
+    function updateFromHash() {
+        var hash = window.location.hash;
+        hash = hash && hash.substring(1);
+        var pairs = hash.split('&');
+        var model = defaultModelName;
+        for (var i = 0; i < pairs.length; ++i) {
+            var keyValue = pairs[i].split('=');
+            if (keyValue[0] === 'model') {
+                model = keyValue[1];
+            }
+        }
+        if (model) {
+            if (model !== modelUi.getValue()) {
+                modelUi.setValue(model);
+            }
+            updateModel(model, gl, glState, viewMatrix, projectionMatrix, canvas, ctx2d);
+        }
+    }
+
+    window.addEventListener('hashchange', updateFromHash, false);
+    updateFromHash();
 
     var light = gui.addFolder("Directional Light");
     var lightProps = { lightColor: [255, 255, 255], lightScale: 1.0, lightRotation: 75, lightPitch: 40 };
