@@ -81,15 +81,26 @@ function updateModel(value, gl, glState, viewMatrix, projectionMatrix, backBuffe
     document.getElementById('loadSpinner').style.display = 'block';
     resetCamera();
 
+    var modelPath;
+    var modelName;
+    var pathComponents = value.split('/');
+    if (pathComponents.length > 1) {
+        modelName = pathComponents.pop();
+        modelPath = pathComponents.join('/') + '/';
+    } else {
+        modelName = value + '.gltf';
+        modelPath = 'models/' + value + '/glTF/';
+    }
+
     $.ajax({
-        url: 'models/' + value + '/glTF/' + value + '.gltf',
+        url: modelPath + modelName,
         dataType: 'json',
         async: true,
         error: (jqXhr, textStatus, errorThrown) => {
             error.innerHTML += 'Failed to load model: ' + errorThrown + '<br>';
         },
         success: function(gltf) {
-            var scene = new Scene(gl, glState, "./models/" + value + "/glTF/", gltf);
+            var scene = new Scene(gl, glState, modelPath, gltf);
             scene.projectionMatrix = projectionMatrix;
             scene.viewMatrix = viewMatrix;
             scene.backBuffer = backBuffer;
@@ -232,7 +243,8 @@ function init(vertSource, fragSource) {
 
     var defaultModelName = 'DamagedHelmet';
     var text = { Model: defaultModelName };
-    var modelUi = folder.add(text, 'Model', ['MetalRoughSpheres', 'AppleTree', 'Avocado', 'BarramundiFish', 'BoomBox', 'Corset', 'DamagedHelmet', 'FarmLandDiorama', 'NormalTangentTest', 'Telephone', 'TextureSettingsTest', 'Triangle', 'WaterBottle']).onChange(function(value) {
+    var modelChoices = ['MetalRoughSpheres', 'AppleTree', 'Avocado', 'BarramundiFish', 'BoomBox', 'Corset', 'DamagedHelmet', 'FarmLandDiorama', 'NormalTangentTest', 'Telephone', 'TextureSettingsTest', 'Triangle', 'WaterBottle'];
+    var modelUi = folder.add(text, 'Model', modelChoices).onChange(function(value) {
         window.location.hash = '#model=' + value;
     });
     folder.open();
