@@ -3540,25 +3540,21 @@ class gltfNode extends GltfObject
     {
         this.matrix = jsToGl(matrixData);
 
-        // Normalize axis vectors of matrix.
+        getScaling(this.scale, this.matrix);
+        
         // To extract a correct rotation, the scaling component must be eliminated.
         const mn = create$3();
         for(const col of [0, 1, 2])
         {
-            const mat = this.matrix;
-            const length$$1 = Math.sqrt(mat[col] ** 2 + mat[col + 4] ** 2 + mat[col + 8] ** 2);
-            mn[col] = mat[col] / length$$1;
-            mn[col + 4] = mat[col + 4] / length$$1;
-            mn[col + 8] = mat[col + 8] / length$$1;
-            mn[col + 12] = mat[col + 12] / length$$1;
+            mn[col] = this.matrix[col] / this.scale[0];
+            mn[col + 4] = this.matrix[col + 4] / this.scale[1];
+            mn[col + 8] = this.matrix[col + 8] / this.scale[2];
         }
-
-        getScaling(this.scale, this.matrix);
         getRotation(this.rotation, mn);
-        getTranslation(this.translation, this.matrix);
-
         normalize$2(this.rotation, this.rotation);
-
+        
+        getTranslation(this.translation, this.matrix);
+        
         this.changed = true;
     }
 
@@ -3593,8 +3589,6 @@ class gltfNode extends GltfObject
 
     getLocalTransform()
     {
-        if(this.matrix !== undefined) ;
-
         if(this.transform === undefined || this.changed)
         {
             this.transform = create$3();
