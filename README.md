@@ -8,6 +8,8 @@ This is the offical [Khronos](https://www.khronos.org/) [glTF 2.0](https://www.k
 
 **Table of Contents**
 
+- [Version](#version)
+- [Credits](#credits)
 - [Viewer](#viewer)
   - [Usage](#usage)
   - [Setup](#setup)
@@ -21,6 +23,16 @@ This is the offical [Khronos](https://www.khronos.org/) [glTF 2.0](https://www.k
   - [Diffuse Term](#diffuse-term)
 - [Features](#features)
 
+
+Version
+-------
+
+Pre-Release
+
+Credits
+-------
+
+Developed by [UX3D](https://www.ux3d.io/) and based on the former [glTF-WebGL-PBR](https://github.com/KhronosGroup/glTF-Sample-Viewer/tree/glTF-WebGL-PBR) project.
 
 Viewer
 ======
@@ -113,7 +125,7 @@ For further reference, please read the [glTF 2.0: Appendix B: BRDF Implementatio
 The following sections do summarize the important shader code.
 
 ```
-vec3 specularContribution = D * Vis * G;
+vec3 specularContribution = D * Vis * F;
 vec3 diffuseContribution = (1.0 - F) * diffuse; 
 ```
 
