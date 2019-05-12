@@ -3250,7 +3250,14 @@
               
               if (WebGl.context.supports_EXT_sRGB)
               {
-                  this.emissiveTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
+                  if (this.emissiveTexture.colorSpace == WebGl.context.RGBA)
+                  {
+                      this.emissiveTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_ALPHA_EXT;   
+                  }
+                  else
+                  {
+                      this.emissiveTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
+                  }
               }
           }
 
@@ -3291,7 +3298,14 @@
               
               if (WebGl.context.supports_EXT_sRGB)
               {
-                  this.baseColorTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
+                  if (this.baseColorTexture.colorSpace == WebGl.context.RGBA)
+                  {
+                      this.baseColorTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_ALPHA_EXT;   
+                  }
+                  else
+                  {
+                      this.baseColorTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
+                  }
               }
           }
 
@@ -3313,7 +3327,14 @@
               
               if (WebGl.context.supports_EXT_sRGB)
               {
-                  this.diffuseTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
+                  if (this.diffuseTexture.colorSpace == WebGl.context.RGBA)
+                  {
+                      this.diffuseTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_ALPHA_EXT;   
+                  }
+                  else
+                  {
+                      this.diffuseTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
+                  }
               }
           }
 
