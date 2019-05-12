@@ -1507,8 +1507,6 @@
           {
               WebGl.context.supports_EXT_texture_filter_anisotropic = false;
           }
-
-          WebGl.context.supports_EXT_sRGB = WebGl.context.getExtension("EXT_sRGB");
       }
 
       setTexture(loc, gltf, textureInfo, texSlot)
@@ -1576,11 +1574,10 @@
                   if (image.image.dataRGBE !== undefined)
                   {
                       WebGl.context.texImage2D(image.type, image.miplevel, WebGl.context.RGB, image.image.width, image.image.height, 0, WebGl.context.RGB, WebGl.context.FLOAT, image.image.dataFloat);
-                      generateMips = false;
                   }
                   else
                   {
-                      WebGl.context.texImage2D(image.type, image.miplevel, textureInfo.colorSpace, textureInfo.colorSpace, WebGl.context.UNSIGNED_BYTE, image.image);
+                      WebGl.context.texImage2D(image.type, image.miplevel, WebGl.context.RGBA, WebGl.context.RGBA, WebGl.context.UNSIGNED_BYTE, image.image);
                   }
 
                   generateMips = image.shouldGenerateMips();
@@ -2665,7 +2662,7 @@
       return n;
   }
 
-  const ImageMimeType = {JPEG: "image/jpeg", HDR: "image/vnd.radiance"};
+  const ImageMimeType = {JPEG: "image/jpeg", PNG: "image/png", HDR: "image/vnd.radiance"};
 
   class gltfImage extends GltfObject
   {
@@ -2936,11 +2933,11 @@
 
   class gltfTextureInfo
   {
-      constructor(index = undefined, texCoord = 0, colorSpace = WebGl.context.RGBA, samplerName = "", generateMips = true) // linear by default
+      constructor(index = undefined, texCoord = 0, linear = true, samplerName = "", generateMips = true) // linear by default
       {
           this.index = index; // reference to gltfTexture
           this.texCoord = texCoord; // which UV set to use
-          this.colorSpace = colorSpace;
+          this.linear = linear;
           this.samplerName = samplerName;
           this.strength = 1.0; // occlusion
           this.scale = 1.0; // normal
@@ -3244,21 +3241,9 @@
 
           if (jsonMaterial.emissiveTexture !== undefined)
           {
-              const emissiveTexture = new gltfTextureInfo();
+              const emissiveTexture = new gltfTextureInfo(undefined, 0, false);
               emissiveTexture.fromJson(jsonMaterial.emissiveTexture);
               this.emissiveTexture = emissiveTexture;
-              
-              if (WebGl.context.supports_EXT_sRGB)
-              {
-                  if (this.emissiveTexture.colorSpace == WebGl.context.RGBA)
-                  {
-                      this.emissiveTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_ALPHA_EXT;   
-                  }
-                  else
-                  {
-                      this.emissiveTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
-                  }
-              }
           }
 
           if(jsonMaterial.extensions !== undefined)
@@ -3292,21 +3277,9 @@
       {
           if (jsonMetallicRoughness.baseColorTexture !== undefined)
           {
-              const baseColorTexture = new gltfTextureInfo();
+              const baseColorTexture = new gltfTextureInfo(undefined, 0, false);
               baseColorTexture.fromJson(jsonMetallicRoughness.baseColorTexture);
               this.baseColorTexture = baseColorTexture;
-              
-              if (WebGl.context.supports_EXT_sRGB)
-              {
-                  if (this.baseColorTexture.colorSpace == WebGl.context.RGBA)
-                  {
-                      this.baseColorTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_ALPHA_EXT;   
-                  }
-                  else
-                  {
-                      this.baseColorTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
-                  }
-              }
           }
 
           if (jsonMetallicRoughness.metallicRoughnessTexture !== undefined)
@@ -3321,21 +3294,9 @@
       {
           if (jsonSpecularGlossiness.diffuseTexture !== undefined)
           {
-              const diffuseTexture = new gltfTextureInfo();
+              const diffuseTexture = new gltfTextureInfo(undefined, 0, false);
               diffuseTexture.fromJson(jsonSpecularGlossiness.diffuseTexture);
               this.diffuseTexture = diffuseTexture;
-              
-              if (WebGl.context.supports_EXT_sRGB)
-              {
-                  if (this.diffuseTexture.colorSpace == WebGl.context.RGBA)
-                  {
-                      this.diffuseTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_ALPHA_EXT;   
-                  }
-                  else
-                  {
-                      this.diffuseTexture.colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
-                  }
-              }
           }
 
           if (jsonSpecularGlossiness.specularGlossinessTexture !== undefined)
@@ -4734,7 +4695,7 @@
 
   var texturesShader = "#define GLSLIFY 1\nvarying vec2 v_UVCoord1;\nvarying vec2 v_UVCoord2;\n\n// General Material\n#ifdef HAS_NORMAL_MAP\nuniform sampler2D u_NormalSampler;\nuniform float u_NormalScale;\nuniform int u_NormalUVSet;\nuniform mat3 u_NormalUVTransform;\n#endif\n\n#ifdef HAS_EMISSIVE_MAP\nuniform sampler2D u_EmissiveSampler;\nuniform int u_EmissiveUVSet;\nuniform vec3 u_EmissiveFactor;\nuniform mat3 u_EmissiveUVTransform;\n#endif\n\n#ifdef HAS_OCCLUSION_MAP\nuniform sampler2D u_OcclusionSampler;\nuniform int u_OcclusionUVSet;\nuniform float u_OcclusionStrength;\nuniform mat3 u_OcclusionUVTransform;\n#endif\n\n// Metallic Roughness Material\n#ifdef HAS_BASE_COLOR_MAP\nuniform sampler2D u_BaseColorSampler;\nuniform int u_BaseColorUVSet;\nuniform mat3 u_BaseColorUVTransform;\n#endif\n\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\nuniform sampler2D u_MetallicRoughnessSampler;\nuniform int u_MetallicRoughnessUVSet;\nuniform mat3 u_MetallicRoughnessUVTransform;\n#endif\n\n// Specular Glossiness Material\n#ifdef HAS_DIFFUSE_MAP\nuniform sampler2D u_DiffuseSampler;\nuniform int u_DiffuseUVSet;\nuniform mat3 u_DiffuseUVTransform;\n#endif\n\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\nuniform sampler2D u_SpecularGlossinessSampler;\nuniform int u_SpecularGlossinessUVSet;\nuniform mat3 u_SpecularGlossinessUVTransform;\n#endif\n\n// IBL\n#ifdef USE_IBL\nuniform samplerCube u_DiffuseEnvSampler;\nuniform samplerCube u_SpecularEnvSampler;\nuniform sampler2D u_brdfLUT;\n#endif\n\nvec2 getNormalUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_NORMAL_MAP\n    uv.xy = u_NormalUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_NORMAL_UV_TRANSFORM\n    uv *= u_NormalUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getEmissiveUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_EMISSIVE_MAP\n    uv.xy = u_EmissiveUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_EMISSIVE_UV_TRANSFORM\n    uv *= u_EmissiveUVTransform;\n    #endif\n#endif\n\n    return uv.xy;\n}\n\nvec2 getOcclusionUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_OCCLUSION_MAP\n    uv.xy = u_OcclusionUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_OCCLSION_UV_TRANSFORM\n    uv *= u_OcclusionUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getBaseColorUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_BASE_COLOR_MAP\n    uv.xy = u_BaseColorUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_BASECOLOR_UV_TRANSFORM\n    uv *= u_BaseColorUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getMetallicRoughnessUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\n    uv.xy = u_MetallicRoughnessUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_METALLICROUGHNESS_UV_TRANSFORM\n    uv *= u_MetallicRoughnessUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getSpecularGlossinessUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\n    uv.xy = u_SpecularGlossinessUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_SPECULARGLOSSINESS_UV_TRANSFORM\n    uv *= u_SpecularGlossinessUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getDiffuseUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_DIFFUSE_MAP\n    uv.xy = u_DiffuseUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_DIFFUSE_UV_TRANSFORM\n    uv *= u_DiffuseUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n"; // eslint-disable-line
 
-  var tonemappingShader = "#define GLSLIFY 1\nuniform float u_Exposure;\nuniform float u_Gamma;\n\n// Gamma Correction in Computer Graphics\n// see https://www.teamten.com/lawrence/graphics/gamma/\nvec3 gammaCorrection(vec3 color)\n{\n    return pow(color, vec3(1.0 / u_Gamma));\n}\n\n// sRGB to linear approximation\n// see http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html\nvec4 SRGBtoLINEAR(vec4 srgbIn)\n{\n#ifdef USE_HW_SRGB\n    return srgbIn;\n#else    \n    return vec4(pow(srgbIn.xyz, vec3(2.2)), srgbIn.w);\n#endif\n}\n\n// Uncharted 2 tone map\n// see: http://filmicworlds.com/blog/filmic-tonemapping-operators/\nvec3 toneMapUncharted2Impl(vec3 color)\n{\n    const float A = 0.15;\n    const float B = 0.50;\n    const float C = 0.10;\n    const float D = 0.20;\n    const float E = 0.02;\n    const float F = 0.30;\n    return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;\n}\n\nvec3 toneMapUncharted(vec3 color)\n{\n    const float W = 11.2;\n    color = toneMapUncharted2Impl(color * 2.0);\n    vec3 whiteScale = 1.0 / toneMapUncharted2Impl(vec3(W));\n    return gammaCorrection(color * whiteScale);\n}\n\n// Hejl Richard tone map\n// see: http://filmicworlds.com/blog/filmic-tonemapping-operators/\nvec3 toneMapHejlRichard(vec3 color)\n{\n    color = max(vec3(0.0), color - vec3(0.004));\n    return (color*(6.2*color+.5))/(color*(6.2*color+1.7)+0.06);\n}\n\n// ACES tone map\n// see: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/\nvec3 toneMapACES(vec3 color)\n{\n    const float A = 2.51;\n    const float B = 0.03;\n    const float C = 2.43;\n    const float D = 0.59;\n    const float E = 0.14;\n    return gammaCorrection(clamp((color * (A * color + B)) / (color * (C * color + D) + E), 0.0, 1.0));\n}\n\nvec3 toneMap(vec3 color)\n{\n    color *= u_Exposure;\n\n#ifdef TONEMAP_UNCHARTED\n    return toneMapUncharted(color);\n#endif\n\n#ifdef TONEMAP_HEJLRICHARD\n    return toneMapHejlRichard(color);\n#endif\n\n#ifdef TONEMAP_ACES\n    return toneMapACES(color);\n#endif\n\n    return gammaCorrection(color);\n}\n"; // eslint-disable-line
+  var tonemappingShader = "#define GLSLIFY 1\nuniform float u_Exposure;\nuniform float u_Gamma;\n\n// Gamma Correction in Computer Graphics\n// see https://www.teamten.com/lawrence/graphics/gamma/\nvec3 gammaCorrection(vec3 color)\n{\n    return pow(color, vec3(1.0 / u_Gamma));\n}\n\n// sRGB to linear approximation\n// see http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html\nvec4 SRGBtoLINEAR(vec4 srgbIn)\n{\n    return vec4(pow(srgbIn.xyz, vec3(2.2)), srgbIn.w);\n}\n\n// Uncharted 2 tone map\n// see: http://filmicworlds.com/blog/filmic-tonemapping-operators/\nvec3 toneMapUncharted2Impl(vec3 color)\n{\n    const float A = 0.15;\n    const float B = 0.50;\n    const float C = 0.10;\n    const float D = 0.20;\n    const float E = 0.02;\n    const float F = 0.30;\n    return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;\n}\n\nvec3 toneMapUncharted(vec3 color)\n{\n    const float W = 11.2;\n    color = toneMapUncharted2Impl(color * 2.0);\n    vec3 whiteScale = 1.0 / toneMapUncharted2Impl(vec3(W));\n    return gammaCorrection(color * whiteScale);\n}\n\n// Hejl Richard tone map\n// see: http://filmicworlds.com/blog/filmic-tonemapping-operators/\nvec3 toneMapHejlRichard(vec3 color)\n{\n    color = max(vec3(0.0), color - vec3(0.004));\n    return (color*(6.2*color+.5))/(color*(6.2*color+1.7)+0.06);\n}\n\n// ACES tone map\n// see: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/\nvec3 toneMapACES(vec3 color)\n{\n    const float A = 2.51;\n    const float B = 0.03;\n    const float C = 2.43;\n    const float D = 0.59;\n    const float E = 0.14;\n    return gammaCorrection(clamp((color * (A * color + B)) / (color * (C * color + D) + E), 0.0, 1.0));\n}\n\nvec3 toneMap(vec3 color)\n{\n    color *= u_Exposure;\n\n#ifdef TONEMAP_UNCHARTED\n    return toneMapUncharted(color);\n#endif\n\n#ifdef TONEMAP_HEJLRICHARD\n    return toneMapHejlRichard(color);\n#endif\n\n#ifdef TONEMAP_ACES\n    return toneMapACES(color);\n#endif\n\n    return gammaCorrection(color);\n}\n"; // eslint-disable-line
 
   var shaderFunctions = "#define GLSLIFY 1\n// textures.glsl needs to be included\n\nconst float M_PI = 3.141592653589793;\nconst float c_MinReflectance = 0.04;\n\nvarying vec3 v_Position;\n\n#ifdef HAS_NORMALS\n#ifdef HAS_TANGENTS\nvarying mat3 v_TBN;\n#else\nvarying vec3 v_Normal;\n#endif\n#endif\n\n#ifdef HAS_VERTEX_COLOR_VEC3\nvarying vec3 v_Color;\n#endif\n#ifdef HAS_VERTEX_COLOR_VEC4\nvarying vec4 v_Color;\n#endif\n\nstruct AngularInfo\n{\n    float NdotL;                  // cos angle between normal and light direction\n    float NdotV;                  // cos angle between normal and view direction\n    float NdotH;                  // cos angle between normal and half vector\n    float LdotH;                  // cos angle between light direction and half vector\n\n    float VdotH;                  // cos angle between view direction and half vector\n\n    vec3 padding;\n};\n\nvec4 getVertexColor()\n{\n   vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n\n#ifdef HAS_VERTEX_COLOR_VEC3\n    color.rgb = v_Color;\n#endif\n#ifdef HAS_VERTEX_COLOR_VEC4\n    color = v_Color;\n#endif\n\n   return color;\n}\n\n// Find the normal for this fragment, pulling either from a predefined normal map\n// or from the interpolated mesh normal and tangent attributes.\nvec3 getNormal()\n{\n    vec2 UV = getNormalUV();\n\n    // Retrieve the tangent space matrix\n#ifndef HAS_TANGENTS\n    vec3 pos_dx = dFdx(v_Position);\n    vec3 pos_dy = dFdy(v_Position);\n    vec3 tex_dx = dFdx(vec3(UV, 0.0));\n    vec3 tex_dy = dFdy(vec3(UV, 0.0));\n    vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);\n\n#ifdef HAS_NORMALS\n    vec3 ng = normalize(v_Normal);\n#else\n    vec3 ng = cross(pos_dx, pos_dy);\n#endif\n\n    t = normalize(t - ng * dot(ng, t));\n    vec3 b = normalize(cross(ng, t));\n    mat3 tbn = mat3(t, b, ng);\n#else // HAS_TANGENTS\n    mat3 tbn = v_TBN;\n#endif\n\n#ifdef HAS_NORMAL_MAP\n    vec3 n = texture2D(u_NormalSampler, UV).rgb;\n    n = normalize(tbn * ((2.0 * n - 1.0) * vec3(u_NormalScale, u_NormalScale, 1.0)));\n#else\n    // The tbn matrix is linearly interpolated, so we need to re-normalize\n    vec3 n = normalize(tbn[2].xyz);\n#endif\n\n    return n;\n}\n\nfloat getPerceivedBrightness(vec3 vector)\n{\n    return sqrt(0.299 * vector.r * vector.r + 0.587 * vector.g * vector.g + 0.114 * vector.b * vector.b);\n}\n\n// https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_pbrSpecularGlossiness/examples/convert-between-workflows/js/three.pbrUtilities.js#L34\nfloat solveMetallic(vec3 diffuse, vec3 specular, float oneMinusSpecularStrength) {\n    float specularBrightness = getPerceivedBrightness(specular);\n\n    if (specularBrightness < c_MinReflectance) {\n        return 0.0;\n    }\n\n    float diffuseBrightness = getPerceivedBrightness(diffuse);\n\n    float a = c_MinReflectance;\n    float b = diffuseBrightness * oneMinusSpecularStrength / (1.0 - c_MinReflectance) + specularBrightness - 2.0 * c_MinReflectance;\n    float c = c_MinReflectance - specularBrightness;\n    float D = b * b - 4.0 * a * c;\n\n    return clamp((-b + sqrt(D)) / (2.0 * a), 0.0, 1.0);\n}\n\nAngularInfo getAngularInfo(vec3 pointToLight, vec3 normal, vec3 view)\n{\n    // Standard one-letter names\n    vec3 n = normalize(normal);           // Outward direction of surface point\n    vec3 v = normalize(view);             // Direction from surface point to view\n    vec3 l = normalize(pointToLight);     // Direction from surface point to light\n    vec3 h = normalize(l + v);            // Direction of the vector between l and v\n\n    float NdotL = clamp(dot(n, l), 0.0, 1.0);\n    float NdotV = clamp(dot(n, v), 0.0, 1.0);\n    float NdotH = clamp(dot(n, h), 0.0, 1.0);\n    float LdotH = clamp(dot(l, h), 0.0, 1.0);\n    float VdotH = clamp(dot(v, h), 0.0, 1.0);\n\n    return AngularInfo(\n        NdotL,\n        NdotV,\n        NdotH,\n        LdotH,\n        VdotH,\n        vec3(0, 0, 0)\n    );\n}\n"; // eslint-disable-line
 
@@ -5111,11 +5072,6 @@
           {
               fragDefines.push("USE_IBL 1");
           }
-          
-          if (WebGl.context.supports_EXT_sRGB)
-          {
-              fragDefines.push("USE_HW_SRGB");
-          }
 
           if(this.parameters.useShaderLoD)
           {
@@ -5192,16 +5148,15 @@
       {
           if (gltf.envData === undefined)
           {
-              let colorSpace = WebGl.context.RGBA;
-              
-              if (WebGl.context.supports_EXT_sRGB && Environments[this.parameters.environmentName].type !== ImageMimeType.HDR)
+              let linear = true;
+              if (Environments[this.parameters.environmentName].type !== ImageMimeType.HDR)
               {
-                  colorSpace = WebGl.context.supports_EXT_sRGB.SRGB_EXT;
+                  linear = false;
               }
               
               gltf.envData = {};
-              gltf.envData.diffuseEnvMap = new gltfTextureInfo(gltf.textures.length - 3, 0, colorSpace);
-              gltf.envData.specularEnvMap = new gltfTextureInfo(gltf.textures.length - 2, 0, colorSpace);
+              gltf.envData.diffuseEnvMap = new gltfTextureInfo(gltf.textures.length - 3, 0, linear);
+              gltf.envData.specularEnvMap = new gltfTextureInfo(gltf.textures.length - 2, 0, linear);
               gltf.envData.lut = new gltfTextureInfo(gltf.textures.length - 1);
               gltf.envData.specularEnvMap.generateMips = false;
               gltf.envData.lut.generateMips = false;
@@ -5833,6 +5788,9 @@
           {
           case (ImageMimeType.HDR):
               extension = ".hdr";
+              break;
+          case (ImageMimeType.PNG):
+              extension = ".png";
               break;
           case (ImageMimeType.JPEG):
           default:
