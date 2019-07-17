@@ -2787,19 +2787,26 @@ class gltfImage extends GltfObject
 
 class gltfLight extends GltfObject
 {
-    constructor()
+    constructor(
+        type = "directional",
+        color = [1, 1, 1],
+        intensity = 1,
+        innerConeAngle = 0,
+        outerConeAngle = Math.PI / 4,
+        range = -1,
+        name = undefined,
+        node = undefined)
     {
         super();
-        this.type = "directional";
-        this.color = [1, 1, 1];
-        this.intensity = 2;
-        this.innerConeAngle = 0;
-        this.outerConeAngle = Math.PI / 4;
-        this.range = -1;
-        this.name = undefined;
-
+        this.type = type;
+        this.color = color;
+        this.intensity = intensity;
+        this.innerConeAngle = innerConeAngle;
+        this.outerConeAngle = outerConeAngle;
+        this.range = range;
+        this.name = name;
         // non gltf
-        this.node = undefined;
+        this.node = node;
     }
 
     initGl(gltf)
@@ -2828,6 +2835,16 @@ class gltfLight extends GltfObject
             }
         }
     }
+    
+    fromJson(jsonLight)
+    {
+        super.fromJson(jsonLight);
+
+        if(jsonLight.spot !== undefined)
+        {
+            fromKeys(this, jsonLight.spot);
+        }
+    }
 
     toUniform(gltf)
     {
@@ -2835,12 +2852,29 @@ class gltfLight extends GltfObject
 
         if (this.node !== undefined)
         {
-            const transform = gltf.nodes[this.node].worldTransform;
-            const rotation = create$6();
+            const matrix = gltf.nodes[this.node].worldTransform;
+
+            var scale$$1 = fromValues$4(1, 1, 1);
+            getScaling(scale$$1, matrix);
+        
+            // To extract a correct rotation, the scaling component must be eliminated.
+            const mn = create$3();
+            for(const col of [0, 1, 2])
+            {
+                mn[col] = matrix[col] / scale$$1[0];
+                mn[col + 4] = matrix[col + 4] / scale$$1[1];
+                mn[col + 8] = matrix[col + 8] / scale$$1[2];
+            }
+            var rotation = create$6();
+            getRotation(rotation, mn);
+            normalize$2(rotation, rotation);
+
             const alongNegativeZ = fromValues$4(0, 0, -1);
-            getRotation(rotation, transform);
             transformQuat(uLight.direction, alongNegativeZ, rotation);
-            getTranslation(uLight.position, transform);
+
+            var translation = fromValues$4(0, 0, 0);
+            getTranslation(translation, matrix);
+            uLight.position = translation;
         }
 
         uLight.range = this.range;
