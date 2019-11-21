@@ -304,19 +304,19 @@ class gltfMaterial extends GltfObject
                 this.properties.set("u_ClearcoatRoughnessFactor", clearcoatRoughnessFactor);
             }
 
-            let sheenIntensity = 0.0;
-            let sheenColorFactor =  vec3.fromValues(0, 0, 0);
+            let sheenFactor = 0.0;
+            let sheenColor =  vec3.fromValues(0, 0, 0);
             if(this.extensions.KHR_materials_sheen !== undefined)
             {
                 this.defines.push("MATERIAL_SHEEN 1");
 
-                if(this.extensions.KHR_materials_sheen.intensityFactor !== undefined)
+                if(this.extensions.KHR_materials_sheen.sheenFactor !== undefined)
                 {
-                    sheenIntensity = this.extensions.KHR_materials_sheen.intensityFactor;
+                    sheenFactor = this.extensions.KHR_materials_sheen.sheenFactor;
                 }
-                if(this.extensions.KHR_materials_sheen.colorFactor !== undefined)
+                if(this.extensions.KHR_materials_sheen.sheenColor !== undefined)
                 {
-                    sheenColorFactor = this.extensions.KHR_materials_sheen.colorFactor;
+                    sheenColor = this.extensions.KHR_materials_sheen.sheenColor;
                 }
                 if (this.sheenColorIntensityTexture !== undefined)
                 {
@@ -326,8 +326,8 @@ class gltfMaterial extends GltfObject
                     this.defines.push("HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP 1");
                     this.properties.set("u_sheenColorIntensityUVSet", this.sheenColorIntensityTexture.texCoord);
                 }
-                this.properties.set("u_SheenIntensityFactor", sheenIntensity);
-                this.properties.set("u_SheenColorFactor", sheenColorFactor);
+                this.properties.set("u_SheenIntensityFactor", sheenFactor);
+                this.properties.set("u_SheenColorFactor", sheenColor);
             }
 
         }
@@ -395,6 +395,11 @@ class gltfMaterial extends GltfObject
         {
             this.fromJsonClearcoat(jsonExtensions.KHR_materials_clearcoat);
         }
+
+        if(jsonExtensions.KHR_materials_sheen !== undefined)
+        {
+            this.fromJsonSheen(jsonExtensions.KHR_materials_sheen);
+        }
     }
 
     fromJsonMetallicRoughness(jsonMetallicRoughness)
@@ -452,6 +457,16 @@ class gltfMaterial extends GltfObject
             const clearcoatNormalTexture =  new gltfTextureInfo();
             clearcoatNormalTexture.fromJson(jsonClearcoat.clearcoatNormalTexture);
             this.clearcoatNormalTexture = clearcoatNormalTexture;
+        }
+    }
+
+    fromJsonSheen(jsonSheen)
+    {
+        if(jsonSheen.colorIntensityTexture ==! undefined)
+        {
+            const sheenColorIntensityTexture =  new gltfTextureInfo();
+            sheenColorIntensityTexture.fromJson(jsonSheen.colorIntensityTexture);
+            this.sheenColorIntensityTexture = sheenColorIntensityTexture;
         }
     }
 }
