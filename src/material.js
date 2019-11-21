@@ -304,6 +304,32 @@ class gltfMaterial extends GltfObject
                 this.properties.set("u_ClearcoatRoughnessFactor", clearcoatRoughnessFactor);
             }
 
+            let sheenIntensity = 0.0;
+            let sheenColorFactor =  vec3.fromValues(0, 0, 0);
+            if(this.extensions.KHR_materials_sheen !== undefined)
+            {
+                this.defines.push("MATERIAL_SHEEN 1");
+
+                if(this.extensions.KHR_materials_sheen.intensityFactor !== undefined)
+                {
+                    sheenIntensity = this.extensions.KHR_materials_sheen.intensityFactor;
+                }
+                if(this.extensions.KHR_materials_sheen.colorFactor !== undefined)
+                {
+                    sheenColorFactor = this.extensions.KHR_materials_sheen.colorFactor;
+                }
+                if (this.sheenColorIntensityTexture !== undefined)
+                {
+                    this.sheenColorIntensityTexture.samplerName = "u_sheenColorIntensitySampler";
+                    this.parseTextureInfoExtensions(this.sheenColorIntensityTexture, "SheenColorIntensityTexture");
+                    this.textures.push(this.sheenColorIntensityTexture);
+                    this.defines.push("HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP 1");
+                    this.properties.set("u_sheenColorIntensityUVSet", this.sheenColorIntensityTexture.texCoord);
+                }
+                this.properties.set("u_SheenIntensityFactor", sheenIntensity);
+                this.properties.set("u_SheenColorFactor", sheenColorFactor);
+            }
+
         }
 
         initGlForMembers(this, gltf);
