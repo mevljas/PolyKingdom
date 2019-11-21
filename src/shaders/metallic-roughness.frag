@@ -76,6 +76,11 @@ uniform float u_ClearcoatFactor;
 uniform float u_ClearcoatRoughnessFactor;
 #endif
 
+#ifdef MATERIAL_SHEEN
+uniform float u_SheenIntensityFactor;
+uniform vec3 u_SheenColorFactor;
+#endif
+
 uniform vec3 u_Camera;
 
 uniform int u_MipCount;
@@ -269,6 +274,9 @@ void main()
     float clearcoatRoughness = 0.0;
     vec3 clearcoatNormal = vec3(0.0);
     #endif
+    #ifdef MATERIAL_SHEEN
+    float sheenIntensity = 0.0;
+    vec3 sheenColor = vec3(0.0);
 
     vec4 output_color = baseColor;
 
@@ -347,6 +355,16 @@ void main()
         clearcoatNormal = mrSample.xyz;
     #else
         clearcoatNormal = getSurface();
+    #endif
+#endif
+
+#ifdef MATERIAL_SHEEN
+    #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
+        mrSample = texture(u_sheenColorIntensitySampler, getSheenUV());
+        sheenColor = mrSample.xyz;
+        sheenIntensity = mrSample.w;
+    #else
+        sheenColor = u();
     #endif
 #endif
 
@@ -471,6 +489,9 @@ void main()
     #else
         color += iblColor;
     #endif
+    #ifdef MATERIAL_SHEEN
+        vec3 sheenContribution = sheenTerm(vec3 sheenColor, float sheenIntensity, AngularInfo angularInfo, float roughness)
+
 #endif
 
     float ao = 1.0;

@@ -304,8 +304,8 @@ class gltfMaterial extends GltfObject
                 this.properties.set("u_ClearcoatRoughnessFactor", clearcoatRoughnessFactor);
             }
 
-            let sheenFactor = 0.0;
-            let sheenColor =  vec3.fromValues(0, 0, 0);
+            let sheenFactor = 1.0;
+            let sheenColor =  vec3.fromValues(1.0, 1.0, 1.0);
             if(this.extensions.KHR_materials_sheen !== undefined)
             {
                 this.defines.push("MATERIAL_SHEEN 1");
