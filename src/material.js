@@ -316,7 +316,7 @@ class gltfMaterial extends GltfObject
                 }
                 if(this.extensions.KHR_materials_sheen.sheenColor !== undefined)
                 {
-                    sheenColor = this.extensions.KHR_materials_sheen.sheenColor;
+                    sheenColor = jsToGl(this.extensions.KHR_materials_sheen.sheenColor);
                 }
                 if (this.sheenColorIntensityTexture !== undefined)
                 {

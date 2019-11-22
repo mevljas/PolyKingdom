@@ -181,8 +181,6 @@ vec3 clearcoatBlending(vec3 color, vec3 clearcoatColor, float clearcoatFactor, A
 // See  https://github.com/sebavan/glTF/tree/KHR_materials_sheen/extensions/2.0/Khronos/KHR_materials_sheen
 float sheenDistribution(float roughness, float NdotH)
 {
-    if(roughness == 0.0)
-        return 0.0;
     float alphaG = roughness * roughness;
     float invR = 1.0 / alphaG;
     float cos2h = NdotH * NdotH;

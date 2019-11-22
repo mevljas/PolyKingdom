@@ -277,7 +277,7 @@ void main()
     #endif
     #ifdef MATERIAL_SHEEN
     float sheenIntensity = 0.0;
-    vec3 sheenColor = vec3(0.0);
+    vec3 sheenColor = vec3(0.0,1.0,0.0);
     #endif
     vec4 output_color = baseColor;
 
@@ -361,9 +361,9 @@ void main()
 
 #ifdef MATERIAL_SHEEN
     #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
-        mrSample = texture(u_sheenColorIntensitySampler, getSheenUV());
-        sheenColor = mrSample.xyz * u_SheenColorFactor;
-        sheenIntensity = mrSample.w * u_SheenIntensityFactor;
+        vec3 sheenSample = texture(u_sheenColorIntensitySampler, getSheenUV());
+        sheenColor = sheenSample.xyz * u_SheenColorFactor;
+        sheenIntensity = sheenSample.w * u_SheenIntensityFactor;
     #else
         sheenColor = u_SheenColorFactor;
         sheenIntensity = u_SheenIntensityFactor;
@@ -483,13 +483,6 @@ void main()
 #ifdef USE_IBL
     vec3 iblColor = getIBLContribution(materialInfo, view);
 
-    #ifdef MATERIAL_SHEEN
-        AngularInfo angularInfo = getAngularInfo(-normal, normal, view);
-        vec3 sheenContribution = sheenTerm(sheenColor, sheenIntensity, angularInfo, perceptualRoughness);
-        // [6] final = f_emissive + f_diffuse + f_specular + (1 - reflectance) * f_sheen
-        color += (1.0 - reflectance) * sheenContribution;
-    #endif
-
     #ifdef MATERIAL_CLEARCOAT
         vec3 clearcoatContribution = getIBLContribution(clearCoatInfo, view);
         //todo comment on -normal here
@@ -511,6 +504,13 @@ void main()
 #ifdef HAS_EMISSIVE_MAP
     emissive = SRGBtoLINEAR(texture(u_EmissiveSampler, getEmissiveUV())).rgb * u_EmissiveFactor;
     color += emissive;
+#endif
+
+#ifdef MATERIAL_SHEEN
+    AngularInfo angularInfo = getAngularInfo(-normal, normal, view);
+    vec3 sheenContribution = sheenTerm(sheenColor, sheenIntensity, angularInfo, perceptualRoughness);
+    // [6] final = f_emissive + f_diffuse + f_specular + (1 - reflectance) * f_sheen
+    color = color + (1.0 - reflectance) * sheenContribution;
 #endif
 
 #ifndef DEBUG_OUTPUT // no debug
