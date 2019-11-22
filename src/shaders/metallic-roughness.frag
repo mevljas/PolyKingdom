@@ -362,8 +362,8 @@ void main()
 #ifdef MATERIAL_SHEEN
     #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
         mrSample = texture(u_sheenColorIntensitySampler, getSheenUV());
-        sheenColor = mrSample.xyz * sheenIntensity;
-        sheenIntensity = mrSample.w * sheenColor;
+        sheenColor = mrSample.xyz * u_SheenColorFactor;
+        sheenIntensity = mrSample.w * u_SheenIntensityFactor;
     #else
         sheenColor = u_SheenColorFactor;
         sheenIntensity = u_SheenIntensityFactor;
@@ -482,6 +482,13 @@ void main()
     // Calculate lighting contribution from image based lighting source (IBL)
 #ifdef USE_IBL
     vec3 iblColor = getIBLContribution(materialInfo, view);
+
+    #ifdef MATERIAL_SHEEN
+        AngularInfo angularInfo = getAngularInfo(-normal, normal, view);
+        vec3 sheenContribution = sheenTerm(sheenColor, sheenIntensity, angularInfo, perceptualRoughness);
+        // [6] final = f_emissive + f_diffuse + f_specular + (1 - reflectance) * f_sheen
+        color += (1.0 - reflectance) * sheenContribution;
+    #endif
 
     #ifdef MATERIAL_CLEARCOAT
         vec3 clearcoatContribution = getIBLContribution(clearCoatInfo, view);
