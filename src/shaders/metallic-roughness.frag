@@ -111,10 +111,9 @@ vec3 diffuse(MaterialInfo materialInfo)
 
 // The following equation models the Fresnel reflectance term of the spec equation (aka F())
 // Implementation of fresnel from [4], Equation 15
-vec3 fresnelReflection(MaterialInfo materialInfo, AngularInfo angularInfo)
+vec3 fresnelReflection(vec3 f0, vec3 f90, float VdotH)
 {
-    //Todo : Discuss which fresnel implementation should be uniformly used
-    return materialInfo.f0 + (materialInfo.f90 - materialInfo.f0) * pow(clamp(1.0 - angularInfo.VdotH, 0.0, 1.0), 5.0);
+    return f0 + (f90 - f0) * pow(clamp(1.0 - VdotH, 0.0, 1.0), 5.0);
 }
 
 // Calculation of the lighting contribution from an optional Image Based Light source.
@@ -190,7 +189,7 @@ vec3 getPointShade(vec3 pointToLight, MaterialInfo materialInfo, vec3 view)
     if (angularInfo.NdotL > 0.0 || angularInfo.NdotV > 0.0)
     {
         // Calculate the shading terms for the microfacet specular shading model
-        vec3 F = fresnelReflection(materialInfo, angularInfo);
+        vec3 F = fresnelReflection(materialInfo.f0, materialInfo.f90, angularInfo.VdotH);
         float Vis = visibilityOcclusion(materialInfo, angularInfo);
         float D = microfacetDistribution(materialInfo, angularInfo);
 
@@ -255,6 +254,16 @@ vec3 applySpotLight(Light light, MaterialInfo materialInfo, vec3 view)
     float spotAttenuation = getSpotAttenuation(pointToLight, light.direction, light.outerConeCos, light.innerConeCos);
     vec3 shade = getPointShade(pointToLight, materialInfo, view);
     return rangeAttenuation * spotAttenuation * light.intensity * light.color * shade;
+}
+
+//--------------------- Extensions ---------------------------------------
+
+// See https://github.com/ux3d/glTF/tree/KHR_materials_pbrClearcoat/extensions/2.0/Khronos/KHR_materials_clearcoat
+vec3 clearcoatBlending(vec3 color, vec3 clearcoatColor, float clearcoatFactor, AngularInfo angularInfo)
+{
+    vec3 factor0 = (1.0 - clearcoatFactor * fresnelReflection(vec3(0.04), vec3(1.0), angularInfo.NdotV)) * (1.0 - clearcoatFactor * fresnelReflection(vec3(0.04), vec3(1.0), angularInfo.NdotL));
+    vec3 factor1 = clearcoatFactor * fresnelReflection(vec3(0.04), vec3(1.0), angularInfo.VdotH);
+    return color * factor0 + clearcoatColor * factor1;
 }
 
 void main()
@@ -334,8 +343,8 @@ void main()
 
 #ifdef MATERIAL_CLEARCOAT
     #ifdef HAS_CLEARCOAT_TEXTURE_MAP
-        mrSample = texture(u_ClearcoatSampler, getClearcoatUV());
-        clearcoatFactor = mrSample.r * u_ClearcoatFactor;
+        vec4 ccSample = texture(u_ClearcoatSampler, getClearcoatUV());
+        clearcoatFactor = ccSample.r * u_ClearcoatFactor;
     #else
         clearcoatFactor = u_ClearcoatFactor;
     #endif
@@ -343,8 +352,8 @@ void main()
 
 #ifdef MATERIAL_CLEARCOAT
     #ifdef HAS_CLEARCOAT_ROUGHNESS_MAP
-        mrSample = texture(u_ClearcoatRoughnessSampler, getClearcoatRoughnessUV());
-        clearcoatRoughness = mrSample.g * u_ClearcoatRoughnessFactor;
+        vec4 ccSampleRough = texture(u_ClearcoatRoughnessSampler, getClearcoatRoughnessUV());
+        clearcoatRoughness = ccSampleRough.g * u_ClearcoatRoughnessFactor;
     #else
         clearcoatRoughness = u_ClearcoatRoughnessFactor;
     #endif
@@ -352,8 +361,8 @@ void main()
 
 #ifdef MATERIAL_CLEARCOAT
     #ifdef HAS_CLEARCOAT_NORMAL_MAP
-        mrSample = texture(u_ClearcoatNormalSampler, getClearcoatNormalUV());
-        clearcoatNormal = mrSample.xyz;
+        vec4 ccSampleNor = texture(u_ClearcoatNormalSampler, getClearcoatNormalUV());
+        clearcoatNormal = ccSampleNor.xyz;
     #else
         clearcoatNormal = getSurface();
     #endif
