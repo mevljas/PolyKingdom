@@ -508,7 +508,8 @@ void main()
 
 #ifdef MATERIAL_SHEEN
     AngularInfo angularInfo = getAngularInfo(-normal, normal, view);
-    vec3 sheenContribution = sheenTerm(sheenColor, sheenIntensity, angularInfo, perceptualRoughness);
+    vec3 sheenTerm = sheenTerm(sheenColor, sheenIntensity, angularInfo, perceptualRoughness);
+    vec3 sheenContribution = iblColor * sheenTerm * M_PI * angularInfo.NdotL;
     // [6] final = f_emissive + f_diffuse + f_specular + (1 - reflectance) * f_sheen
     color = color + (1.0 - reflectance) * sheenContribution;
 #endif
