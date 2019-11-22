@@ -70,12 +70,13 @@ uniform float u_GlossinessFactor;
 uniform float u_AlphaCutoff;
 #endif
 
-//Clearcoat
+//clearcoat extension
 #ifdef MATERIAL_CLEARCOAT
 uniform float u_ClearcoatFactor;
 uniform float u_ClearcoatRoughnessFactor;
 #endif
 
+//Sheen extension
 #ifdef MATERIAL_SHEEN
 uniform float u_SheenIntensityFactor;
 uniform vec3 u_SheenColorFactor;
@@ -268,15 +269,17 @@ void main()
     vec3 specularColor= vec3(0.0);
     vec3 f0 = vec3(0.04);
 
-    //values from the clearcoat extension
+    //Extensions
     #ifdef MATERIAL_CLEARCOAT
     float clearcoatFactor = 0.0;
     float clearcoatRoughness = 0.0;
     vec3 clearcoatNormal = vec3(0.0);
     #endif
+
     #ifdef MATERIAL_SHEEN
     float sheenIntensity = 0.0;
     vec3 sheenColor = vec3(0.0);
+    #endif
 
     vec4 output_color = baseColor;
 
@@ -312,42 +315,42 @@ void main()
 #endif // ! MATERIAL_SPECULARGLOSSINESS
 
 #ifdef MATERIAL_METALLICROUGHNESS
-
-#ifdef HAS_METALLIC_ROUGHNESS_MAP
-    // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
-    // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
-    vec4 mrSample = texture(u_MetallicRoughnessSampler, getMetallicRoughnessUV());
-    perceptualRoughness = mrSample.g * u_RoughnessFactor;
-    metallic = mrSample.b * u_MetallicFactor;
-#else
-    metallic = u_MetallicFactor;
-    perceptualRoughness = u_RoughnessFactor;
-#endif
+    #ifdef HAS_METALLIC_ROUGHNESS_MAP
+        // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
+        // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
+        vec4 mrSample = texture(u_MetallicRoughnessSampler, getMetallicRoughnessUV());
+        perceptualRoughness = mrSample.g * u_RoughnessFactor;
+        metallic = mrSample.b * u_MetallicFactor;
+    #else
+        metallic = u_MetallicFactor;
+        perceptualRoughness = u_RoughnessFactor;
+    #endif
 
     // The albedo may be defined from a base texture or a flat color
-#ifdef HAS_BASE_COLOR_MAP
-    baseColor = SRGBtoLINEAR(texture(u_BaseColorSampler, getBaseColorUV())) * u_BaseColorFactor;
-#else
-    baseColor = u_BaseColorFactor;
-#endif
-
-#ifdef MATERIAL_CLEARCOAT
-    #ifdef HAS_CLEARCOAT_TEXTURE_MAP
-        mrSample = texture(u_ClearcoatSampler, getClearcoatUV());
-        clearcoatFactor = mrSample.r * u_ClearcoatFactor;
+    #ifdef HAS_BASE_COLOR_MAP
+        baseColor = SRGBtoLINEAR(texture(u_BaseColorSampler, getBaseColorUV())) * u_BaseColorFactor;
     #else
-        clearcoatFactor = u_ClearcoatFactor;
+        baseColor = u_BaseColorFactor;
     #endif
 #endif
 
-#ifdef MATERIAL_CLEARCOAT
-    #ifdef HAS_CLEARCOAT_ROUGHNESS_MAP
-        mrSample = texture(u_ClearcoatRoughnessSampler, getClearcoatRoughnessUV());
-        clearcoatRoughness = mrSample.g * u_ClearcoatRoughnessFactor;
-    #else
-        clearcoatRoughness = u_ClearcoatRoughnessFactor;
+    #ifdef MATERIAL_CLEARCOAT
+        #ifdef HAS_CLEARCOAT_TEXTURE_MAP
+            mrSample = texture(u_ClearcoatSampler, getClearcoatUV());
+            clearcoatFactor = mrSample.r * u_ClearcoatFactor;
+        #else
+            clearcoatFactor = u_ClearcoatFactor;
+        #endif
     #endif
-#endif
+
+    #ifdef MATERIAL_CLEARCOAT
+        #ifdef HAS_CLEARCOAT_ROUGHNESS_MAP
+            mrSample = texture(u_ClearcoatRoughnessSampler, getClearcoatRoughnessUV());
+            clearcoatRoughness = mrSample.g * u_ClearcoatRoughnessFactor;
+        #else
+            clearcoatRoughness = u_ClearcoatRoughnessFactor;
+        #endif
+    #endif
 
 #ifdef MATERIAL_CLEARCOAT
     #ifdef HAS_CLEARCOAT_NORMAL_MAP
@@ -361,12 +364,12 @@ void main()
 #ifdef MATERIAL_SHEEN
     #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
         mrSample = texture(u_sheenColorIntensitySampler, getSheenUV());
-        sheenColor = mrSample.xyz;
-        sheenIntensity = mrSample.w;
+        sheenColor = mrSample.xyz * sheenIntensity;
+        sheenIntensity = mrSample.w * sheenColor;
     #else
-        sheenColor = u();
+        sheenColor = u_SheenColorFactor;
+        sheenIntensity = u_SheenIntensityFactor;
     #endif
-#endif
 
     baseColor *= getVertexColor();
 
@@ -489,9 +492,6 @@ void main()
     #else
         color += iblColor;
     #endif
-    #ifdef MATERIAL_SHEEN
-        vec3 sheenContribution = sheenTerm(vec3 sheenColor, float sheenIntensity, AngularInfo angularInfo, float roughness)
-
 #endif
 
     float ao = 1.0;
