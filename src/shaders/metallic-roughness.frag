@@ -368,17 +368,6 @@ void main()
     #endif
 #endif
 
-#ifdef MATERIAL_SHEEN
-    #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
-        vec3 sheenSample = texture(u_sheenColorIntensitySampler, getSheenUV());
-        sheenColor = sheenSample.xyz * u_SheenColorFactor;
-        sheenIntensity = sheenSample.w * u_SheenIntensityFactor;
-    #else
-        sheenColor = u_SheenColorFactor;
-        sheenIntensity = u_SheenIntensityFactor;
-    #endif
-#endif
-
     baseColor *= getVertexColor();
 
     diffuseColor = baseColor.rgb * (vec3(1.0) - f0) * (1.0 - metallic);
@@ -450,9 +439,9 @@ void main()
     for (int i = 0; i < LIGHT_COUNT; ++i)
     {
         vec3 lightColor = vec3(0);
+        vec3 pointToLight = vec3(0);
         #ifdef MATERIAL_CLEARCOAT
             vec3 clearcoatColor = vec3(0);
-            vec3 pointToLight = vec3(0);
         #endif
         Light light = u_Lights[i];
         if (light.type == LightType_Directional)
@@ -513,14 +502,6 @@ void main()
 #ifdef HAS_EMISSIVE_MAP
     emissive = SRGBtoLINEAR(texture(u_EmissiveSampler, getEmissiveUV())).rgb * u_EmissiveFactor;
     color += emissive;
-#endif
-
-#ifdef MATERIAL_SHEEN
-    AngularInfo angularInfo = getAngularInfo(-normal, normal, view);
-    vec3 sheenTerm = sheenTerm(sheenColor, sheenIntensity, angularInfo, perceptualRoughness);
-    vec3 sheenContribution = iblColor * sheenTerm * M_PI * angularInfo.NdotL;
-    // [6] final = f_emissive + f_diffuse + f_specular + (1 - reflectance) * f_sheen
-    color = color + (1.0 - reflectance) * sheenContribution;
 #endif
 
 #ifndef DEBUG_OUTPUT // no debug
