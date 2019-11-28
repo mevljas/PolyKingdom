@@ -196,7 +196,7 @@ float microfacetDistribution(float NdotH, float alphaRoughness)
     return alphaRoughnessSq / (M_PI * f * f);
 }
 
-//Sheen implementation
+//Sheen implementation-------------------------------------------------------------------------------------
 // See  https://github.com/sebavan/glTF/tree/KHR_materials_sheen/extensions/2.0/Khronos/KHR_materials_sheen
 
 // Estevez and Kulla http://www.aconty.com/pdf/s2017_pbs_imageworks_sheen.pdf
@@ -217,6 +217,10 @@ float NeubeltVisibility(AngularInfo angularInfo)
 
 vec3 sheenLayer(vec3 sheenColor, float sheenIntensity, float sheenRoughness, AngularInfo angularInfo, vec3 baseColor)
 {
+    if(sheenIntensity == 0.0)
+    {
+        return vec3(0);
+    }
     float sheenDistribution = CharlieDistribution(sheenRoughness, angularInfo.NdotH);
     float sheenVisibility = NeubeltVisibility(angularInfo);
     return sheenColor * sheenIntensity * sheenDistribution * sheenVisibility + (1.0 - sheenIntensity * sheenDistribution * sheenVisibility) * baseColor;
@@ -243,10 +247,8 @@ vec3 getPointShade(vec3 pointToLight, MaterialInfo materialInfo, vec3 view)
 
     if (angularInfo.NdotL > 0.0 || angularInfo.NdotV > 0.0)
     {
-        vec3 sheenContrib = vec3(0);
-        #ifdef MATERIAL_SHEEN
-        sheenContrib = sheenLayer(materialInfo.sheenColor, materialInfo.sheenIntensity, materialInfo.sheenRoughness, angularInfo, materialInfo.baseColor);
-        #endif
+
+        vec3 sheenContrib = sheenLayer(materialInfo.sheenColor, materialInfo.sheenIntensity, materialInfo.sheenRoughness, angularInfo, materialInfo.baseColor);
         // Calculation of analytical lighting contribution
         vec3 diffuseContrib = diffuseBRDF(materialInfo, angularInfo.VdotH);
         vec3 specContrib = specularMicrofacetBTDF(materialInfo, angularInfo);
@@ -351,26 +353,6 @@ void main()
     vec3 specularColor= vec3(0.0);
     vec3 f0 = vec3(0.04);
 
-    //values from the clearcoat extension
-    #ifdef MATERIAL_CLEARCOAT
-    float clearcoatFactor = 0.0;
-    float clearcoatRoughness = 0.0;
-    vec3 clearcoatNormal = vec3(0.0);
-    #endif
-    float sheenIntensity = 0.0;
-    float sheenRoughness = 0.3;
-    vec3 sheenColor = vec3(0.0,0.0,0.0);
-    #ifdef MATERIAL_SHEEN
-        #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
-            vec3 sheenSample = texture(u_sheenColorIntensitySampler, getSheenUV());
-            sheenColor = sheenSample.xyz * u_SheenColorFactor;
-            sheenIntensity = sheenSample.w * u_SheenIntensityFactor;
-        #else
-            sheenColor = u_SheenColorFactor;
-            sheenIntensity = u_SheenIntensityFactor;
-        #endif
-        sheenRoughness = u_SheenRoughness;
-    #endif
     vec4 output_color = baseColor;
 
 #ifdef MATERIAL_SPECULARGLOSSINESS
@@ -422,8 +404,29 @@ void main()
     // Anything less than 2% is physically impossible and is instead considered to be shadowing. Compare to "Real-Time-Rendering" 4th editon on page 325.
     vec3 specularEnvironmentR90 = vec3(clamp(reflectance * 50.0, 0.0, 1.0));
 
-    // LIGHTING
+    //PBR-Next
+    //values from the clearcoat extension
+    #ifdef MATERIAL_CLEARCOAT
+    float clearcoatFactor = 0.0;
+    float clearcoatRoughness = 0.0;
+    vec3 clearcoatNormal = vec3(0.0);
+    #endif
+    float sheenIntensity = 0.0;
+    float sheenRoughness = 0.3;
+    vec3 sheenColor = vec3(0.0,0.0,0.0);
+    #ifdef MATERIAL_SHEEN
+        #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
+            vec3 sheenSample = texture(u_sheenColorIntensitySampler, getSheenUV());
+            sheenColor = sheenSample.xyz * u_SheenColorFactor;
+            sheenIntensity = sheenSample.w * u_SheenIntensityFactor;
+        #else
+            sheenColor = u_SheenColorFactor;
+            sheenIntensity = u_SheenIntensityFactor;
+        #endif
+        sheenRoughness = u_SheenRoughness;
+    #endif
 
+    // LIGHTING
     vec3 color = vec3(0.0, 0.0, 0.0);
     vec3 normal = getNormal();
     vec3 view = normalize(u_Camera - v_Position);
