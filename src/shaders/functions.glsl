@@ -142,26 +142,3 @@ AngularInfo getAngularInfo(vec3 pointToLight, vec3 normal, vec3 view)
         vec3(0, 0, 0)
     );
 }
-
-//Sheen implementation
-// See  https://github.com/sebavan/glTF/tree/KHR_materials_sheen/extensions/2.0/Khronos/KHR_materials_sheen
-float sheenDistribution(float roughness, float NdotH)
-{
-    float alphaG = roughness * roughness;
-    float invR = 1.0 / alphaG;
-    float cos2h = NdotH * NdotH;
-    float sin2h = 1.0 - cos2h;
-    return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * M_PI);
-}
-
-float sheenVisibility(AngularInfo angularInfo)
-{
-    return 1.0 / (4.0 * (angularInfo.NdotL + angularInfo.NdotV - angularInfo.NdotL * angularInfo.NdotV));
-}
-
-vec3 sheenTerm(vec3 sheenColor, float sheenIntensity, AngularInfo angularInfo, float roughness)
-{
-    float sheenDistribution = sheenDistribution(roughness, angularInfo.NdotH);
-    float sheenVisibility = sheenVisibility(angularInfo);
-    return sheenColor * sheenIntensity * sheenDistribution * sheenVisibility;
-}

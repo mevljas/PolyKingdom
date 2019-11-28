@@ -76,6 +76,7 @@ uniform float u_ClearcoatRoughnessFactor;
 #ifdef MATERIAL_SHEEN
 uniform float u_SheenIntensityFactor;
 uniform vec3 u_SheenColorFactor;
+uniform float u_SheenRoughness;
 #endif
 
 uniform vec3 u_Camera;
@@ -112,6 +113,11 @@ struct MaterialInfo
     vec3 specularColor;           // color contribution from specular lighting
 
     vec3 normal;
+
+    vec3 baseColor;
+    float sheenIntensity;
+    vec3 sheenColor;
+    float sheenRoughness;
 };
 
 // Calculation of the lighting contribution from an optional Image Based Light source.
@@ -209,11 +215,11 @@ float NeubeltVisibility(AngularInfo angularInfo)
     return clamp(1.0 / (4.0 * (angularInfo.NdotL + angularInfo.NdotV - angularInfo.NdotL * angularInfo.NdotV)),0.0,1.0);
 }
 
-vec3 sheenTerm(vec3 sheenColor, float sheenIntensity, AngularInfo angularInfo, float roughness)
+vec3 sheenLayer(vec3 sheenColor, float sheenIntensity, float sheenRoughness, AngularInfo angularInfo, vec3 baseColor)
 {
-    float sheenDistribution = CharlieDistribution(roughness, angularInfo.NdotH);
+    float sheenDistribution = CharlieDistribution(sheenRoughness, angularInfo.NdotH);
     float sheenVisibility = NeubeltVisibility(angularInfo);
-    return sheenColor * sheenIntensity * sheenDistribution * sheenVisibility;
+    return sheenColor * sheenIntensity * sheenDistribution * sheenVisibility + (1.0 - sheenIntensity * sheenDistribution * sheenVisibility) * baseColor;
 }
 //---------------------------------------------------------------------------------------------------------
 
@@ -237,12 +243,16 @@ vec3 getPointShade(vec3 pointToLight, MaterialInfo materialInfo, vec3 view)
 
     if (angularInfo.NdotL > 0.0 || angularInfo.NdotV > 0.0)
     {
+        vec3 sheenContrib = vec3(0);
+        #ifdef MATERIAL_SHEEN
+        sheenContrib = sheenLayer(materialInfo.sheenColor, materialInfo.sheenIntensity, materialInfo.sheenRoughness, angularInfo, materialInfo.baseColor);
+        #endif
         // Calculation of analytical lighting contribution
         vec3 diffuseContrib = diffuseBRDF(materialInfo, angularInfo.VdotH);
         vec3 specContrib = specularMicrofacetBTDF(materialInfo, angularInfo);
 
         // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-        return angularInfo.NdotL * (diffuseContrib + specContrib);
+        return angularInfo.NdotL * (diffuseContrib + specContrib + sheenContrib);
     }
 
     return vec3(0.0, 0.0, 0.0);
@@ -347,9 +357,19 @@ void main()
     float clearcoatRoughness = 0.0;
     vec3 clearcoatNormal = vec3(0.0);
     #endif
-    #ifdef MATERIAL_SHEEN
     float sheenIntensity = 0.0;
-    vec3 sheenColor = vec3(0.0,1.0,0.0);
+    float sheenRoughness = 0.3;
+    vec3 sheenColor = vec3(0.0,0.0,0.0);
+    #ifdef MATERIAL_SHEEN
+        #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
+            vec3 sheenSample = texture(u_sheenColorIntensitySampler, getSheenUV());
+            sheenColor = sheenSample.xyz * u_SheenColorFactor;
+            sheenIntensity = sheenSample.w * u_SheenIntensityFactor;
+        #else
+            sheenColor = u_SheenColorFactor;
+            sheenIntensity = u_SheenIntensityFactor;
+        #endif
+        sheenRoughness = u_SheenRoughness;
     #endif
     vec4 output_color = baseColor;
 
@@ -415,7 +435,11 @@ void main()
         diffuseColor,
         specularEnvironmentR90,
         specularColor,
-        normal
+        normal,
+        baseColor.rgb,
+        sheenIntensity,
+        sheenColor,
+        sheenRoughness
     );
 
 #ifdef USE_PUNCTUAL

@@ -306,6 +306,7 @@ class gltfMaterial extends GltfObject
 
             let sheenFactor = 1.0;
             let sheenColor =  vec3.fromValues(1.0, 1.0, 1.0);
+            let sheenRoughness = 0.3;
             if(this.extensions.KHR_materials_sheen !== undefined)
             {
                 this.defines.push("MATERIAL_SHEEN 1");
@@ -318,6 +319,10 @@ class gltfMaterial extends GltfObject
                 {
                     sheenColor = jsToGl(this.extensions.KHR_materials_sheen.sheenColor);
                 }
+                if(this.extensions.KHR_materials_sheen.sheenRoughness !== undefined)
+                {
+                    sheenRoughness = this.extensions.KHR_materials_sheen.sheenRoughness;
+                }
                 if (this.sheenColorIntensityTexture !== undefined)
                 {
                     this.sheenColorIntensityTexture.samplerName = "u_sheenColorIntensitySampler";
@@ -328,6 +333,7 @@ class gltfMaterial extends GltfObject
                 }
                 this.properties.set("u_SheenIntensityFactor", sheenFactor);
                 this.properties.set("u_SheenColorFactor", sheenColor);
+                this.properties.set("u_SheenRoughness", sheenRoughness);
             }
 
         }
