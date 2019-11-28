@@ -115,7 +115,6 @@ struct MaterialInfo
     vec3 specularColor;           // color contribution from specular lighting
 
     vec3 normal;
-    float clearcoatFactor;
 };
 
 // Lambert lighting
@@ -385,21 +384,8 @@ void main()
         diffuseColor,
         specularEnvironmentR90,
         specularColor,
-        normal,
-        0.0 //Clearcoat factor is null
+        normal
     );
-    #ifdef MATERIAL_CLEARCOAT
-    MaterialInfo clearCoatInfo = MaterialInfo(
-        clearcoatRoughness,
-        vec3(0.04), //fixed from specification //todo use variable from functions
-        clearcoatRoughness * clearcoatRoughness, //alphaRoughness is roughnessvalue squared
-        vec3(0.0), //clearcoat layer has no diffuse color
-        vec3(1.0), //F_90 = 1.0
-        vec3(1.0), //clearcoat layer color is white
-        clearcoatNormal,
-        clearcoatFactor
-    );
-    #endif
 
 #ifdef USE_PUNCTUAL
     for (int i = 0; i < LIGHT_COUNT; ++i)
