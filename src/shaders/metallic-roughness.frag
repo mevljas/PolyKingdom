@@ -120,38 +120,6 @@ struct MaterialInfo
     float sheenRoughness;
 };
 
-// Calculation of the lighting contribution from an optional Image Based Light source.
-// Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
-// See our README.md on Environment Maps [3] for additional discussion.
-vec3 getIBLContribution(MaterialInfo materialInfo, vec3 v)
-{
-    float NdotV = clamp(dot(materialInfo.normal, v), 0.0, 1.0);
-
-    float lod = clamp(materialInfo.perceptualRoughness * float(u_MipCount), 0.0, float(u_MipCount));
-    vec3 reflection = normalize(reflect(-v, materialInfo.normal));
-
-    vec2 brdfSamplePoint = clamp(vec2(NdotV, materialInfo.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
-    // retrieve a scale and bias to F0. See [1], Figure 3
-    vec2 brdf = texture(u_brdfLUT, brdfSamplePoint).rg;
-
-    vec4 diffuseSample = texture(u_DiffuseEnvSampler, materialInfo.normal);
-    vec4 specularSample = textureLod(u_SpecularEnvSampler, reflection, lod);
-
-#ifdef USE_HDR
-    // Already linear.
-    vec3 diffuseLight = diffuseSample.rgb;
-    vec3 specularLight = specularSample.rgb;
-#else
-    vec3 diffuseLight = SRGBtoLINEAR(diffuseSample).rgb;
-    vec3 specularLight = SRGBtoLINEAR(specularSample).rgb;
-#endif
-
-    vec3 diffuse = diffuseLight * materialInfo.diffuseColor;
-    vec3 specular = specularLight * (materialInfo.specularColor * brdf.x + brdf.y);
-
-    return diffuse + specular;
-}
-
 // Lambert lighting
 // see https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
 vec3 lambertian(vec3 diffuseColor)
@@ -259,6 +227,41 @@ vec3 getPointShade(vec3 pointToLight, MaterialInfo materialInfo, vec3 view)
 
     return vec3(0.0, 0.0, 0.0);
 }
+
+// Calculation of the lighting contribution from an optional Image Based Light source.
+// Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
+// See our README.md on Environment Maps [3] for additional discussion.
+vec3 getIBLContribution(MaterialInfo materialInfo, vec3 v)
+{
+    float NdotV = clamp(dot(materialInfo.normal, v), 0.0, 1.0);
+
+    float lod = clamp(materialInfo.perceptualRoughness * float(u_MipCount), 0.0, float(u_MipCount));
+    vec3 reflection = normalize(reflect(-v, materialInfo.normal));
+
+    vec2 brdfSamplePoint = clamp(vec2(NdotV, materialInfo.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
+    // retrieve a scale and bias to F0. See [1], Figure 3
+    vec2 brdf = texture(u_brdfLUT, brdfSamplePoint).rg;
+
+    vec4 diffuseSample = texture(u_DiffuseEnvSampler, materialInfo.normal);
+    vec4 specularSample = textureLod(u_SpecularEnvSampler, reflection, lod);
+
+#ifdef USE_HDR
+    // Already linear.
+    vec3 diffuseLight = diffuseSample.rgb;
+    vec3 specularLight = specularSample.rgb;
+#else
+    vec3 diffuseLight = SRGBtoLINEAR(diffuseSample).rgb;
+    vec3 specularLight = SRGBtoLINEAR(specularSample).rgb;
+#endif
+
+    AngularInfo angularInfo = getAngularInfo(-materialInfo.normal, materialInfo.normal, v);
+    vec3 sheen = sheenLayer(materialInfo.sheenColor, materialInfo.sheenIntensity, materialInfo.sheenRoughness, angularInfo, materialInfo.baseColor);
+    vec3 diffuse = diffuseLight * materialInfo.diffuseColor;
+    vec3 specular = specularLight * (materialInfo.specularColor * brdf.x + brdf.y);
+
+    return  sheen + diffuse + specular;
+}
+
 
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#range-property
 float getRangeAttenuation(float range, float distance)
@@ -406,25 +409,25 @@ void main()
 
     //PBR-Next
     //values from the clearcoat extension
-    #ifdef MATERIAL_CLEARCOAT
+#ifdef MATERIAL_CLEARCOAT
     float clearcoatFactor = 0.0;
     float clearcoatRoughness = 0.0;
     vec3 clearcoatNormal = vec3(0.0);
-    #endif
+#endif
     float sheenIntensity = 0.0;
     float sheenRoughness = 0.3;
     vec3 sheenColor = vec3(0.0,0.0,0.0);
-    #ifdef MATERIAL_SHEEN
-        #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
-            vec3 sheenSample = texture(u_sheenColorIntensitySampler, getSheenUV());
-            sheenColor = sheenSample.xyz * u_SheenColorFactor;
-            sheenIntensity = sheenSample.w * u_SheenIntensityFactor;
-        #else
-            sheenColor = u_SheenColorFactor;
-            sheenIntensity = u_SheenIntensityFactor;
-        #endif
-        sheenRoughness = u_SheenRoughness;
+#ifdef MATERIAL_SHEEN
+    #ifdef HAS_SHEEN_COLOR_INTENSITY_TEXTURE_MAP
+        vec3 sheenSample = texture(u_sheenColorIntensitySampler, getSheenUV());
+        sheenColor = sheenSample.xyz * u_SheenColorFactor;
+        sheenIntensity = sheenSample.w * u_SheenIntensityFactor;
+    #else
+        sheenColor = u_SheenColorFactor;
+        sheenIntensity = u_SheenIntensityFactor;
     #endif
+    sheenRoughness = u_SheenRoughness;
+#endif
 
     // LIGHTING
     vec3 color = vec3(0.0, 0.0, 0.0);
