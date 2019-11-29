@@ -246,12 +246,10 @@ vec3 getIBLContribution(MaterialInfo materialInfo, vec3 v)
     vec3 specularLight = SRGBtoLINEAR(specularSample).rgb;
 #endif
 
-    AngularInfo angularInfo = getAngularInfo(-materialInfo.normal, materialInfo.normal, v);
-    vec3 sheen = sheenLayer(materialInfo.sheenColor, materialInfo.sheenIntensity, materialInfo.sheenRoughness, angularInfo, materialInfo.baseColor);
     vec3 diffuse = diffuseLight * materialInfo.diffuseColor;
     vec3 specular = specularLight * (materialInfo.specularColor * brdf.x + brdf.y);
 
-    return  sheen + diffuse + specular;
+    return   diffuse + specular;
 }
 
 
