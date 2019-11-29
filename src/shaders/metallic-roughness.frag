@@ -67,17 +67,13 @@ uniform float u_GlossinessFactor;
 uniform float u_AlphaCutoff;
 
 //clearcoat extension
-#ifdef MATERIAL_CLEARCOAT
 uniform float u_ClearcoatFactor;
 uniform float u_ClearcoatRoughnessFactor;
-#endif
 
 //Sheen extension
-#ifdef MATERIAL_SHEEN
 uniform float u_SheenIntensityFactor;
 uniform vec3 u_SheenColorFactor;
 uniform float u_SheenRoughness;
-#endif
 
 uniform vec3 u_Camera;
 uniform int u_MipCount;
@@ -168,9 +164,9 @@ float microfacetDistribution(float NdotH, float alphaRoughness)
 // See  https://github.com/sebavan/glTF/tree/KHR_materials_sheen/extensions/2.0/Khronos/KHR_materials_sheen
 
 // Estevez and Kulla http://www.aconty.com/pdf/s2017_pbs_imageworks_sheen.pdf
-float CharlieDistribution(float roughness, float NdotH)
+float CharlieDistribution(float sheenRoughness, float NdotH)
 {
-    float alphaG = roughness * roughness;
+    float alphaG = sheenRoughness * sheenRoughness;
     float invR = 1.0 / alphaG;
     float cos2h = NdotH * NdotH;
     float sin2h = 1.0 - cos2h;
@@ -185,10 +181,6 @@ float NeubeltVisibility(AngularInfo angularInfo)
 
 vec3 sheenLayer(vec3 sheenColor, float sheenIntensity, float sheenRoughness, AngularInfo angularInfo, vec3 baseColor)
 {
-    if(sheenIntensity == 0.0)
-    {
-        return vec3(0);
-    }
     float sheenDistribution = CharlieDistribution(sheenRoughness, angularInfo.NdotH);
     float sheenVisibility = NeubeltVisibility(angularInfo);
     return sheenColor * sheenIntensity * sheenDistribution * sheenVisibility + (1.0 - sheenIntensity * sheenDistribution * sheenVisibility) * baseColor;
@@ -200,7 +192,7 @@ vec3 diffuseBRDF(MaterialInfo materialInfo, float VdotH)
     return (1.0 - fresnelReflection(materialInfo.f0, materialInfo.f90, VdotH )) * lambertian(materialInfo.diffuseColor);
 }
 
-vec3 specularMicrofacetBTDF (MaterialInfo materialInfo, AngularInfo angularInfo)
+vec3 specularMicrofacetBRDF (MaterialInfo materialInfo, AngularInfo angularInfo)
 {
     vec3 F = fresnelReflection(materialInfo.f0, materialInfo.f90, angularInfo.VdotH);
     float Vis = visibility(angularInfo.NdotL, angularInfo.NdotV, materialInfo.alphaRoughness);
@@ -219,7 +211,7 @@ vec3 getPointShade(vec3 pointToLight, MaterialInfo materialInfo, vec3 view)
         vec3 sheenContrib = sheenLayer(materialInfo.sheenColor, materialInfo.sheenIntensity, materialInfo.sheenRoughness, angularInfo, materialInfo.baseColor);
         // Calculation of analytical lighting contribution
         vec3 diffuseContrib = diffuseBRDF(materialInfo, angularInfo.VdotH);
-        vec3 specContrib = specularMicrofacetBTDF(materialInfo, angularInfo);
+        vec3 specContrib = specularMicrofacetBRDF(materialInfo, angularInfo);
 
         // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
         return angularInfo.NdotL * (diffuseContrib + specContrib + sheenContrib);
