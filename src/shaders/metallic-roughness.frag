@@ -75,6 +75,9 @@ uniform float u_ClearcoatRoughnessFactor;
 //KHR Specular
 uniform float u_MetallicRoughnessSpecularFactor;
 
+//KHR Anisotropy
+uniform float u_AnisotropyFactor;
+
 // ALPHAMODE_MASK
 uniform float u_AlphaCutoff;
 

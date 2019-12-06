@@ -360,6 +360,20 @@ class gltfMaterial extends GltfObject
                 }
             }
             this.properties.set("u_MetallicRoughnessSpecularFactor", specularFactor);
+
+            //KHR Extension Anisotropy
+            //no extension definition existing yet
+            let anisotropyFactor = 0.0;
+            if(this.extensions.KHR_material_anisotropy)
+            {
+                this.defines.push("MATERIAL_ANISOTROPY 1");
+
+                if(this.extensions.KHR_material_anisotropy.anisotropyFactor !== undefined)
+                {
+                    anisotropyFactor = this.extensions.KHR_material_anisotropy.anisotropyFactor;
+                }
+            }
+            this.properties.set("u_AnisotropyFactor",anisotropyFactor);
         }
 
         initGlForMembers(this, gltf);
