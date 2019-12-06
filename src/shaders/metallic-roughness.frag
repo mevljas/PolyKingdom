@@ -179,11 +179,22 @@ float anisotropicMicrofacetDistribution(float NdotH, float TdotH,  float BdotH, 
 {
     float alphaT = max(alphaRoughness * (1.0 + u_AnisotropyFactor), 0.001);
     float alphaB = max(alphaRoughness * (1.0 - u_AnisotropyFactor), 0.001);
-    float a2 = alphaT * alphaB;
-    vec3 f = vec3(ab * TdotH, at * BdotH, a2 * NdotH)
+    float alpha2 = alphaT * alphaB;
+    vec3 f = vec3(alphaB * TdotH, alphaT * BdotH, alpha2 * NdotH);
     float f2 = dot(f,f);
-    float w2 = a2 / f2;
-    return a2 * w2 * w2 * (1.0/M_PI);
+    float w2 = alpha2 / f2;
+    return alpha2 * w2 * w2 * (1.0/M_PI);
+}
+
+float anisotropicVisibility (float NdotL, float NdotV, float BdotV, float TdotV, float TdotL, float BdotL,float alphaRoughness)
+{
+    float alphaT = max(alphaRoughness * (1.0 + u_AnisotropyFactor), 0.001);
+    float alphaB = max(alphaRoughness * (1.0 - u_AnisotropyFactor), 0.001);
+
+    float lambdaV = NdotL * length(vec3(alphaT * TdotV, alphaB * BdotV, NdotV));
+    float lambdaL = NdotV * length(vec3(alphaT * TdotL, alphaB * BdotL, NdotL));
+    float v = 0.5 / (lambdaV + lambdaL);
+    return clamp(v, 0.0, 1.0);
 }
 
 //Sheen implementation-------------------------------------------------------------------------------------
