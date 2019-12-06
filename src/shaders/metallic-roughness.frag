@@ -172,6 +172,20 @@ float microfacetDistribution(float NdotH, float alphaRoughness)
     return alphaRoughnessSq / (M_PI * f * f);
 }
 
+// The following GGX microfacetDistribution is used, having Anisotropic enabled
+//https://google.github.io/filament/Filament.md.html
+// B = Bi-tangent direction
+float anisotropicMicrofacetDistribution(float NdotH, float TdotH,  float BdotH, float alphaRoughness)
+{
+    float alphaT = max(alphaRoughness * (1.0 + u_AnisotropyFactor), 0.001);
+    float alphaB = max(alphaRoughness * (1.0 - u_AnisotropyFactor), 0.001);
+    float a2 = alphaT * alphaB;
+    vec3 f = vec3(ab * TdotH, at * BdotH, a2 * NdotH)
+    float f2 = dot(f,f);
+    float w2 = a2 / f2;
+    return a2 * w2 * w2 * (1.0/M_PI);
+}
+
 //Sheen implementation-------------------------------------------------------------------------------------
 // See  https://github.com/sebavan/glTF/tree/KHR_materials_sheen/extensions/2.0/Khronos/KHR_materials_sheen
 
