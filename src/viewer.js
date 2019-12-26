@@ -47,6 +47,7 @@ class gltfViewer
         this.scaledSceneIndex = 0;
         this.scaledGltfChanged = true;
         this.sceneScaleFactor = 1;
+        this.type = "player"
 
         this.renderingParameters = new gltfRenderingParameters(environmentMap);
         this.userCamera = new UserCamera();
@@ -79,7 +80,7 @@ class gltfViewer
                 this.pathProvider.initialize().then(() =>
                 {
                     self.initializeGui();
-                    self.loadFromPath(self.pathProvider.resolve(self.initialModel));
+                    self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined, this.type);
                 });
             }
         }
@@ -192,7 +193,7 @@ class gltfViewer
         }
     }
 
-    loadFromPath(gltfFile, basePath = "")
+    loadFromPath(gltfFile, basePath = "", type)
     {
         this.lastDropped = undefined;
 
@@ -213,7 +214,7 @@ class gltfViewer
                 json = glb.json;
                 buffers = glb.buffers;
             }
-            return self.createGltf(gltfFile, json, buffers);
+            return self.createGltf(gltfFile, json, buffers, type);
         }).catch(function(error)
         {
             console.error(error.stack);
@@ -221,7 +222,7 @@ class gltfViewer
         });
     }
 
-    createGltf(path, json, buffers)
+    createGltf(path, json, buffers, type)
     {
         this.currentlyRendering = false;
 
@@ -233,7 +234,7 @@ class gltfViewer
         }
 
         const gltf = new glTF(path);
-        gltf.fromJson(json);
+        gltf.fromJson(json, type);
 
         this.injectEnvironment(gltf);
 
