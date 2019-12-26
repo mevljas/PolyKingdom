@@ -9,8 +9,7 @@ function gltf_rv(
     headless = false,
     onRendererReady = undefined,
     basePath = "",
-    initialModel = "tower2",
-    initialType = "player")
+    initialModel = "tower2")
 {
     const canvas = document.getElementById(canvasId);
     if (!canvas)
