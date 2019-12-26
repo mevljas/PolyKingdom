@@ -1,5 +1,8 @@
 const { app, BrowserWindow } = require('electron');
 
+
+
+
 // Electron app based on Don McCurdy's glTF viewer.
 
 const url  = require('url');
@@ -12,6 +15,9 @@ function createWindow () {
     mainWindow = new BrowserWindow({ width: 1920, height: 1080,
         icon: path.join(__dirname, "../assets/images/gltf.png")
     });
+
+    //opens debug console
+    mainWindow.webContents.openDevTools()
 
     mainWindow.setMenu(null);
 
