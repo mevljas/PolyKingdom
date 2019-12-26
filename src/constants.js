@@ -10,5 +10,9 @@ export
 {
     Input_ResetCamera,
     Input_RotateButton,
-    Input_PanButton
+    Input_PanButton,
+    Input_MoveLeft,
+    Input_MoveRight,
+    Input_MoveForward,
+    Input_Movebackward
 };
