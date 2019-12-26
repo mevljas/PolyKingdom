@@ -9,7 +9,8 @@ function gltf_rv(
     headless = false,
     onRendererReady = undefined,
     basePath = "",
-    initialModel = "BoomBox")
+    initialModel = "tower2",
+    initialType = "player")
 {
     const canvas = document.getElementById(canvasId);
     if (!canvas)
