@@ -8,7 +8,7 @@ import { GltfObject } from './gltf_object.js';
 
 class gltfNode extends GltfObject
 {
-    constructor()
+    constructor(type)
     {
         super();
         this.camera = undefined;
@@ -27,6 +27,9 @@ class gltfNode extends GltfObject
         this.normalMatrix = mat4.create();
         this.light = undefined;
         this.changed = true;
+
+        //defines node type
+        this.type = type;
     }
 
     initGl()
