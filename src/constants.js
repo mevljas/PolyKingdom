@@ -1,6 +1,7 @@
-const Input_ResetCamera = "r";
+//Constants which define keyboard buttons for event.key.
 const Input_RotateButton = 0;
 const Input_PanButton = 1;
+const Input_ResetCamera = "r";
 const Input_MoveLeft = "ArrowLeft";
 const Input_MoveRight = "ArrowRight";
 const Input_MoveForward = "ArrowUp";
