@@ -38,6 +38,7 @@ class glTF extends GltfObject
         this.animations = [];
         this.skins = [];
         this.path = file;
+        this.playerNode = null;
     }
 
     initGl()
@@ -79,6 +80,15 @@ class glTF extends GltfObject
                 this.scene = json.scene;
             }
         }
+        this.findPlayer();
+    }
+
+    findPlayer(){
+        this.nodes.forEach(function(node){
+            if (node.name === "player"){
+                this.playerNode = node;
+            }
+        }.bind(this));
     }
 }
 
