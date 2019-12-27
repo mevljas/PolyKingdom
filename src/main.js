@@ -9,7 +9,7 @@ function gltf_rv(
     headless = false,
     onRendererReady = undefined,
     basePath = "",
-    initialModel = "tower2")
+    initialModel = "map")
 {
     const canvas = document.getElementById(canvasId);
     if (!canvas)
