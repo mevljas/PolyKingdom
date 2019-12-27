@@ -1,4 +1,4 @@
-import { Input_ResetCamera } from './constants.js';
+import { Input_ResetCamera, keys } from './publicVariables.js';
 
 class gltfKeyboardInput
 {
@@ -10,6 +10,7 @@ class gltfKeyboardInput
     setupGlobalInputBindings(document)
     {
         document.onkeydown = this.keyDownHandler.bind(this);
+        document.onkeyup = this.keyUpHandler.bind(this);
     }
 
     setupCanvasInputBindings() { }
@@ -20,6 +21,11 @@ class gltfKeyboardInput
         {
             this.onResetCamera();
         }
+        keys[event.code] = true;
+    }
+    keyUpHandler(event)
+    {
+        keys[event.code] = false;
     }
 }
 

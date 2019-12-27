@@ -1,4 +1,4 @@
-import { Input_PanButton, Input_RotateButton } from './constants.js';
+import { Input_PanButton, Input_RotateButton } from './publicVariables.js';
 
 const ZoomThreshold = 1.0;
 

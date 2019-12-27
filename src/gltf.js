@@ -15,6 +15,8 @@ import { gltfAsset } from './asset.js';
 import { GltfObject } from './gltf_object.js';
 import { gltfAnimation } from './animation.js';
 import { gltfSkin } from './skin.js';
+import { keys } from './publicVariables.js';
+import { vec3 } from 'gl-matrix';
 
 class glTF extends GltfObject
 {
@@ -90,6 +92,63 @@ class glTF extends GltfObject
             }
         }.bind(this));
     }
+
+    updatePlayer(dt){
+
+
+        const forward = vec3.set(vec3.create(),
+            -Math.sin(this.playerNode.rotation[1]), 0, -Math.cos(this.playerNode.rotation[1]));
+        const right = vec3.set(vec3.create(),
+            Math.cos(this.playerNode.rotation[1]), 0, -Math.sin(this.playerNode.rotation[1]));
+
+        // 1: add movement acceleration
+        let acc = vec3.create();
+        if (keys['KeyW']) {
+            console.log("W");
+            vec3.add(acc, acc, forward);
+        }
+        if (keys['KeyS']) {
+            vec3.sub(acc, acc, forward);
+        }
+        if (keys['KeyD']) {
+            vec3.add(acc, acc, right);
+        }
+        if (keys['KeyA']) {
+            vec3.sub(acc, acc, right);
+        }
+
+        // 2: update velocity
+        vec3.scaleAndAdd(this.playerNode.velocity, this.playerNode.velocity, acc, dt * this.playerNode.acceleration);
+        // vec3.scaleAndAdd(this.playerNode.velocity, this.playerNode.velocity, acc,  this.playerNode.acceleration);
+
+        // 3: if no movement, apply friction
+        if (!keys['KeyW'] &&
+            !keys['KeyS'] &&
+            !keys['KeyD'] &&
+            !keys['KeyA'])
+        {
+            vec3.scale(this.playerNode.velocity, this.playerNode.velocity, 1 - this.playerNode.friction);
+        }
+
+        // 4: limit speed
+        const len = vec3.len(this.playerNode.velocity);
+        if (len > this.playerNode.maxSpeed) {
+            vec3.scale(this.playerNode.velocity, this.playerNode.velocity, this.playerNode.maxSpeed / len);
+        }
+
+
+    }
+    update(dt) {
+
+        this.nodes.forEach(function(node){
+            if (JSON.stringify(node.velocity) !== JSON.stringify([0,0,0])) {
+                let tempVec = Array.from(node.translation);
+                vec3.scaleAndAdd(tempVec, tempVec, node.velocity, dt);
+                node.applyTranslation(tempVec);
+            }
+        }.bind(this));
+    }
+
 }
 
 function getJsonLightsFromExtensions(extensions)

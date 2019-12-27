@@ -12,6 +12,12 @@ import { GlbParser } from './glb_parser.js';
 import { gltfEnvironmentLoader } from './environment.js';
 import { getScaleFactor, computePrimitiveCentroids } from './gltf_utils.js';
 
+
+let dt = 0;
+let last = timestamp();
+
+
+
 class gltfViewer
 {
     constructor(
@@ -55,6 +61,8 @@ class gltfViewer
 
         this.gltfLoadedCallback = function(){};
 
+
+
         // Holds the last camera index, used for scene scaling when changing to user camera.
         this.prevCameraIndex = null;
 
@@ -86,6 +94,8 @@ class gltfViewer
 
         this.render(); // Starts a rendering loop.
     }
+
+
 
     setCamera(eye = [0.0, 0.0, 0.05], target = [0.0, 0.0, 0.0], up = [0.0, 1.0, 0.0],
         type = "perspective",
@@ -284,7 +294,7 @@ class gltfViewer
         this.currentlyRendering = true;
         this.scaledGltfChanged = true;
 
-        this.prepareSceneForRendering(gltf);
+        this.prepareSceneForRendering(gltf, dt);
         this.userCamera.fitViewToScene(gltf, this.renderingParameters.sceneIndex);
 
         computePrimitiveCentroids(gltf);
@@ -295,6 +305,11 @@ class gltfViewer
         const self = this;
         function renderFrame()
         {
+
+            let now  = timestamp();
+            dt  = (now - last) / 1000;    // duration in seconds
+
+
             if (self.stats !== undefined)
             {
                 self.stats.begin();
@@ -302,7 +317,7 @@ class gltfViewer
 
             if (self.currentlyRendering)
             {
-                self.prepareSceneForRendering(self.gltf);
+                self.prepareSceneForRendering(self.gltf, dt);
 
                 self.renderer.resize(self.canvas.clientWidth, self.canvas.clientHeight);
                 self.renderer.newFrame();
@@ -361,6 +376,7 @@ class gltfViewer
                 self.stats.end();
             }
 
+            last = now;
             window.requestAnimationFrame(renderFrame);
         }
 
@@ -368,9 +384,12 @@ class gltfViewer
         window.requestAnimationFrame(renderFrame);
     }
 
-    prepareSceneForRendering(gltf)
+    prepareSceneForRendering(gltf, dt)
     {
         const scene = gltf.scenes[this.renderingParameters.sceneIndex];
+
+        gltf.updatePlayer(dt);
+        gltf.update(dt);
 
         this.animateNode(gltf);
 
@@ -497,6 +516,14 @@ class gltfViewer
             spinner.style.display = "none";
         }
     }
+
+
 }
+
+function  timestamp() {
+    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+}
+
+
 
 export { gltfViewer };

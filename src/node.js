@@ -30,6 +30,11 @@ class gltfNode extends GltfObject
 
         //defines node type
         this.type = type;
+        //velocity for movement
+        this.velocity = [0, 0, 0];
+        this.friction = 0.2;
+        this.maxSpeed = 3;
+        this.acceleration = 20;
     }
 
     initGl()
@@ -120,6 +125,9 @@ class gltfNode extends GltfObject
 
         return mat4.clone(this.transform);
     }
+
+
+
 }
 
 export { gltfNode };
