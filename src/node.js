@@ -17,6 +17,7 @@ class gltfNode extends GltfObject
         this.rotation = jsToGl([0, 0, 0, 1]);
         this.scale = jsToGl([1, 1, 1]);
         this.translation = jsToGl([0, 0, 0]);
+        this.lastTranslation = [0,0,0];
         this.name = undefined;
         this.mesh = undefined;
         this.skin = undefined;
