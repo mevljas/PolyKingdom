@@ -104,16 +104,16 @@ class glTF extends GltfObject
         // 1: add movement acceleration
         let acc = vec3.create();
         if (keys['KeyW']) {
-            vec3.add(acc, acc, forward);
-        }
-        if (keys['KeyS']) {
             vec3.sub(acc, acc, forward);
         }
+        if (keys['KeyS']) {
+            vec3.add(acc, acc, forward);
+        }
         if (keys['KeyD']) {
-            vec3.add(acc, acc, right);
+            vec3.subb(acc, acc, right);
         }
         if (keys['KeyA']) {
-            vec3.sub(acc, acc, right);
+            vec3.add(acc, acc, right);
         }
 
         // 2: update velocity
