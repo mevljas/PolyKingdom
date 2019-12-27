@@ -51,7 +51,7 @@ function initGlForMembers(gltfObj, gltf)
     }
 }
 
-function objectsFromJsons(jsonObjects, GltfType, type)
+function objectsFromJsons(jsonObjects, GltfType)
 {
     if (jsonObjects === undefined)
     {
@@ -61,14 +61,14 @@ function objectsFromJsons(jsonObjects, GltfType, type)
     const objects = [];
     for (const jsonObject of jsonObjects)
     {
-        objects.push(objectFromJson(jsonObject, GltfType, type));
+        objects.push(objectFromJson(jsonObject, GltfType));
     }
     return objects;
 }
 
-function objectFromJson(jsonObject, GltfType, type)
+function objectFromJson(jsonObject, GltfType)
 {
-    const object = new GltfType(type);
+    const object = new GltfType();
     object.fromJson(jsonObject);
     return object;
 }

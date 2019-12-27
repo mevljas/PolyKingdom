@@ -45,7 +45,7 @@ class glTF extends GltfObject
         initGlForMembers(this, this);
     }
 
-    fromJson(json, type)
+    fromJson(json)
     {
         super.fromJson(json);
 
@@ -59,7 +59,7 @@ class glTF extends GltfObject
         this.bufferViews = objectsFromJsons(json.bufferViews, gltfBufferView);
         this.scenes = objectsFromJsons(json.scenes, gltfScene);
         this.textures = objectsFromJsons(json.textures, gltfTexture);
-        this.nodes = objectsFromJsons(json.nodes, gltfNode, type);
+        this.nodes = objectsFromJsons(json.nodes, gltfNode);
         this.lights = objectsFromJsons(getJsonLightsFromExtensions(json.extensions), gltfLight);
         this.images = objectsFromJsons(json.images, gltfImage);
         this.animations = objectsFromJsons(json.animations, gltfAnimation);
