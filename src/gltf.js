@@ -126,7 +126,7 @@ class glTF extends GltfObject
             this.playerDirection = "up";
 
         }
-        if (keys['KeyS']) {
+        else if (keys['KeyS']) {
             vec3.add(acc, acc, forward);
             switch (this.playerDirection) {
             case "up":
@@ -141,7 +141,7 @@ class glTF extends GltfObject
             }
             this.playerDirection = "down";
         }
-        if (keys['KeyD']) {
+        else if (keys['KeyD']) {
             vec3.sub(acc, acc, right);
             switch (this.playerDirection) {
             case "left":
@@ -156,7 +156,7 @@ class glTF extends GltfObject
             }
             this.playerDirection = "right";
         }
-        if (keys['KeyA']) {
+        else if (keys['KeyA']) {
             vec3.add(acc, acc, right);
             switch (this.playerDirection) {
             case "right":
