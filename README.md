@@ -26,11 +26,11 @@ Setup
 
 For local usage and debugging, please follow these instructions:
 
-**(2)** Install dependencies with `npm install` or run installNpmElectron.ps1,
+**(1)** Install dependencies with `npm install` or run installNpmElectron.ps1,
 
-**(3)** Start a demo in the browser with `npm run dev` and open http://localhost:8000. or run runBrowser.ps1,
+**(2)** Start a demo in the browser with `npm run dev` and open http://localhost:8000. or run runBrowser.ps1,
 
-**(4b)** Start a demo in Electron with `npm run dev:electron` or run runElectron.ps1.
+**(3)** Start a demo in Electron with `npm run dev:electron` or run runElectron.ps1.
 
 If you just wanna build the project, run `npm run build` or run build.ps1.
 
