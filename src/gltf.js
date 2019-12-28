@@ -44,6 +44,7 @@ class glTF extends GltfObject
         this.path = file;
         this.playerNode = null;
         this.viewer = viewer;
+        this.playerDirection = undefined;
     }
 
     initGl()
@@ -92,7 +93,7 @@ class glTF extends GltfObject
         this.nodes.forEach(function(node){
             if (node.name === "player"){
                 this.playerNode = node;
-                // this.viewer.userCamera.setTarget(node.translation);
+                this.playerDirection = this.playerNode.rotation[1];
 
             }
         }.bind(this));
@@ -102,14 +103,15 @@ class glTF extends GltfObject
 
 
         const forward = vec3.set(vec3.create(),
-            -Math.sin(this.playerNode.rotation[1]), 0, -Math.cos(this.playerNode.rotation[1]));
+            -Math.sin(this.playerDirection), 0, -Math.cos(this.playerDirection));
         const right = vec3.set(vec3.create(),
-            Math.cos(this.playerNode.rotation[1]), 0, -Math.sin(this.playerNode.rotation[1]));
+            Math.cos(this.playerDirection), 0, -Math.sin(this.playerDirection));
 
         // 1: add movement acceleration
         let acc = vec3.create();
         if (keys['KeyW']) {
             vec3.sub(acc, acc, forward);
+            // this.playerNode.rotateX(0.1);
         }
         if (keys['KeyS']) {
             vec3.add(acc, acc, forward);
@@ -151,9 +153,6 @@ class glTF extends GltfObject
                 if (node.name === "player"){
                     if (JSON.stringify(node.lastTranslation) === JSON.stringify(node.translation)){
                         node.velocity = [0,0,0];
-                        // this.viewer.userCamera.setTarget(node.translation);
-
-
                     }
                     node.lastTranslation = node.translation;
                 }

@@ -1,4 +1,4 @@
-import { mat4, quat } from 'gl-matrix';
+import { mat4, quat, quat2 } from 'gl-matrix';
 import { jsToGl } from './utils.js';
 import { GltfObject } from './gltf_object.js';
 
@@ -126,6 +126,21 @@ class gltfNode extends GltfObject
 
         return mat4.clone(this.transform);
     }
+    rotateX(angle) {
+
+    // NOTE: I really have no idea what this is for, the guy on the linked page seemed to think it was necessary, though.
+    angle *= 0.5;
+
+    let qax = this.rotation[0], qay = this.rotation[1], qaz = this.rotation[2], qaw = this.rotation[3],
+        qbx = Math.sin(angle), qbw = Math.cos(angle);
+
+    this.rotation[0] = qax * qbw + qaw * qbx;
+    this.rotation[1] = qay * qbw + qaz * qbx;
+    this.rotation[2] = qaz * qbw - qay * qbx;
+    this.rotation[3] = qaw * qbw - qax * qbx;
+    this.applyRotation(this.rotation);
+};
+
 
 
 
