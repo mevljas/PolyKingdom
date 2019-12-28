@@ -12,7 +12,7 @@ import { GlbParser } from './glb_parser.js';
 import { gltfEnvironmentLoader } from './environment.js';
 import { getScaleFactor, computePrimitiveCentroids } from './gltf_utils.js';
 
-
+//for dt calulation
 let dt = 0;
 let last = timestamp();
 
