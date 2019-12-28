@@ -242,7 +242,7 @@ class gltfViewer
             this.gltf = undefined;
         }
 
-        const gltf = new glTF(path);
+        const gltf = new glTF(path, this);
         gltf.fromJson(json);
 
         this.injectEnvironment(gltf);

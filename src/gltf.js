@@ -17,10 +17,12 @@ import { gltfAnimation } from './animation.js';
 import { gltfSkin } from './skin.js';
 import { keys } from './publicVariables.js';
 import { vec3 } from 'gl-matrix';
+import { UserCamera } from './user_camera.js';
+
 
 class glTF extends GltfObject
 {
-    constructor(file)
+    constructor(file, viewer)
     {
         super();
         this.asset = undefined;
@@ -41,6 +43,7 @@ class glTF extends GltfObject
         this.skins = [];
         this.path = file;
         this.playerNode = null;
+        this.viewer = viewer;
     }
 
     initGl()
@@ -89,6 +92,8 @@ class glTF extends GltfObject
         this.nodes.forEach(function(node){
             if (node.name === "player"){
                 this.playerNode = node;
+                // this.viewer.userCamera.setTarget(node.translation);
+
             }
         }.bind(this));
     }
@@ -110,7 +115,7 @@ class glTF extends GltfObject
             vec3.add(acc, acc, forward);
         }
         if (keys['KeyD']) {
-            vec3.subb(acc, acc, right);
+            vec3.sub(acc, acc, right);
         }
         if (keys['KeyA']) {
             vec3.add(acc, acc, right);
@@ -118,7 +123,6 @@ class glTF extends GltfObject
 
         // 2: update velocity
         vec3.scaleAndAdd(this.playerNode.velocity, this.playerNode.velocity, acc, dt * this.playerNode.acceleration);
-        // vec3.scaleAndAdd(this.playerNode.velocity, this.playerNode.velocity, acc,  this.playerNode.acceleration);
 
         // 3: if no movement, apply friction
         if (!keys['KeyW'] &&
@@ -144,6 +148,15 @@ class glTF extends GltfObject
                 let tempVec = Array.from(node.translation);
                 vec3.scaleAndAdd(tempVec, tempVec, node.velocity, dt);
                 node.applyTranslation(tempVec);
+                if (node.name === "player"){
+                    if (JSON.stringify(node.lastTranslation) === JSON.stringify(node.translation)){
+                        node.velocity = [0,0,0];
+                        // this.viewer.userCamera.setTarget(node.translation);
+
+
+                    }
+                    node.lastTranslation = node.translation;
+                }
             }
         }.bind(this));
     }
