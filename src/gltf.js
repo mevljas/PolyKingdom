@@ -112,19 +112,63 @@ class glTF extends GltfObject
         let acc = vec3.create();
         if (keys['KeyW']) {
             vec3.sub(acc, acc, forward);
+            switch (this.playerDirection) {
+            case "down":
+                this.playerNode.rotate(3.14159);
+                break;
+            case "left":
+                this.playerNode.rotate(-1.5708);
+                break;
+            case "right":
+                this.playerNode.rotate(1.5708);
+                break;
+            }
             this.playerDirection = "up";
-            this.playerNode.rotate(0.1);
+
         }
         if (keys['KeyS']) {
             vec3.add(acc, acc, forward);
+            switch (this.playerDirection) {
+            case "up":
+                this.playerNode.rotate(3.14159);
+                break;
+            case "right":
+                this.playerNode.rotate(-1.5708);
+                break;
+            case "left":
+                this.playerNode.rotate(1.5708);
+                break;
+            }
             this.playerDirection = "down";
         }
         if (keys['KeyD']) {
             vec3.sub(acc, acc, right);
+            switch (this.playerDirection) {
+            case "left":
+                this.playerNode.rotate(3.14159);
+                break;
+            case "up":
+                this.playerNode.rotate(-1.5708);
+                break;
+            case "down":
+                this.playerNode.rotate(1.5708);
+                break;
+            }
             this.playerDirection = "right";
         }
         if (keys['KeyA']) {
             vec3.add(acc, acc, right);
+            switch (this.playerDirection) {
+            case "right":
+                this.playerNode.rotate(3.14159);
+                break;
+            case "down":
+                this.playerNode.rotate(-1.5708);
+                break;
+            case "up":
+                this.playerNode.rotate(1.5708);
+                break;
+            }
             this.playerDirection = "left";
         }
 
