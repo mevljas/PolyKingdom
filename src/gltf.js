@@ -44,7 +44,8 @@ class glTF extends GltfObject
         this.path = file;
         this.playerNode = null;
         this.viewer = viewer;
-        this.playerDirection = undefined;
+        this.playerDirectionVector = 0;
+        this.playerDirection = "up";
     }
 
     initGl()
@@ -93,7 +94,7 @@ class glTF extends GltfObject
         this.nodes.forEach(function(node){
             if (node.name === "player"){
                 this.playerNode = node;
-                this.playerDirection = this.playerNode.rotation[1];
+                this.playerDirectionVector = this.playerNode.rotation[1];
 
             }
         }.bind(this));
@@ -103,24 +104,28 @@ class glTF extends GltfObject
 
 
         const forward = vec3.set(vec3.create(),
-            -Math.sin(this.playerDirection), 0, -Math.cos(this.playerDirection));
+            -Math.sin(this.playerDirectionVector), 0, -Math.cos(this.playerDirectionVector));
         const right = vec3.set(vec3.create(),
-            Math.cos(this.playerDirection), 0, -Math.sin(this.playerDirection));
+            Math.cos(this.playerDirectionVector), 0, -Math.sin(this.playerDirectionVector));
 
         // 1: add movement acceleration
         let acc = vec3.create();
         if (keys['KeyW']) {
             vec3.sub(acc, acc, forward);
-            // this.playerNode.rotateX(0.1);
+            this.playerDirection = "up";
+            this.playerNode.rotate(0.1);
         }
         if (keys['KeyS']) {
             vec3.add(acc, acc, forward);
+            this.playerDirection = "down";
         }
         if (keys['KeyD']) {
             vec3.sub(acc, acc, right);
+            this.playerDirection = "right";
         }
         if (keys['KeyA']) {
             vec3.add(acc, acc, right);
+            this.playerDirection = "left";
         }
 
         // 2: update velocity
