@@ -35,7 +35,10 @@ class UserCamera extends gltfCamera
     {
         // calculate direction from focus to camera (assuming camera is at positive z)
         // yRot rotates *around* x-axis, xRot rotates *around* y-axis
-        const direction = vec3.fromValues(0, 0, 1);
+        // console.log("target: "+this.target);
+        // console.log("player: "+this.viewer.gltf.playerNode.translation);
+        // this.fitCameraTargetToExtends();
+        const direction = vec3.fromValues(0, 1, -1);
         this.toLocalRotation(direction);
 
         const position = vec3.create();
@@ -90,11 +93,8 @@ class UserCamera extends gltfCamera
 
     fitViewToScene(gltf, sceneIndex)
     {
-        const min = vec3.create();
-        const max = vec3.create();
-        getSceneExtends(gltf, sceneIndex, min, max);
-        this.fitCameraTargetToExtends(min, max);
-        this.fitZoomToExtends(min, max);
+        this.fitCameraTargetToExtends();
+        this.fitZoomToExtends();
     }
 
     toLocalRotation(vector)
@@ -113,17 +113,15 @@ class UserCamera extends gltfCamera
         return this.position;
     }
 
-    fitZoomToExtends(min, max)
+    fitZoomToExtends()
     {
         this.zoom = this.getFittingZoom(this.initialZoomDistance);
     }
 
-    fitCameraTargetToExtends(min, max)
+    fitCameraTargetToExtends()
     {
-        for (const i of [0, 1, 2])
-        {
-            this.target[i] = 0;
-        }
+        this.target = [0,0,0];
+
     }
 
     getFittingZoom(axisLength)
