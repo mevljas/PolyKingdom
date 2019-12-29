@@ -14,7 +14,8 @@ class UserCamera extends gltfCamera
         up = [0, 1, 0],
         xRot = 0,
         yRot = 0,
-        zoom = 1)
+        //how much we zoom in
+        zoom = 0.02)
     {
         super();
 
@@ -28,18 +29,12 @@ class UserCamera extends gltfCamera
         this.rotateSpeed = 1 / 180;
         this.scaleFactor = 1;
         this.viewer = viewer;
-        this.initialZoomDistance = 0.1;
     }
 
     updatePosition()
     {
-        // calculate direction from focus to camera (assuming camera is at positive z)
-        // yRot rotates *around* x-axis, xRot rotates *around* y-axis
-        // console.log("target: "+this.target);
-        // console.log("player: "+this.viewer.gltf.playerNode.translation);
-        // this.fitCameraTargetToExtends();
         //camera direction
-        const direction = vec3.fromValues(-1, 0.2, -1);
+        const direction = vec3.fromValues(-1, 0.5, 0);
         this.toLocalRotation(direction);
 
         const position = vec3.create();
@@ -49,7 +44,7 @@ class UserCamera extends gltfCamera
         this.position = position;
     }
 
-    reset(gltf, sceneIndex)
+    reset()
     {
         this.xRot = 0;
         this.yRot = 0;
@@ -92,10 +87,9 @@ class UserCamera extends gltfCamera
         vec3.add(this.target, this.target, left);
     }
 
-    fitViewToScene(gltf, sceneIndex)
+    fitViewToScene()
     {
         this.fitCameraTargetToExtends();
-        this.fitZoomToExtends();
     }
 
     toLocalRotation(vector)
@@ -114,26 +108,19 @@ class UserCamera extends gltfCamera
         return this.position;
     }
 
-    fitZoomToExtends()
-    {
-        this.zoom = this.getFittingZoom(this.initialZoomDistance);
-    }
 
     fitCameraTargetToExtends()
     {
-        this.target = [0,0,0];
+        //player initial position
+        this.target[0] = -0.058;
+        this.target[2] = 0.006;
 
     }
 
-    getFittingZoom(axisLength)
-    {
-        const yfov = this.yfov;
-        const xfov = this.yfov * this.aspectRatio;
-
-        const yZoom = axisLength / 2 / Math.tan(yfov / 2);
-        const xZoom = axisLength / 2 / Math.tan(xfov / 2);
-
-        return Math.max(xZoom, yZoom);
+    moveCamera(array, dt){
+        ///move camera as player moves
+        this.target[0] += array[0] * dt * 0.0025;
+        this.target[2] += array[2] * dt * 0.0025;
     }
 }
 

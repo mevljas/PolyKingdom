@@ -201,6 +201,7 @@ class glTF extends GltfObject
                 vec3.scaleAndAdd(tempVec, tempVec, node.velocity, dt);
                 node.applyTranslation(tempVec);
                 if (node.name === "player"){
+                    this.viewer.userCamera.moveCamera(node.velocity, dt);
                     if (JSON.stringify(node.lastTranslation) === JSON.stringify(node.translation)){
                         node.velocity = [0,0,0];
                     }
