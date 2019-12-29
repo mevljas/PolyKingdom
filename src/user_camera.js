@@ -119,10 +119,11 @@ class UserCamera extends gltfCamera
 
     }
 
-    moveCamera(array, dt){
+    moveCamera(array){
         ///move camera as player moves
-        this.target[0] += array[0] * dt * 0.0025;
-        this.target[2] += array[2] * dt * 0.0025;
+        let scale = 0.0023;
+        this.target[0] += array[0]  * scale;
+        this.target[2] += array[2]  * scale;
     }
 }
 
