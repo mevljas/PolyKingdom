@@ -12,9 +12,6 @@ import { GlbParser } from './glb_parser.js';
 import { gltfEnvironmentLoader } from './environment.js';
 import { getScaleFactor, computePrimitiveCentroids } from './gltf_utils.js';
 
-//for dt calulation
-let dt = 0;
-let last = timestamp();
 
 
 
@@ -294,7 +291,7 @@ class gltfViewer
         this.currentlyRendering = true;
         this.scaledGltfChanged = true;
 
-        this.prepareSceneForRendering(gltf, dt);
+        this.prepareSceneForRendering(gltf);
         this.userCamera.fitViewToScene(gltf, this.renderingParameters.sceneIndex);
 
         computePrimitiveCentroids(gltf);
@@ -306,8 +303,6 @@ class gltfViewer
         function renderFrame()
         {
 
-            let now  = timestamp();
-            dt  = (now - last) / 1000;    // duration in seconds
 
 
             if (self.stats !== undefined)
@@ -317,7 +312,7 @@ class gltfViewer
 
             if (self.currentlyRendering)
             {
-                self.prepareSceneForRendering(self.gltf, dt);
+                self.prepareSceneForRendering(self.gltf);
 
                 self.renderer.resize(self.canvas.clientWidth, self.canvas.clientHeight);
                 self.renderer.newFrame();
@@ -376,7 +371,6 @@ class gltfViewer
                 self.stats.end();
             }
 
-            last = now;
             window.requestAnimationFrame(renderFrame);
         }
 
@@ -384,12 +378,11 @@ class gltfViewer
         window.requestAnimationFrame(renderFrame);
     }
 
-    prepareSceneForRendering(gltf, dt)
+    prepareSceneForRendering(gltf )
     {
         const scene = gltf.scenes[this.renderingParameters.sceneIndex];
 
-        gltf.updatePlayer(dt);
-        gltf.update(dt);
+        gltf.update();
 
         this.animateNode(gltf);
 
