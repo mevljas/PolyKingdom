@@ -15,7 +15,7 @@ class UserCamera extends gltfCamera
         xRot = 0,
         yRot = 0,
         //how much we zoom in
-        zoom = 0.02)
+        zoom)
     {
         super();
 
@@ -24,7 +24,9 @@ class UserCamera extends gltfCamera
         this.up = jsToGl(up);
         this.xRot = xRot;
         this.yRot = yRot;
-        this.zoom = zoom;
+        //zoom at the begining
+        this.initialZoom = 0.02;
+        this.zoom = this.initialZoom;
         this.zoomFactor = 1.04;
         this.rotateSpeed = 1 / 180;
         this.scaleFactor = 1;
@@ -48,7 +50,7 @@ class UserCamera extends gltfCamera
     {
         this.xRot = 0;
         this.yRot = 0;
-        this.fitViewToScene(gltf, sceneIndex);
+        this.zoom = this.initialZoom;
     }
 
     zoomIn(value)
