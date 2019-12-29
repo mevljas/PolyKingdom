@@ -38,7 +38,8 @@ class UserCamera extends gltfCamera
         // console.log("target: "+this.target);
         // console.log("player: "+this.viewer.gltf.playerNode.translation);
         // this.fitCameraTargetToExtends();
-        const direction = vec3.fromValues(0, 1, -1);
+        //camera direction
+        const direction = vec3.fromValues(-1, 0.2, -1);
         this.toLocalRotation(direction);
 
         const position = vec3.create();
