@@ -8,6 +8,7 @@ const VecZero = vec3.create();
 class UserCamera extends gltfCamera
 {
     constructor(
+        viewer,
         position = [0, 0, 0],
         target = [0, 0,0],
         up = [0, 1, 0],
@@ -26,6 +27,8 @@ class UserCamera extends gltfCamera
         this.zoomFactor = 1.04;
         this.rotateSpeed = 1 / 180;
         this.scaleFactor = 1;
+        this.viewer = viewer;
+        this.initialZoomDistance = 0.1;
     }
 
     updatePosition()
@@ -112,15 +115,14 @@ class UserCamera extends gltfCamera
 
     fitZoomToExtends(min, max)
     {
-        const maxAxisLength = Math.max(max[0] - min[0], max[1] - min[1]);
-        this.zoom = this.getFittingZoom(maxAxisLength);
+        this.zoom = this.getFittingZoom(this.initialZoomDistance);
     }
 
     fitCameraTargetToExtends(min, max)
     {
         for (const i of [0, 1, 2])
         {
-            this.target[i] = (max[i] + min[i]) / 2;
+            this.target[i] = 0;
         }
     }
 
