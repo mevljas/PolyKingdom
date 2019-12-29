@@ -55,7 +55,7 @@ class gltfViewer
         this.sceneScaleFactor = 1;
 
         this.renderingParameters = new gltfRenderingParameters(environmentMap);
-        this.userCamera = new UserCamera();
+        this.userCamera = new UserCamera(this);
         this.currentlyRendering = false;
         this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters, this.basePath);
 
