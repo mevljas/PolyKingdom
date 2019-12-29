@@ -94,7 +94,8 @@ class glTF extends GltfObject
         this.nodes.forEach(function(node){
             if (node.name === "player"){
                 this.playerNode = node;
-                this.playerDirectionVector = this.playerNode.rotation[1];
+                // this.playerDirectionVector = this.playerNode.rotation[1];
+                this.playerDirectionVector = 0;
 
             }
         }.bind(this));
@@ -103,15 +104,15 @@ class glTF extends GltfObject
     updatePlayer(dt){
 
 
-        const forward = vec3.set(vec3.create(),
-            -Math.sin(this.playerDirectionVector), 0, -Math.cos(this.playerDirectionVector));
         const right = vec3.set(vec3.create(),
+            -Math.sin(this.playerDirectionVector), 0, -Math.cos(this.playerDirectionVector));
+        const forward = vec3.set(vec3.create(),
             Math.cos(this.playerDirectionVector), 0, -Math.sin(this.playerDirectionVector));
 
         // 1: add movement acceleration
         let acc = vec3.create();
         if (keys['KeyW']) {
-            vec3.sub(acc, acc, forward);
+            vec3.add(acc, acc, forward);
             switch (this.playerDirection) {
             case "down":
                 this.playerNode.rotate(3.14159);
@@ -127,7 +128,7 @@ class glTF extends GltfObject
 
         }
         else if (keys['KeyS']) {
-            vec3.add(acc, acc, forward);
+            vec3.sub(acc, acc, forward);
             switch (this.playerDirection) {
             case "up":
                 this.playerNode.rotate(3.14159);
