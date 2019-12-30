@@ -222,12 +222,9 @@ class glTF extends GltfObject
 
         if (this.setUpAABB){
             this.nodes.forEach(function(node2){
-                // set up aabb
+                // copy AABB
                 if(typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined'){
-                    // console.log(this.meshes[node.mesh].primitives[0].attributes.POSITION);
                     let accesorNumber = this.meshes[node2.mesh].primitives[0].attributes.POSITION;
-                    // console.log(this.accessors[accesorNumber].min);
-                    // console.log(this.accessors[accesorNumber].max);
                     node2.aabbmin = this.accessors[accesorNumber].min;
                     node2.aabbmax = this.accessors[accesorNumber].max;
                     this.setUpAABB = false;
@@ -250,15 +247,11 @@ class glTF extends GltfObject
     }
 
     resolveCollision(a, b) {
-        // Update bounding boxes with global translation.
-        // const ta = a.getLocalTransform();
-        // const tb = b.getLocalTransform();
-
-        // const posa = mat4.getTranslation(vec3.create(), ta);
-        // const posb = mat4.getTranslation(vec3.create(), tb);
+        //get current position
         const posa = a.translation;
         const posb = b.translation;
 
+        //get bounding box
         const mina = vec3.add(vec3.create(), posa, a.aabbmin );
         const maxa = vec3.add(vec3.create(), posa, a.aabbmax);
         const minb = vec3.add(vec3.create(), posb, b.aabbmin);
@@ -282,40 +275,39 @@ class glTF extends GltfObject
         }
 
 
-        // // Move node A minimally to avoid collision.
-        // const diffa = vec3.sub(vec3.create(), maxb, mina);
-        // const diffb = vec3.sub(vec3.create(), maxa, minb);
-        //
-        // let minDiff = Infinity;
-        // let minDirection = [0, 0, 0];
-        // if (diffa[0] >= 0 && diffa[0] < minDiff) {
-        //     minDiff = diffa[0];
-        //     minDirection = [minDiff, 0, 0];
-        // }
-        // if (diffa[1] >= 0 && diffa[1] < minDiff) {
-        //     minDiff = diffa[1];
-        //     minDirection = [0, minDiff, 0];
-        // }
-        // if (diffa[2] >= 0 && diffa[2] < minDiff) {
-        //     minDiff = diffa[2];
-        //     minDirection = [0, 0, minDiff];
-        // }
-        // if (diffb[0] >= 0 && diffb[0] < minDiff) {
-        //     minDiff = diffb[0];
-        //     minDirection = [-minDiff, 0, 0];
-        // }
-        // if (diffb[1] >= 0 && diffb[1] < minDiff) {
-        //     minDiff = diffb[1];
-        //     minDirection = [0, -minDiff, 0];
-        // }
-        // if (diffb[2] >= 0 && diffb[2] < minDiff) {
-        //     minDiff = diffb[2];
-        //     minDirection = [0, 0, -minDiff];
-        // }
-        //
-        // vec3.add(a.translation, a.translation, minDirection);
-        // // a.updateTransform();
-        // a.applyTranslation(a.translation);
+        // Move node A minimally to avoid collision.
+        const diffa = vec3.sub(vec3.create(), maxb, mina);
+        const diffb = vec3.sub(vec3.create(), maxa, minb);
+
+        let minDiff = Infinity;
+        let minDirection = vec3.create();
+        if (diffa[0] >= 0 && diffa[0] < minDiff) {
+            minDiff = diffa[0];
+            minDirection = [minDiff, 0, 0];
+        }
+        if (diffa[1] >= 0 && diffa[1] < minDiff) {
+            minDiff = diffa[1];
+            minDirection = [0, minDiff, 0];
+        }
+        if (diffa[2] >= 0 && diffa[2] < minDiff) {
+            minDiff = diffa[2];
+            minDirection = [0, 0, minDiff];
+        }
+        if (diffb[0] >= 0 && diffb[0] < minDiff) {
+            minDiff = diffb[0];
+            minDirection = [-minDiff, 0, 0];
+        }
+        if (diffb[1] >= 0 && diffb[1] < minDiff) {
+            minDiff = diffb[1];
+            minDirection = [0, -minDiff, 0];
+        }
+        if (diffb[2] >= 0 && diffb[2] < minDiff) {
+            minDiff = diffb[2];
+            minDirection = [0, 0, -minDiff];
+        }
+
+        vec3.add(a.translation, a.translation, minDirection);
+        a.applyTranslation(a.translation);
     }
 
 }
