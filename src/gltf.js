@@ -201,19 +201,10 @@ class glTF extends GltfObject
             for (var i = 0, len = this.nodes.length; i < len; i++) {
                 let node = this.nodes[i];
                 if ( this.playerNode !== node && !node.name.includes("_floor")) {
-                    // console.log(node.name);
                     this.resolveCollision(this.playerNode, node);
                 }
 
             }
-            // this.nodes.forEach(function(node){
-            //
-            //     if ( this.playerNode !== node && !node.name.includes("_floor")) {
-            //         console.log(node.name);
-            //         this.resolveCollision(this.playerNode, node);
-            //     }
-            //
-            // }.bind(this));
             this.playerNode.moved = false;
         }
 
@@ -267,12 +258,9 @@ class glTF extends GltfObject
         });
 
         if (!isColliding) {
-            // console.log("nope");
             return;
         }
-        else {
-            console.log(b.name);
-        }
+        console.log(b.name);
 
 
         // Move node A minimally to avoid collision.
@@ -308,6 +296,7 @@ class glTF extends GltfObject
 
         vec3.add(a.translation, a.translation, minDirection);
         a.applyTranslation(a.translation);
+        this.viewer.userCamera.moveCamera(minDirection);
     }
 
 }
