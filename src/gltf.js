@@ -16,7 +16,7 @@ import { GltfObject } from './gltf_object.js';
 import { gltfAnimation } from './animation.js';
 import { gltfSkin } from './skin.js';
 import { keys } from './publicVariables.js';
-import { vec3 } from 'gl-matrix';
+import { vec3, mat4 } from 'gl-matrix';
 import { UserCamera } from './user_camera.js';
 
 
@@ -46,6 +46,7 @@ class glTF extends GltfObject
         this.viewer = viewer;
         this.playerDirectionVector = 0;
         this.playerDirection = "up";
+        this.setUpAABB = true;
     }
 
     initGl()
@@ -92,18 +93,18 @@ class glTF extends GltfObject
 
     findPlayer(){
         this.nodes.forEach(function(node){
+            //save player
             if (node.name === "player"){
                 this.playerNode = node;
-                // this.playerDirectionVector = this.playerNode.rotation[1];
                 this.playerDirectionVector = 0;
 
             }
+
         }.bind(this));
     }
 
-    updatePlayer(dt){
 
-
+    checkMovement(dt){
         const right = vec3.set(vec3.create(),
             -Math.sin(this.playerDirectionVector), 0, -Math.cos(this.playerDirectionVector));
         const forward = vec3.set(vec3.create(),
@@ -174,41 +175,147 @@ class glTF extends GltfObject
         }
 
         // 2: update velocity
-        vec3.scaleAndAdd(this.playerNode.velocity, this.playerNode.velocity, acc, dt * this.playerNode.acceleration);
-
-        // 3: if no movement, apply friction
-        if (!keys['KeyW'] &&
-            !keys['KeyS'] &&
-            !keys['KeyD'] &&
-            !keys['KeyA'])
-        {
-            vec3.scale(this.playerNode.velocity, this.playerNode.velocity, 1 - this.playerNode.friction);
+        vec3.scaleAndAdd(this.playerNode.velocity, this.playerNode.velocity, acc, this.playerNode.acceleration);
+        let tempVec = Array.from(this.playerNode.translation);
+        vec3.add(tempVec, tempVec, this.playerNode.velocity, );
+        this.playerNode.applyTranslation(tempVec);
+        this.viewer.userCamera.moveCamera(this.playerNode.velocity);
+        if (JSON.stringify(this.playerNode.velocity) !== "[0,0,0]"){
+            // console.log("tr")
+            this.playerNode.moved = true;
         }
+        this.playerNode.velocity = [0,0,0];
 
-        // 4: limit speed
-        const len = vec3.len(this.playerNode.velocity);
-        if (len > this.playerNode.maxSpeed) {
-            vec3.scale(this.playerNode.velocity, this.playerNode.velocity, this.playerNode.maxSpeed / len);
+
+
+
+    }
+
+    updatePlayer(dt){
+        this.checkMovement(dt);
+        this.checkplayerCollision();
+    }
+
+    checkplayerCollision(){
+        if (this.playerNode.moved){
+            for (var i = 0, len = this.nodes.length; i < len; i++) {
+                let node = this.nodes[i];
+                if ( this.playerNode !== node && !node.name.includes("_floor")) {
+                    // console.log(node.name);
+                    this.resolveCollision(this.playerNode, node);
+                }
+
+            }
+            // this.nodes.forEach(function(node){
+            //
+            //     if ( this.playerNode !== node && !node.name.includes("_floor")) {
+            //         console.log(node.name);
+            //         this.resolveCollision(this.playerNode, node);
+            //     }
+            //
+            // }.bind(this));
+            this.playerNode.moved = false;
         }
-
 
     }
     update(dt) {
 
-        this.nodes.forEach(function(node){
-            if (JSON.stringify(node.velocity) !== JSON.stringify([0,0,0])) {
-                let tempVec = Array.from(node.translation);
-                vec3.scaleAndAdd(tempVec, tempVec, node.velocity, dt);
-                node.applyTranslation(tempVec);
-                if (node.name === "player"){
-                    this.viewer.userCamera.moveCamera(node.velocity, dt);
-                    if (JSON.stringify(node.lastTranslation) === JSON.stringify(node.translation)){
-                        node.velocity = [0,0,0];
-                    }
-                    node.lastTranslation = node.translation;
+        if (this.setUpAABB){
+            this.nodes.forEach(function(node2){
+                // set up aabb
+                if(typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined'){
+                    // console.log(this.meshes[node.mesh].primitives[0].attributes.POSITION);
+                    let accesorNumber = this.meshes[node2.mesh].primitives[0].attributes.POSITION;
+                    // console.log(this.accessors[accesorNumber].min);
+                    // console.log(this.accessors[accesorNumber].max);
+                    node2.aabbmin = this.accessors[accesorNumber].min;
+                    node2.aabbmax = this.accessors[accesorNumber].max;
+                    this.setUpAABB = false;
+
                 }
-            }
-        }.bind(this));
+            }.bind(this));
+        }
+
+        this.updatePlayer(dt)
+    }
+
+    intervalIntersection(min1, max1, min2, max2) {
+        return !(min1 > max2 || min2 > max1);
+    }
+
+    aabbIntersection(aabb1, aabb2) {
+        return this.intervalIntersection(aabb1.min[0], aabb1.max[0], aabb2.min[0], aabb2.max[0])
+            && this.intervalIntersection(aabb1.min[1], aabb1.max[1], aabb2.min[1], aabb2.max[1])
+            && this.intervalIntersection(aabb1.min[2], aabb1.max[2], aabb2.min[2], aabb2.max[2]);
+    }
+
+    resolveCollision(a, b) {
+        // Update bounding boxes with global translation.
+        // const ta = a.getLocalTransform();
+        // const tb = b.getLocalTransform();
+
+        // const posa = mat4.getTranslation(vec3.create(), ta);
+        // const posb = mat4.getTranslation(vec3.create(), tb);
+        const posa = a.translation;
+        const posb = b.translation;
+
+        const mina = vec3.add(vec3.create(), posa, a.aabbmin );
+        const maxa = vec3.add(vec3.create(), posa, a.aabbmax);
+        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
+        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
+
+        // Check if there is collision.
+        const isColliding = this.aabbIntersection({
+            min: mina,
+            max: maxa
+        }, {
+            min: minb,
+            max: maxb
+        });
+
+        if (!isColliding) {
+            // console.log("nope");
+            return;
+        }
+        else {
+            console.log(b.name);
+        }
+
+
+        // // Move node A minimally to avoid collision.
+        // const diffa = vec3.sub(vec3.create(), maxb, mina);
+        // const diffb = vec3.sub(vec3.create(), maxa, minb);
+        //
+        // let minDiff = Infinity;
+        // let minDirection = [0, 0, 0];
+        // if (diffa[0] >= 0 && diffa[0] < minDiff) {
+        //     minDiff = diffa[0];
+        //     minDirection = [minDiff, 0, 0];
+        // }
+        // if (diffa[1] >= 0 && diffa[1] < minDiff) {
+        //     minDiff = diffa[1];
+        //     minDirection = [0, minDiff, 0];
+        // }
+        // if (diffa[2] >= 0 && diffa[2] < minDiff) {
+        //     minDiff = diffa[2];
+        //     minDirection = [0, 0, minDiff];
+        // }
+        // if (diffb[0] >= 0 && diffb[0] < minDiff) {
+        //     minDiff = diffb[0];
+        //     minDirection = [-minDiff, 0, 0];
+        // }
+        // if (diffb[1] >= 0 && diffb[1] < minDiff) {
+        //     minDiff = diffb[1];
+        //     minDirection = [0, -minDiff, 0];
+        // }
+        // if (diffb[2] >= 0 && diffb[2] < minDiff) {
+        //     minDiff = diffb[2];
+        //     minDirection = [0, 0, -minDiff];
+        // }
+        //
+        // vec3.add(a.translation, a.translation, minDirection);
+        // // a.updateTransform();
+        // a.applyTranslation(a.translation);
     }
 
 }

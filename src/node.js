@@ -17,10 +17,10 @@ class gltfNode extends GltfObject
         this.rotation = jsToGl([0, 0, 0, 1]);
         this.scale = jsToGl([1, 1, 1]);
         this.translation = jsToGl([0, 0, 0]);
-        this.lastTranslation = [0,0,0];
         this.name = undefined;
         this.mesh = undefined;
         this.skin = undefined;
+        this.moved = false;
 
         // non gltf
         this.worldTransform = mat4.create();
@@ -33,9 +33,10 @@ class gltfNode extends GltfObject
         this.type = type;
         //velocity for movement
         this.velocity = [0, 0, 0];
-        this.friction = 0.2;
-        this.maxSpeed = 3;
-        this.acceleration = 20;
+        this.acceleration = 0.3;
+        this.aabbmin= undefined;
+        this.aabbmax= undefined;
+
     }
 
     initGl()
@@ -140,7 +141,9 @@ class gltfNode extends GltfObject
         this.rotation[3] = qaw * qbw - qay * qbx;
 
     this.applyRotation(this.rotation);
-};
+    };
+
+
 
 
 
