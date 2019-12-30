@@ -104,7 +104,7 @@ class glTF extends GltfObject
     }
 
 
-    checkMovement(dt){
+    checkMovement(){
         const right = vec3.set(vec3.create(),
             -Math.sin(this.playerDirectionVector), 0, -Math.cos(this.playerDirectionVector));
         const forward = vec3.set(vec3.create(),
@@ -197,11 +197,15 @@ class glTF extends GltfObject
     }
 
     checkplayerCollision(){
-        if (this.playerNode.moved){
+        if (this.playerNode.moved || keys['Space']){
             for (var i = 0, len = this.nodes.length; i < len; i++) {
                 let node = this.nodes[i];
                 if ( this.playerNode !== node && !node.name.includes("_floor")) {
                     this.resolveCollision(this.playerNode, node);
+                    if (keys['Space']){
+                        console.log("pressed");
+                        this.resolveWeaponCollision(this.playerNode, node);
+                    }
                 }
 
             }
@@ -209,19 +213,31 @@ class glTF extends GltfObject
         }
 
     }
+
+    initAABB(){
+        let scalingFactor = 2;     //for weapon collsion
+        this.nodes.forEach(function(node2){
+            // copy AABB
+            if(typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined'){
+                let accesorNumber = this.meshes[node2.mesh].primitives[0].attributes.POSITION;
+                node2.aabbmin = this.accessors[accesorNumber].min;
+                node2.aabbmax = this.accessors[accesorNumber].max;
+                //setup wepon aabb
+                //weapon has a range equal to boundingbox * scalingFactor
+                vec3.scale(node2.aabbWeaponMin, this.accessors[accesorNumber].min, scalingFactor);
+                vec3.scale(node2.aabbWeaponMax, this.accessors[accesorNumber].max, scalingFactor);
+                this.setUpAABB = false;
+
+            }
+        }.bind(this));
+
+
+
+    }
     update(dt) {
 
         if (this.setUpAABB){
-            this.nodes.forEach(function(node2){
-                // copy AABB
-                if(typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined'){
-                    let accesorNumber = this.meshes[node2.mesh].primitives[0].attributes.POSITION;
-                    node2.aabbmin = this.accessors[accesorNumber].min;
-                    node2.aabbmax = this.accessors[accesorNumber].max;
-                    this.setUpAABB = false;
-
-                }
-            }.bind(this));
+            this.initAABB();
         }
 
         this.updatePlayer(dt)
@@ -297,6 +313,37 @@ class glTF extends GltfObject
         vec3.add(a.translation, a.translation, minDirection);
         a.applyTranslation(a.translation);
         this.viewer.userCamera.moveCamera(minDirection);
+    }
+
+    resolveWeaponCollision(a, b) {
+        //get current position
+        const posa = a.translation;
+        const posb = b.translation;
+
+        //get bounding box
+        //player boudning box should be igger
+        const mina = vec3.add(vec3.create(), posa, a.aabbWeaponMin );
+        const maxa = vec3.add(vec3.create(), posa, a.aabbWeaponMax);
+        //enemy bounding box shouldb be the same ( scalin with big models)
+        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
+        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
+
+        // Check if there is collision.
+        const isColliding = this.aabbIntersection({
+            min: mina,
+            max: maxa
+        }, {
+            min: minb,
+            max: maxb
+        });
+
+        if (isColliding) {
+            console.log(b.name+" weapon");
+            //prevents multiple hits.
+            keys['Space'] = false;
+        }
+
+
     }
 
 }

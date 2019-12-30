@@ -1,4 +1,4 @@
-import { mat4, quat, quat2 } from 'gl-matrix';
+import { mat4, quat, quat2, vec3 } from 'gl-matrix';
 import { jsToGl } from './utils.js';
 import { GltfObject } from './gltf_object.js';
 
@@ -34,8 +34,13 @@ class gltfNode extends GltfObject
         //velocity for movement
         this.velocity = [0, 0, 0];
         this.acceleration = 0.3;
+        //bounding box
         this.aabbmin= undefined;
         this.aabbmax= undefined;
+        //bounding box for weapons
+        this.aabbWeaponMin= vec3.create();
+        this.aabbWeaponMax= vec3.create();
+
 
     }
 
