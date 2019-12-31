@@ -25,26 +25,28 @@ class UserCamera extends gltfCamera
         this.xRot = xRot;
         this.yRot = yRot;
         //zoom at the begining
-        this.initialZoom = 0.3;
+        this.initialZoom = 0.028;
         this.zoom = this.initialZoom;
         this.zoomFactor = 1.04;
         this.rotateSpeed = 1 / 180;
         this.scaleFactor = 100;
         this.viewer = viewer;
         //scaler for player translation
-        this.scale = 0.034;
+        this.scale = 0.002;
+        //camera direction
+        this.direction = vec3.fromValues(-1, 0.15, 0);
     }
 
     updatePosition()
     {
-        //update target postion
-        this.fitCameraTarget();
-        //camera direction
-        const direction = vec3.fromValues(-1, 0.5, 0);
-        this.toLocalRotation(direction);
+
+        this.moveTarget();
+
+
+        this.toLocalRotation(this.direction);
 
         const position = vec3.create();
-        vec3.scale(position, direction, this.zoom);
+        vec3.scale(position, this.direction, this.zoom);
         vec3.add(position, position, this.target);
 
         this.position = position;
@@ -95,7 +97,7 @@ class UserCamera extends gltfCamera
 
     fitViewToScene()
     {
-        this.fitCameraTarget();
+        this.moveTarget();
     }
 
     toLocalRotation(vector)
@@ -114,7 +116,9 @@ class UserCamera extends gltfCamera
         return this.position;
     }
 
-    fitCameraTarget(){
+
+
+    moveTarget(){
         ///move camera as player moves
         vec3.scale(this.target, this.viewer.gltf.playerNode.translation, this.scale);
     }
