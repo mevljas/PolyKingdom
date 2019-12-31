@@ -47,6 +47,7 @@ class glTF extends GltfObject
         this.playerDirectionVector = 0;
         this.playerDirection = "up";
         this.setUpAABB = true;
+        this.enemies = [];
     }
 
     initGl()
@@ -88,16 +89,19 @@ class glTF extends GltfObject
                 this.scene = json.scene;
             }
         }
-        this.findPlayer();
+        this.initPlayerAndEnemies();
     }
 
-    findPlayer(){
+    initPlayerAndEnemies(){
         this.nodes.forEach(function(node){
             //save player
             if (node.name === "player"){
                 this.playerNode = node;
                 this.playerDirectionVector = 0;
 
+            }
+            else if (node.name.includes("enemy")){
+                this.enemies.push(node);
             }
 
         }.bind(this));
@@ -191,9 +195,13 @@ class glTF extends GltfObject
 
     }
 
-    updatePlayer(dt){
-        this.checkMovement(dt);
+    updatePlayer(){
+        this.checkMovement();
         this.checkplayerCollision();
+    }
+
+    updateEnemies(){
+        this.checkEnemyCollision();
     }
 
     checkplayerCollision(){
@@ -203,7 +211,6 @@ class glTF extends GltfObject
                 if ( this.playerNode !== node && !node.name.includes("_floor")) {
                     this.resolveCollision(this.playerNode, node);
                     if (keys['Space']){
-                        console.log("pressed");
                         this.resolveWeaponCollision(this.playerNode, node);
                     }
                 }
@@ -213,9 +220,18 @@ class glTF extends GltfObject
         }
 
     }
+    checkEnemyCollision(){
+        for (var i = 0, len = this.enemies.length; i < len; i++) {
+            let node = this.enemies[i];
+            this.resolveEnemyDetectionRange(this.playerNode, node);
+
+        }
+
+    }
 
     initAABB(){
-        let scalingFactor = 2;     //for weapon collsion
+        let weaponScalingFactor = 1.6;     //for weapon collsion
+        let enemyRangeScalingFactor = 3;     //for enemy detection range
         this.nodes.forEach(function(node2){
             // copy AABB
             if(typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined'){
@@ -223,9 +239,12 @@ class glTF extends GltfObject
                 node2.aabbmin = this.accessors[accesorNumber].min;
                 node2.aabbmax = this.accessors[accesorNumber].max;
                 //setup wepon aabb
-                //weapon has a range equal to boundingbox * scalingFactor
-                vec3.scale(node2.aabbWeaponMin, this.accessors[accesorNumber].min, scalingFactor);
-                vec3.scale(node2.aabbWeaponMax, this.accessors[accesorNumber].max, scalingFactor);
+                //weapon has a range equal to boundingbox * weaponScalingFactor
+                vec3.scale(node2.aabbWeaponMin, this.accessors[accesorNumber].min, weaponScalingFactor);
+                vec3.scale(node2.aabbWeaponMax, this.accessors[accesorNumber].max, weaponScalingFactor);
+                //enemy has a detection range equal to boundingbox * enemyRangeScalingFactor
+                vec3.scale(node2.aabbEnemyRangeMin, this.accessors[accesorNumber].min, enemyRangeScalingFactor);
+                vec3.scale(node2.aabbEnemyRangeMax, this.accessors[accesorNumber].max, enemyRangeScalingFactor);
                 this.setUpAABB = false;
 
             }
@@ -234,13 +253,14 @@ class glTF extends GltfObject
 
 
     }
-    update(dt) {
+    update() {
 
         if (this.setUpAABB){
             this.initAABB();
         }
 
-        this.updatePlayer(dt)
+        this.updatePlayer()
+        this.updateEnemies();
     }
 
     intervalIntersection(min1, max1, min2, max2) {
@@ -322,7 +342,7 @@ class glTF extends GltfObject
         const posb = b.translation;
 
         //get bounding box
-        //player boudning box should be igger
+        //player boudning box should be bigger
         const mina = vec3.add(vec3.create(), posa, a.aabbWeaponMin );
         const maxa = vec3.add(vec3.create(), posa, a.aabbWeaponMax);
         //enemy bounding box shouldb be the same ( scalin with big models)
@@ -342,6 +362,34 @@ class glTF extends GltfObject
             console.log(b.name+" weapon");
             //prevents multiple hits.
             keys['Space'] = false;
+        }
+
+
+    }
+    resolveEnemyDetectionRange(a, b) {
+        //get current position
+        const posa = a.translation;
+        const posb = b.translation;
+
+        //get bounding box
+        //player boudning box should be bigger
+        const mina = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMin );
+        const maxa = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMax);
+        //enemy bounding box shouldb be the same ( scalin with big models)
+        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
+        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
+
+        // Check if there is collision.
+        const isColliding = this.aabbIntersection({
+            min: mina,
+            max: maxa
+        }, {
+            min: minb,
+            max: maxb
+        });
+
+        if (isColliding) {
+            console.log("Enemy detection");
         }
 
 

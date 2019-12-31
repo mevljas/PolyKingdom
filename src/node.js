@@ -40,6 +40,9 @@ class gltfNode extends GltfObject
         //bounding box for weapons
         this.aabbWeaponMin= vec3.create();
         this.aabbWeaponMax= vec3.create();
+        //enemy detects player
+        this.aabbEnemyRangeMin= vec3.create();
+        this.aabbEnemyRangeMax= vec3.create();
 
 
     }
