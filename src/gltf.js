@@ -297,7 +297,7 @@ class glTF extends GltfObject
         if (!isColliding) {
             return;
         }
-        console.log(b.name);
+        // console.log(b.name);
 
 
         // Move node A minimally to avoid collision.
@@ -359,7 +359,7 @@ class glTF extends GltfObject
         });
 
         if (isColliding) {
-            console.log(b.name+" weapon");
+            // console.log(b.name+" weapon");
             //prevents multiple hits.
             keys['Space'] = false;
         }
@@ -389,7 +389,7 @@ class glTF extends GltfObject
         });
 
         if (isColliding) {
-            console.log("Enemy detection");
+            // console.log("Enemy detection");
         }
 
 

@@ -25,7 +25,7 @@ class UserCamera extends gltfCamera
         this.xRot = xRot;
         this.yRot = yRot;
         //zoom at the begining
-        this.initialZoom = 0.02;
+        this.initialZoom = 0.3;
         this.zoom = this.initialZoom;
         this.zoomFactor = 1.04;
         this.rotateSpeed = 1 / 180;
@@ -121,9 +121,14 @@ class UserCamera extends gltfCamera
 
     moveCamera(array){
         ///move camera as player moves
-        let scale = 0.0023;
-        this.target[0] += array[0]  * scale;
-        this.target[2] += array[2]  * scale;
+        // let scale = 0.0023;
+        // this.target[0] += array[0]  * scale;
+        // this.target[2] += array[2]  * scale;
+        let scale = 0.034;
+        this.target[0] = this.viewer.gltf.playerNode.translation[0]  * scale;
+        this.target[1] = this.viewer.gltf.playerNode.translation[1]  * scale;
+        this.target[2] = this.viewer.gltf.playerNode.translation[2]  * scale;
+        // this.target = this.viewer.gltf.playerNode.translation;
     }
 }
 
