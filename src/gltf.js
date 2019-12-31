@@ -183,7 +183,6 @@ class glTF extends GltfObject
         let tempVec = Array.from(this.playerNode.translation);
         vec3.add(tempVec, tempVec, this.playerNode.velocity, );
         this.playerNode.applyTranslation(tempVec);
-        this.viewer.userCamera.moveCamera(this.playerNode.velocity);
         if (JSON.stringify(this.playerNode.velocity) !== "[0,0,0]"){
             // console.log("tr")
             this.playerNode.moved = true;
@@ -333,7 +332,6 @@ class glTF extends GltfObject
 
         vec3.add(a.translation, a.translation, minDirection);
         a.applyTranslation(a.translation);
-        this.viewer.userCamera.moveCamera(minDirection);
     }
 
     resolveWeaponCollision(a, b) {
