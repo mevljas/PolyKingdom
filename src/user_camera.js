@@ -38,7 +38,7 @@ class UserCamera extends gltfCamera
     updatePosition()
     {
         //update target postion
-        this.fitCameraTargetToExtends();
+        this.fitCameraTarget();
         //camera direction
         const direction = vec3.fromValues(-1, 0.5, 0);
         this.toLocalRotation(direction);
@@ -95,7 +95,7 @@ class UserCamera extends gltfCamera
 
     fitViewToScene()
     {
-        this.fitCameraTargetToExtends();
+        this.fitCameraTarget();
     }
 
     toLocalRotation(vector)
@@ -114,7 +114,7 @@ class UserCamera extends gltfCamera
         return this.position;
     }
 
-    fitCameraTargetToExtends(){
+    fitCameraTarget(){
         ///move camera as player moves
         vec3.scale(this.target, this.viewer.gltf.playerNode.translation, this.scale);
     }
