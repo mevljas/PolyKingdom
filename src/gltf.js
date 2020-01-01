@@ -20,10 +20,8 @@ import { vec3, mat4 } from 'gl-matrix';
 import { UserCamera } from './user_camera.js';
 
 
-class glTF extends GltfObject
-{
-    constructor(file, viewer)
-    {
+class glTF extends GltfObject {
+    constructor(file, viewer) {
         super();
         this.asset = undefined;
         this.accessors = [];
@@ -50,13 +48,11 @@ class glTF extends GltfObject
         this.enemies = [];
     }
 
-    initGl()
-    {
+    initGl() {
         initGlForMembers(this, this);
     }
 
-    fromJson(json)
-    {
+    fromJson(json) {
         super.fromJson(json);
 
         this.asset = objectFromJson(json.asset, gltfAsset);
@@ -78,28 +74,23 @@ class glTF extends GltfObject
         this.materials.push(gltfMaterial.createDefault());
         this.samplers.push(gltfSampler.createDefault());
 
-        if (json.scenes !== undefined)
-        {
-            if (json.scene === undefined && json.scenes.length > 0)
-            {
+        if (json.scenes !== undefined) {
+            if (json.scene === undefined && json.scenes.length > 0) {
                 this.scene = 0;
-            }
-            else
-            {
+            } else {
                 this.scene = json.scene;
             }
         }
         this.initPlayerAndEnemies();
     }
 
-    initPlayerAndEnemies(){
-        this.nodes.forEach(function(node){
+    initPlayerAndEnemies() {
+        this.nodes.forEach(function (node) {
             //save player
-            if (node.name === "player"){
+            if (node.name === "player") {
                 this.playerNode = node;
 
-            }
-            else if (node.name.includes("enemy")){
+            } else if (node.name.includes("enemy")) {
                 this.enemies.push(node);
             }
 
@@ -107,7 +98,7 @@ class glTF extends GltfObject
     }
 
 
-    checkMovement(){
+    checkMovement() {
         const right = vec3.set(vec3.create(),
             -Math.sin(this.playerNode.initialRotation[1]), 0, -Math.cos(this.playerNode.initialRotation[1]));
         const forward = vec3.set(vec3.create(),
@@ -121,39 +112,32 @@ class glTF extends GltfObject
             vec3.add(acc, acc, right);
             this.playerNode.rotate(0.785398);
 
-        }
-        else if (keys['KeyW'] && keys['KeyD']) {
+        } else if (keys['KeyW'] && keys['KeyD']) {
             vec3.add(acc, acc, forward);
             vec3.sub(acc, acc, right);
             this.playerNode.rotate(-0.785398);
 
-        }
-        else if (keys['KeyD'] && keys['KeyS']) {
+        } else if (keys['KeyD'] && keys['KeyS']) {
             vec3.sub(acc, acc, right);
             vec3.sub(acc, acc, forward);
             this.playerNode.rotate(-2.35619);
 
-        }
-        else if (keys['KeyS'] && keys['KeyA']) {
+        } else if (keys['KeyS'] && keys['KeyA']) {
             vec3.sub(acc, acc, forward);
             vec3.add(acc, acc, right);
             this.playerNode.rotate(2.35619);
 
-        }
-        else if (keys['KeyW']) {
+        } else if (keys['KeyW']) {
             vec3.add(acc, acc, forward);
             this.playerNode.rotate(0);
 
-        }
-        else if (keys['KeyS']) {
+        } else if (keys['KeyS']) {
             vec3.sub(acc, acc, forward);
             this.playerNode.rotate(3.14159);
-        }
-        else if (keys['KeyD']) {
+        } else if (keys['KeyD']) {
             vec3.sub(acc, acc, right);
             this.playerNode.rotate(-1.5708);
-        }
-        else if (keys['KeyA']) {
+        } else if (keys['KeyA']) {
             vec3.add(acc, acc, right);
             this.playerNode.rotate(1.5708);
         }
@@ -161,34 +145,32 @@ class glTF extends GltfObject
         // 2: update velocity
         vec3.scaleAndAdd(this.playerNode.velocity, this.playerNode.velocity, acc, this.playerNode.acceleration);
         let tempVec = Array.from(this.playerNode.translation);
-        vec3.add(tempVec, tempVec, this.playerNode.velocity, );
+        vec3.add(tempVec, tempVec, this.playerNode.velocity,);
         this.playerNode.applyTranslation(tempVec);
-        if (JSON.stringify(this.playerNode.velocity) !== "[0,0,0]"){
+        if (JSON.stringify(this.playerNode.velocity) !== "[0,0,0]") {
             this.playerNode.moved = true;
         }
-        this.playerNode.velocity = [0,0,0];
-
-
+        this.playerNode.velocity = [0, 0, 0];
 
 
     }
 
-    updatePlayer(){
+    updatePlayer() {
         this.checkMovement();
         this.checkplayerCollision();
     }
 
-    updateEnemies(){
+    updateEnemies() {
         this.checkEnemyCollision();
     }
 
-    checkplayerCollision(){
-        if (this.playerNode.moved || keys['Space']){
+    checkplayerCollision() {
+        if (this.playerNode.moved || keys['Space']) {
             for (var i = 0, len = this.nodes.length; i < len; i++) {
                 let node = this.nodes[i];
-                if ( this.playerNode !== node && !node.name.includes("_floor")) {
+                if (this.playerNode !== node && !node.name.includes("_floor")) {
                     this.resolveCollision(this.playerNode, node);
-                    if (keys['Space']){
+                    if (keys['Space']) {
                         this.resolveWeaponCollision(this.playerNode, node);
                     }
                 }
@@ -198,21 +180,35 @@ class glTF extends GltfObject
         }
 
     }
-    checkEnemyCollision(){
+
+    checkEnemyCollision() {
         for (var i = 0, len = this.enemies.length; i < len; i++) {
-            let node = this.enemies[i];
-            this.resolveEnemyDetectionRange(this.playerNode, node);
+            let enemy = this.enemies[i];
+            if (!enemy.playerDetection) {
+                this.resolveEnemyDetectionRange(this.playerNode, enemy);
+            } else {
+                this.moveEnemy(enemy);
+                this.checkIfEnemyCaughtPlayer(enemy, this.playerNode);
+                this.nodes.forEach(function (node2) {
+                    if (enemy !== node2 && !node2.name.includes("_floor")){
+                        this.resolveCollision(enemy, node2)
+                    }
+
+
+                }.bind(this));
+            }
+
 
         }
 
     }
 
-    initAABB(){
+    initAABB() {
         let weaponScalingFactor = 1.6;     //for weapon collsion
-        let enemyRangeScalingFactor = 3;     //for enemy detection range
-        this.nodes.forEach(function(node2){
+        let enemyRangeScalingFactor = 5;     //for enemy detection range
+        this.nodes.forEach(function (node2) {
             // copy AABB
-            if(typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined'){
+            if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
                 let accesorNumber = this.meshes[node2.mesh].primitives[0].attributes.POSITION;
                 node2.aabbmin = this.accessors[accesorNumber].min;
                 node2.aabbmax = this.accessors[accesorNumber].max;
@@ -229,11 +225,11 @@ class glTF extends GltfObject
         }.bind(this));
 
 
-
     }
+
     update() {
 
-        if (this.setUpAABB){
+        if (this.setUpAABB) {
             this.initAABB();
         }
 
@@ -247,7 +243,7 @@ class glTF extends GltfObject
 
     aabbIntersection(aabb1, aabb2) {
         return this.intervalIntersection(aabb1.min[0], aabb1.max[0], aabb2.min[0], aabb2.max[0])
-           // && this.intervalIntersection(aabb1.min[1], aabb1.max[1], aabb2.min[1], aabb2.max[1])
+            // && this.intervalIntersection(aabb1.min[1], aabb1.max[1], aabb2.min[1], aabb2.max[1])
             //removed because we dont care about height
             && this.intervalIntersection(aabb1.min[2], aabb1.max[2], aabb2.min[2], aabb2.max[2]);
     }
@@ -258,7 +254,7 @@ class glTF extends GltfObject
         const posb = b.translation;
 
         //get bounding box
-        const mina = vec3.add(vec3.create(), posa, a.aabbmin );
+        const mina = vec3.add(vec3.create(), posa, a.aabbmin);
         const maxa = vec3.add(vec3.create(), posa, a.aabbmax);
         const minb = vec3.add(vec3.create(), posb, b.aabbmin);
         const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
@@ -320,7 +316,7 @@ class glTF extends GltfObject
 
         //get bounding box
         //player boudning box should be bigger
-        const mina = vec3.add(vec3.create(), posa, a.aabbWeaponMin );
+        const mina = vec3.add(vec3.create(), posa, a.aabbWeaponMin);
         const maxa = vec3.add(vec3.create(), posa, a.aabbWeaponMax);
         //enemy bounding box shouldb be the same ( scalin with big models)
         const minb = vec3.add(vec3.create(), posb, b.aabbmin);
@@ -343,6 +339,7 @@ class glTF extends GltfObject
 
 
     }
+
     resolveEnemyDetectionRange(a, b) {
         //get current position
         const posa = a.translation;
@@ -350,7 +347,7 @@ class glTF extends GltfObject
 
         //get bounding box
         //player boudning box should be bigger
-        const mina = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMin );
+        const mina = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMin);
         const maxa = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMax);
         //enemy bounding box shouldb be the same ( scalin with big models)
         const minb = vec3.add(vec3.create(), posb, b.aabbmin);
@@ -366,8 +363,49 @@ class glTF extends GltfObject
         });
 
         if (isColliding) {
-            // console.log("Enemy detection");
+            console.log("Enemy detection");
+            b.playerDetection = true;
         }
+
+
+    }
+
+    moveEnemy(enemy) {
+        // console.log("moving")
+        let enemyVector = enemy.translation;
+        let playerVector = this.playerNode.translation;
+        let vectorFromEnemyToPlayer = vec3.create();
+        vec3.set(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], playerVector[1] - enemyVector[1], playerVector[2] - enemyVector[2]);
+        vec3.scaleAndAdd(enemy.translation, enemy.translation, vectorFromEnemyToPlayer, enemy.movementSpeed);
+        enemy.applyTranslation(enemy.translation);
+
+
+    }
+
+    checkIfEnemyCaughtPlayer(a, b) {
+        //get current position
+        const posa = a.translation;
+        const posb = b.translation;
+
+        //get bounding box
+        const mina = vec3.add(vec3.create(), posa, a.aabbmin);
+        const maxa = vec3.add(vec3.create(), posa, a.aabbmax);
+        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
+        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
+
+        // Check if there is collision.
+        const isColliding = this.aabbIntersection({
+            min: mina,
+            max: maxa
+        }, {
+            min: minb,
+            max: maxb
+        });
+
+        if (!isColliding) {
+            return;
+        }
+        console.log("Enemy caught you!");
 
 
     }
