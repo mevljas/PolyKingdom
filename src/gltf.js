@@ -97,7 +97,6 @@ class glTF extends GltfObject
             //save player
             if (node.name === "player"){
                 this.playerNode = node;
-                this.playerDirectionVector = 0;
 
             }
             else if (node.name.includes("enemy")){
@@ -110,9 +109,9 @@ class glTF extends GltfObject
 
     checkMovement(){
         const right = vec3.set(vec3.create(),
-            -Math.sin(this.playerDirectionVector), 0, -Math.cos(this.playerDirectionVector));
+            -Math.sin(this.playerNode.initialRotation[1]), 0, -Math.cos(this.playerNode.initialRotation[1]));
         const forward = vec3.set(vec3.create(),
-            Math.cos(this.playerDirectionVector), 0, -Math.sin(this.playerDirectionVector));
+            Math.cos(this.playerNode.initialRotation[1]), 0, -Math.sin(this.playerNode.initialRotation[1]));
 
         // 1: add movement acceleration
         let acc = vec3.create();
@@ -141,7 +140,6 @@ class glTF extends GltfObject
         vec3.add(tempVec, tempVec, this.playerNode.velocity, );
         this.playerNode.applyTranslation(tempVec);
         if (JSON.stringify(this.playerNode.velocity) !== "[0,0,0]"){
-            // console.log("tr")
             this.playerNode.moved = true;
         }
         this.playerNode.velocity = [0,0,0];
