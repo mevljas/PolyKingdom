@@ -116,7 +116,31 @@ class glTF extends GltfObject
         // 1: add movement acceleration
         let acc = vec3.create();
         //rotate
-        if (keys['KeyW']) {
+        if (keys['KeyA'] && keys['KeyW']) {
+            vec3.add(acc, acc, forward);
+            vec3.add(acc, acc, right);
+            this.playerNode.rotate(0.785398);
+
+        }
+        else if (keys['KeyW'] && keys['KeyD']) {
+            vec3.add(acc, acc, forward);
+            vec3.sub(acc, acc, right);
+            this.playerNode.rotate(-0.785398);
+
+        }
+        else if (keys['KeyD'] && keys['KeyS']) {
+            vec3.sub(acc, acc, right);
+            vec3.sub(acc, acc, forward);
+            this.playerNode.rotate(-2.35619);
+
+        }
+        else if (keys['KeyS'] && keys['KeyA']) {
+            vec3.sub(acc, acc, forward);
+            vec3.add(acc, acc, right);
+            this.playerNode.rotate(2.35619);
+
+        }
+        else if (keys['KeyW']) {
             vec3.add(acc, acc, forward);
             this.playerNode.rotate(0);
 
