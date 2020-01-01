@@ -43,6 +43,7 @@ class gltfNode extends GltfObject
         //enemy detects player
         this.aabbEnemyRangeMin= vec3.create();
         this.aabbEnemyRangeMax= vec3.create();
+        this.initialRotation = this.rotation;
 
 
     }
@@ -140,8 +141,11 @@ class gltfNode extends GltfObject
 
     angle *= 0.5;
 
-    let qax = this.rotation[0], qay = this.rotation[1], qaz = this.rotation[2], qaw = this.rotation[3],
-        qbx = Math.sin(angle), qbw = Math.cos(angle);
+    // let qax = this.rotation[0], qay = this.rotation[1], qaz = this.rotation[2], qaw = this.rotation[3],
+    //     qbx = Math.sin(angle), qbw = Math.cos(angle);
+
+        let qax = this.initialRotation[0], qay = this.initialRotation[1], qaz = this.initialRotation[2], qaw = this.initialRotation[3],
+            qbx = Math.sin(angle), qbw = Math.cos(angle);
 
         // this.rotation[0] = qax * qbw + qaz * qbx;
         // this.rotation[1] = qay * qbw + qaw * qbx;
