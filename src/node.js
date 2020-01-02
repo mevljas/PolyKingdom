@@ -146,16 +146,9 @@ class gltfNode extends GltfObject
 
     angle *= 0.5;
 
-    // let qax = this.rotation[0], qay = this.rotation[1], qaz = this.rotation[2], qaw = this.rotation[3],
-    //     qbx = Math.sin(angle), qbw = Math.cos(angle);
-
         let qax = this.initialRotation[0], qay = this.initialRotation[1], qaz = this.initialRotation[2], qaw = this.initialRotation[3],
             qbx = Math.sin(angle), qbw = Math.cos(angle);
 
-        // this.rotation[0] = qax * qbw + qaz * qbx;
-        // this.rotation[1] = qay * qbw + qaw * qbx;
-        // this.rotation[2] = qaz * qbw - qax * qbx;
-        // this.rotation[3] = qaw * qbw - qay * qbx;
         this.rotation[0] = qax * qbw + qaz * qbx;
         this.rotation[1] = qay * qbw + qaw * qbx;
         this.rotation[2] = qaz * qbw - qax * qbx;
@@ -163,10 +156,6 @@ class gltfNode extends GltfObject
 
     this.applyRotation(this.rotation);
     };
-
-
-
-
 
 
 }

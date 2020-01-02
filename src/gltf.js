@@ -189,6 +189,7 @@ class glTF extends GltfObject {
             if (!enemy.playerDetection) {
                 this.resolveEnemyDetectionRange(this.playerNode, enemy);
             } else {
+                this.rotateEnemy(enemy);
                 this.moveEnemy(enemy);
                 this.checkIfEnemyCaughtPlayer(enemy, this.playerNode);
                 this.nodes.forEach(function (node2) {
@@ -205,8 +206,10 @@ class glTF extends GltfObject {
 
     }
 
+
+
     initAABB() {
-        let weaponScalingFactor = 1.6;     //for weapon collsion
+        let weaponScalingFactor = 10;     //for weapon collsion
         let enemyRangeScalingFactor = 200;     //for enemy detection range
         this.nodes.forEach(function (node2) {
             // copy AABB
@@ -273,7 +276,7 @@ class glTF extends GltfObject {
         if (!isColliding) {
             return;
         }
-        console.log(a.name+" is colliding with "+b.name);
+        // console.log(a.name+" is colliding with "+b.name);
         // console.log(b.name);
 
 
@@ -413,6 +416,14 @@ class glTF extends GltfObject {
 
     }
 
+    rotateEnemy(enemy){
+        let enemyVector = enemy.translation;
+        let playerVector = this.playerNode.translation;
+        let newAngle = getAngleBetweenVertices(enemyVector, playerVector);
+        enemy.rotate(newAngle);
+
+    }
+
 }
 
 function getJsonLightsFromExtensions(extensions)
@@ -426,6 +437,24 @@ function getJsonLightsFromExtensions(extensions)
         return [];
     }
     return extensions.KHR_lights_punctual.lights;
+}
+
+function normalizeAngle(angle){
+    if (angle > 360) return angle - 360;
+    if (angle < 0) return 360 + angle;
+    else return angle;
+}
+
+function getAngleBetweenPoints(cx, cy, ex, ey){
+    let dy = ey - cy;
+    let dx = ex - cx;
+    let theta = Math.atan2(dy, dx);
+    theta *= 180 / Math.PI;
+    return theta;
+}
+
+function getAngleBetweenVertices(vert1, vert2){
+    return normalizeAngle(getAngleBetweenPoints(vert1[2], vert1[0], vert2[2], vert2[0])) * (Math.PI / 180);
 }
 
 export { glTF };
