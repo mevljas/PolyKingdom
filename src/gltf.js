@@ -107,39 +107,41 @@ class glTF extends GltfObject {
         // 1: add movement acceleration
         let acc = vec3.create();
         //rotate
-        if (keys['KeyA'] && keys['KeyW']) {
-            vec3.add(acc, acc, forward);
-            vec3.add(acc, acc, right);
-            this.playerNode.rotate(0.785398);
+        if (keys['KeyW'] && keys['KeyA']) {
+            vec3.sub(acc, acc, right);
+            vec3.sub(acc, acc, forward);
+            this.playerNode.rotate(5.49779);  //315
+
 
         } else if (keys['KeyW'] && keys['KeyD']) {
-            vec3.add(acc, acc, forward);
-            vec3.sub(acc, acc, right);
-            this.playerNode.rotate(-0.785398);
+            vec3.sub(acc, acc, forward);
+            vec3.add(acc, acc, right);
+            this.playerNode.rotate(0.785398); //45
 
         } else if (keys['KeyD'] && keys['KeyS']) {
-            vec3.sub(acc, acc, right);
-            vec3.sub(acc, acc, forward);
-            this.playerNode.rotate(-2.35619);
+            vec3.add(acc, acc, right);
+            vec3.add(acc, acc, forward);
+            this.playerNode.rotate(2.35619);  //135
+
 
         } else if (keys['KeyS'] && keys['KeyA']) {
-            vec3.sub(acc, acc, forward);
-            vec3.add(acc, acc, right);
-            this.playerNode.rotate(2.35619);
+            vec3.add(acc, acc, forward);
+            vec3.sub(acc, acc, right);
+            this.playerNode.rotate(0.785398);  //45
 
         } else if (keys['KeyW']) {
-            vec3.add(acc, acc, forward);
-            this.playerNode.rotate(0);
+            vec3.sub(acc, acc, forward);
+            this.playerNode.rotate(-1.5708);  //-90
 
         } else if (keys['KeyS']) {
-            vec3.sub(acc, acc, forward);
-            this.playerNode.rotate(3.14159);
+            vec3.add(acc, acc, forward);
+            this.playerNode.rotate(1.5708);  //90
         } else if (keys['KeyD']) {
-            vec3.sub(acc, acc, right);
-            this.playerNode.rotate(-1.5708);
-        } else if (keys['KeyA']) {
             vec3.add(acc, acc, right);
-            this.playerNode.rotate(1.5708);
+            this.playerNode.rotate(3.14159); //180
+        } else if (keys['KeyA']) {
+            vec3.sub(acc, acc, right);
+            this.playerNode.rotate(6.28319);  //360
         }
 
         // 2: update velocity
