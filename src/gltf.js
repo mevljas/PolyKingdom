@@ -207,7 +207,7 @@ class glTF extends GltfObject {
 
     initAABB() {
         let weaponScalingFactor = 1.6;     //for weapon collsion
-        let enemyRangeScalingFactor = 5;     //for enemy detection range
+        let enemyRangeScalingFactor = 200;     //for enemy detection range
         this.nodes.forEach(function (node2) {
             // copy AABB
             if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
@@ -378,7 +378,7 @@ class glTF extends GltfObject {
         let enemyVector = enemy.translation;
         let playerVector = this.playerNode.translation;
         let vectorFromEnemyToPlayer = vec3.create();
-        vec3.set(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], playerVector[1] - enemyVector[1], playerVector[2] - enemyVector[2]);
+        vec3.set(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
         vec3.scaleAndAdd(enemy.translation, enemy.translation, vectorFromEnemyToPlayer, enemy.movementSpeed);
         enemy.applyTranslation(enemy.translation);
 
