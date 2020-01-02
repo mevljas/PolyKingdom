@@ -40,7 +40,7 @@ class UserCamera extends gltfCamera
 
         this.moveTarget();
         //camera direction
-        const direction = vec3.fromValues(-1, 0.3, 0);
+        const direction = vec3.fromValues(1, 0.3, 0);
         this.toLocalRotation(direction);
 
         const position = vec3.create();
