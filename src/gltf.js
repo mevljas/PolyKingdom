@@ -116,7 +116,7 @@ class glTF extends GltfObject {
         } else if (keys['KeyW'] && keys['KeyD']) {
             vec3.sub(acc, acc, forward);
             vec3.add(acc, acc, right);
-            this.playerNode.rotate(0.785398); //45
+            this.playerNode.rotate(-2.35619);  //-135
 
         } else if (keys['KeyD'] && keys['KeyS']) {
             vec3.add(acc, acc, right);
@@ -273,6 +273,7 @@ class glTF extends GltfObject {
         if (!isColliding) {
             return;
         }
+        console.log(a.name+" is colliding with "+b.name);
         // console.log(b.name);
 
 
@@ -334,7 +335,7 @@ class glTF extends GltfObject {
         });
 
         if (isColliding) {
-            // console.log(b.name+" weapon");
+            console.log(b.name+" weaponHit");
             //prevents multiple hits.
             keys['Space'] = false;
         }
@@ -365,7 +366,7 @@ class glTF extends GltfObject {
         });
 
         if (isColliding) {
-            console.log("Enemy detection");
+            console.log(b.name+" detected player");
             b.playerDetection = true;
         }
 
@@ -407,7 +408,7 @@ class glTF extends GltfObject {
         if (!isColliding) {
             return;
         }
-        console.log("Enemy caught you!");
+        console.log(b.name+" caught you!");
 
 
     }
