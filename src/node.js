@@ -49,7 +49,8 @@ class gltfNode extends GltfObject
         //enemy movement speed
         this.movementSpeed = 0.005;
         this.lastTranslation = this.translation;
-
+        this.lives = 3;
+        this.alive = true;
 
     }
 

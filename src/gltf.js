@@ -97,6 +97,30 @@ class glTF extends GltfObject {
         }.bind(this));
     }
 
+    initAABB() {
+        let weaponScalingFactor = 3;     //for weapon collsion
+        let enemyRangeScalingFactor = 30;     //for enemy detection range
+        this.nodes.forEach(function (node2) {
+            // copy AABB
+            if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
+                let accesorNumber = this.meshes[node2.mesh].primitives[0].attributes.POSITION;
+                node2.aabbmin = this.accessors[accesorNumber].min;
+                node2.aabbmax = this.accessors[accesorNumber].max;
+                //setup wepon aabb
+                //weapon has a range equal to boundingbox * weaponScalingFactor
+                vec3.scale(node2.aabbWeaponMin, this.accessors[accesorNumber].min, weaponScalingFactor);
+                vec3.scale(node2.aabbWeaponMax, this.accessors[accesorNumber].max, weaponScalingFactor);
+                //enemy has a detection range equal to boundingbox * enemyRangeScalingFactor
+                vec3.scale(node2.aabbEnemyRangeMin, this.accessors[accesorNumber].min, enemyRangeScalingFactor);
+                vec3.scale(node2.aabbEnemyRangeMax, this.accessors[accesorNumber].max, enemyRangeScalingFactor);
+                this.setUpAABB = false;
+
+            }
+        }.bind(this));
+
+
+    }
+
 
     checkMovement() {
         const right = vec3.set(vec3.create(),
@@ -163,16 +187,34 @@ class glTF extends GltfObject {
     }
 
     updateEnemies() {
-        this.checkEnemyCollision();
+        for (var i = 0, len = this.enemies.length; i < len; i++) {
+            let enemy = this.enemies[i];
+            if (!enemy.playerDetection) {
+                this.resolveEnemyDetectionRange(this.playerNode, enemy);
+            } else if (enemy.alive){
+                this.rotateEnemy(enemy);
+                this.moveEnemy(enemy);
+                this.checkIfEnemyCaughtPlayer(enemy, this.playerNode);
+                this.nodes.forEach(function (node2) {
+                    if (enemy !== node2 && !node2.name.includes("_floor") && node2.alive){
+                        this.resolveCollision(enemy, node2)
+                    }
+
+
+                }.bind(this));
+            }
+
+
+        }
     }
 
     checkplayerCollision() {
         if (this.playerNode.moved || keys['Space']) {
             for (var i = 0, len = this.nodes.length; i < len; i++) {
                 let node = this.nodes[i];
-                if (this.playerNode !== node && !node.name.includes("_floor")) {
+                if (this.playerNode !== node && !node.name.includes("_floor") && node.alive) {
                     this.resolveCollision(this.playerNode, node);
-                    if (keys['Space']) {
+                    if (keys['Space'] && node.name.includes("enemy")) {
                         this.resolveWeaponCollision(this.playerNode, node);
                     }
                 }
@@ -183,54 +225,11 @@ class glTF extends GltfObject {
 
     }
 
-    checkEnemyCollision() {
-        for (var i = 0, len = this.enemies.length; i < len; i++) {
-            let enemy = this.enemies[i];
-            if (!enemy.playerDetection) {
-                // this.resolveEnemyDetectionRange(this.playerNode, enemy);
-            } else {
-                this.rotateEnemy(enemy);
-                this.moveEnemy(enemy);
-                this.checkIfEnemyCaughtPlayer(enemy, this.playerNode);
-                this.nodes.forEach(function (node2) {
-                    if (enemy !== node2 && !node2.name.includes("_floor")){
-                        this.resolveCollision(enemy, node2)
-                    }
-
-
-                }.bind(this));
-            }
-
-
-        }
-
-    }
 
 
 
-    initAABB() {
-        let weaponScalingFactor = 10;     //for weapon collsion
-        let enemyRangeScalingFactor = 200;     //for enemy detection range
-        this.nodes.forEach(function (node2) {
-            // copy AABB
-            if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
-                let accesorNumber = this.meshes[node2.mesh].primitives[0].attributes.POSITION;
-                node2.aabbmin = this.accessors[accesorNumber].min;
-                node2.aabbmax = this.accessors[accesorNumber].max;
-                //setup wepon aabb
-                //weapon has a range equal to boundingbox * weaponScalingFactor
-                vec3.scale(node2.aabbWeaponMin, this.accessors[accesorNumber].min, weaponScalingFactor);
-                vec3.scale(node2.aabbWeaponMax, this.accessors[accesorNumber].max, weaponScalingFactor);
-                //enemy has a detection range equal to boundingbox * enemyRangeScalingFactor
-                vec3.scale(node2.aabbEnemyRangeMin, this.accessors[accesorNumber].min, enemyRangeScalingFactor);
-                vec3.scale(node2.aabbEnemyRangeMax, this.accessors[accesorNumber].max, enemyRangeScalingFactor);
-                this.setUpAABB = false;
-
-            }
-        }.bind(this));
 
 
-    }
 
     update() {
 
@@ -339,6 +338,8 @@ class glTF extends GltfObject {
 
         if (isColliding) {
             console.log(b.name+" weaponHit");
+            this.subEnemyLives(b);
+            this.checkEnemyLives(b);
             //prevents multiple hits.
             keys['Space'] = false;
         }
@@ -424,6 +425,17 @@ class glTF extends GltfObject {
 
     }
 
+    checkEnemyLives(enemy){
+        if (enemy.lives <= 0){
+            console.log(enemy.name+" dead");
+            enemy.alive = false;
+        }
+    }
+
+    subEnemyLives(enemy){
+        enemy.lives--;
+    }
+
 }
 
 function getJsonLightsFromExtensions(extensions)
@@ -456,5 +468,8 @@ function getAngleBetweenPoints(cx, cy, ex, ey){
 function getAngleBetweenVertices(vert1, vert2){
     return normalizeAngle(getAngleBetweenPoints(vert1[2], vert1[0], vert2[2], vert2[0])) * (Math.PI / 180);
 }
+
+
+
 
 export { glTF };

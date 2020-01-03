@@ -139,16 +139,19 @@ class gltfRenderer
             for (const node of nodes)
             {
                 let mesh = gltf.meshes[node.mesh];
-                if (mesh !== undefined)
-                {
-                    for (let primitive of mesh.primitives)
+                if (node.alive){
+                    if (mesh !== undefined)
                     {
-                        if(predicateDrawPrimivitve ? predicateDrawPrimivitve(primitive) : true)
+                        for (let primitive of mesh.primitives)
                         {
-                            this.drawPrimitive(gltf, primitive, node, this.viewProjectionMatrix);
+                            if(predicateDrawPrimivitve ? predicateDrawPrimivitve(primitive) : true)
+                            {
+                                this.drawPrimitive(gltf, primitive, node, this.viewProjectionMatrix);
+                            }
                         }
                     }
                 }
+
             }
         }
         else
