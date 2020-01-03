@@ -187,7 +187,7 @@ class glTF extends GltfObject {
         for (var i = 0, len = this.enemies.length; i < len; i++) {
             let enemy = this.enemies[i];
             if (!enemy.playerDetection) {
-                this.resolveEnemyDetectionRange(this.playerNode, enemy);
+                // this.resolveEnemyDetectionRange(this.playerNode, enemy);
             } else {
                 this.rotateEnemy(enemy);
                 this.moveEnemy(enemy);
