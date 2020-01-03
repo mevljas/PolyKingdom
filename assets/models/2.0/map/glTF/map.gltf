@@ -931,7 +931,7 @@
         },
         {
             "mesh" : 83,
-            "name" : "SF_Env_Stonepath_End_01.001",
+            "name" : "SF_Env_Stonepath_End_floor",
             "rotation" : [
                 0.6959114670753479,
                 -0.12532871961593628,
@@ -951,7 +951,7 @@
         },
         {
             "mesh" : 84,
-            "name" : "SF_Env_Stonepath_End_01.002",
+            "name" : "SF_Env_Stonepath_end_floor",
             "rotation" : [
                 0.6959114670753479,
                 -0.12532871961593628,
@@ -971,7 +971,7 @@
         },
         {
             "mesh" : 85,
-            "name" : "SF_Env_Stonepath_End_01.003",
+            "name" : "SF_Env_Stonepath_End_floor.001",
             "rotation" : [
                 0.3266701400279999,
                 -0.62712562084198,
