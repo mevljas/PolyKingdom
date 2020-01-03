@@ -13,13 +13,6 @@ Usage
 
 `GUI` : Use to change models and settings
 
-**Change glTF model**
-
-* Choose one of the glTF models in the selction list
-
-or
-
-* Drag and drop glTF files into viewer
 
 Setup
 -----
