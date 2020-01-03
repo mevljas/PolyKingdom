@@ -17,7 +17,7 @@ import { gltfAnimation } from './animation.js';
 import { gltfSkin } from './skin.js';
 import { keys } from './publicVariables.js';
 import { vec3, mat4 } from 'gl-matrix';
-import { UserCamera } from './user_camera.js';
+import { playerWeaponAudio, playerHurtAudio, zombieHurtAudio, enemyDeathAudio, enemyDetectionSounds } from './audio.js';
 
 
 class glTF extends GltfObject {
@@ -342,7 +342,9 @@ class glTF extends GltfObject {
             this.checkEnemyLives(b);
             //prevents multiple hits.
             keys['Space'] = false;
+            zombieHurtAudio.play();
         }
+
 
 
     }
@@ -372,6 +374,7 @@ class glTF extends GltfObject {
         if (isColliding) {
             console.log(b.name+" detected player");
             b.playerDetection = true;
+            enemyDetectionSounds.play();
         }
 
 
@@ -413,6 +416,7 @@ class glTF extends GltfObject {
             return;
         }
         console.log(b.name+" caught you!");
+        this.playerTakeAHit();
 
 
     }
@@ -429,11 +433,19 @@ class glTF extends GltfObject {
         if (enemy.lives <= 0){
             console.log(enemy.name+" dead");
             enemy.alive = false;
+            enemyDeathAudio.play();
         }
     }
 
     subEnemyLives(enemy){
         enemy.lives--;
+    }
+    playerTakeAHit(){
+        playerHurtAudio.play();
+        this.playerNode.lives--;
+        if (this.playerNode.lives <= 0){
+            console.log("player is dead");
+        }
     }
 
 }

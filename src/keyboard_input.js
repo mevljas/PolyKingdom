@@ -1,4 +1,5 @@
 import { Input_ResetCamera, keys } from './publicVariables.js';
+import {playerWeaponAudio} from "./audio";
 
 class gltfKeyboardInput
 {
@@ -22,6 +23,9 @@ class gltfKeyboardInput
             this.onResetCamera();
         }
         keys[event.code] = true;
+        if (event.code === 'Space'){
+            playerWeaponAudio.play();
+        }
     }
     keyUpHandler(event)
     {
