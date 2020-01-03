@@ -276,7 +276,7 @@ class glTF extends GltfObject {
         if (!isColliding) {
             return;
         }
-        // console.log(a.name+" is colliding with "+b.name);
+        console.log(a.name+" is colliding with "+b.name);
         // console.log(b.name);
 
 

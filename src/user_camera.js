@@ -32,7 +32,7 @@ class UserCamera extends gltfCamera
         this.scaleFactor = 100;
         this.viewer = viewer;
         //scaler for player translation
-        this.scale = 0.002;
+        this.scale = 0.00183;
     }
 
     updatePosition()
