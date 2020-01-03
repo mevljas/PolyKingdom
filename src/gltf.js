@@ -99,7 +99,7 @@ class glTF extends GltfObject {
 
     initAABB() {
         let weaponScalingFactor = 3;     //for weapon collsion
-        let enemyRangeScalingFactor = 30;     //for enemy detection range
+        let enemyRangeScalingFactor = 15;     //for enemy detection range
         this.nodes.forEach(function (node2) {
             // copy AABB
             if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
