@@ -9,7 +9,7 @@ class gltfRenderingParameters
         environmentName = Object.keys(Environments)[0],
         useIBL = true,
         usePunctual = false,
-        exposure = 1.0,
+        exposure = 2.0,
         clearColor = [50, 50, 50],
         toneMap = ToneMaps.LINEAR,
         debugOutput = DebugOutput.NONE,
