@@ -77,9 +77,12 @@ class enemyObject {
 
     subLives(){
         if (--this.lives <= 0){
-            console.log(this.node.name+" dead");
+            // console.log(this.node.name+" dead");
             this.node.alive = false;
             enemyDeathAudio.play();
+            if (++this.gltf.killedEnemies === this.gltf.enemies.length){
+                window.location.replace("Victory.html");
+            }
         }
     }
 

@@ -49,6 +49,7 @@ class glTF extends GltfObject {
         this.playerDirection = "up";
         this.setUpAABB = true;
         this.enemies = [];
+        this.killedEnemies = 0;
     }
 
     initGl() {

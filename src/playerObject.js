@@ -97,6 +97,7 @@ class playerObject {
     update() {
         this.checkMovement();
         this.checkCollision();
+        this.setHealtBar();
     }
 
 
@@ -118,9 +119,14 @@ class playerObject {
 
     takeAHit(){
         playerHurtAudio.play();
-        if (--this.node.lives <= 0){
-            console.log("player is dead");
+        if (--this.lives <= 0){
+            window.location.replace("Game_Over.html");
         }
+
+    }
+
+    setHealtBar(){
+        document.getElementById("healtBar").style.width = this.lives +"%";
     }
 
 }

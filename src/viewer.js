@@ -473,7 +473,6 @@ class gltfViewer
     notifyLoadingStarted(path)
     {
         this.loadingTimer.start();
-        console.log("Loading '" + path + "' with environment '" + this.renderingParameters.environmentName + "'");
 
         if (!this.headless)
         {
@@ -484,7 +483,6 @@ class gltfViewer
     notifyLoadingEnded(path)
     {
         this.loadingTimer.stop();
-        console.log("Loading '" + path + "' took " + this.loadingTimer.seconds + " seconds");
 
         if (!this.headless)
         {
