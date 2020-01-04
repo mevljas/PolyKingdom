@@ -37,7 +37,7 @@ class colliison {
         if (!isColliding) {
             return;
         }
-        console.log(a.name+" is colliding with "+b.name);
+        // console.log(a.name+" is colliding with "+b.name);
         // console.log(b.name);
 
 
@@ -102,7 +102,7 @@ class colliison {
         });
 
         if (isColliding) {
-            console.log(b.name+" weaponHit");
+            // console.log(b.name+" weaponHit");
             second.subLives();
             //prevents multiple hits.
             keys['Space'] = false;
@@ -140,7 +140,7 @@ class colliison {
         });
 
         if (isColliding) {
-            console.log(b.name+" detected player");
+            // console.log(b.name+" detected player");
             second.playerDetection = true;
             enemyDetectionSounds.play();
         }
@@ -177,7 +177,7 @@ class colliison {
         if (!isColliding) {
             return;
         }
-        console.log(b.name+" caught you!");
+        // console.log(b.name+" caught you!");
         second.takeAHit();
 
 
