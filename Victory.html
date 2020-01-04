@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PolyKingdom</title>
+<link rel="shortcut icon" type="image/png" href="assets/images/favicon.ico"/>
+
+<style>
+
+        body{
+            background-color: #252626;
+        }
+
+        .main_menu {
+            position: absolute;
+            text-align: center;
+            max-height: 100%;
+            top:30%;
+            left:35%;
+
+        }
+
+        .title{
+            position: relative;
+            padding: 15px 100px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            text-align: center;
+            font-size: 50px;
+            color: white;
+            top:0%;
+
+
+        }
+
+
+    /*POP up*/
+
+    body {
+  font-family: Arial, sans-serif;
+  background-size: cover;
+  height: 100vh;
+}
+
+h1 {
+  text-align: center;
+  font-family: Tahoma, Arial, sans-serif;
+  color:rgb(168,101,84);
+  margin: 80px 0;
+}
+
+.box {
+  width: 40%;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.2);
+  padding: 35px;
+  border: 2px solid #fff;
+  border-radius: 20px/50px;
+  background-clip: padding-box;
+  text-align: center;
+}
+
+.button {
+    background-color:#252626;
+    padding: 15px 100px;
+    text-decoration: none;
+    font-weight: bold;
+    border: none;
+    text-align: center;
+    display: inline-block;
+    font-size: 30px;
+    color: white;
+  transition: all 0.3s ease-out;
+}
+.button:hover {
+  background: white;
+  color:#252626;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  transition: opacity 500ms;
+  visibility: hidden;
+  opacity: 0;
+}
+.overlay:target {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup {
+  margin: 70px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 5px;
+  width: 30%;
+  position: relative;
+  transition: all 5s ease-in-out;
+}
+
+.popup h2 {
+  margin-top: 0;
+  color: #333;
+  font-family: Tahoma, Arial, sans-serif;
+}
+.popup .close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  transition: all 200ms;
+  font-size: 30px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+}
+.popup .close:hover {
+  color:rgb(168,101,84);
+}
+.popup .content {
+  max-height: 30%;
+  overflow: auto;
+}
+
+@media screen and (max-width: 700px){
+  .box{
+    width: 70%;
+  }
+  .popup{
+    width: 70%;
+  }
+}
+
+</style>
+
+</head>
+<body scroll="no" style="overflow: hidden">  
+
+    <div class="main_menu" >
+    <p class="title">You won!</p>
+
+    <button class="button" onclick="myFunction()">Main menu</button>
+    <br>
+    <a class="button" href="javascript:window.open('','_self').close();">Exit</a>
+    </div>
+
+
+
+
+
+    <!--POPUP-->
+
+
+
+
+    <script>
+        function myFunction() {
+
+            window.open("Start_menu.html");
+            window.open('','_self').close();
+        }
+    </script>
+
+</body>
+</html>
