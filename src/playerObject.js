@@ -18,6 +18,7 @@ import {gltfSkin} from "./skin";
 import {vec3} from "gl-matrix";
 import {keys} from "./publicVariables";
 import {enemyDeathAudio, enemyDetectionSounds, playerHurtAudio, zombieHurtAudio} from "./audio";
+import {colliison} from "./collision";
 
 class playerObject {
     constructor(node, gtlf) {
@@ -103,7 +104,7 @@ class playerObject {
             for (var i = 0, len = this.gltf.nodes.length; i < len; i++) {
                 let node = this.gltf.nodes[i];
                 if (this.node !== node && !node.name.includes("_floor") && node.alive) {
-                    this.gltf.resolveCollision(this.node, node);
+                    colliison.resolveCollision(this.node, node);
                 }
 
             }
@@ -116,44 +117,14 @@ class playerObject {
 
     takeAHit(){
         playerHurtAudio.play();
-        this.lives--;
-        if (this.node.lives <= 0){
+        if (--this.node.lives <= 0){
             console.log("player is dead");
         }
     }
 
 }
 
-function getJsonLightsFromExtensions(extensions)
-{
-    if (extensions === undefined)
-    {
-        return [];
-    }
-    if (extensions.KHR_lights_punctual === undefined)
-    {
-        return [];
-    }
-    return extensions.KHR_lights_punctual.lights;
-}
 
-function normalizeAngle(angle){
-    if (angle > 360) return angle - 360;
-    if (angle < 0) return 360 + angle;
-    else return angle;
-}
-
-function getAngleBetweenPoints(cx, cy, ex, ey){
-    let dy = ey - cy;
-    let dx = ex - cx;
-    let theta = Math.atan2(dy, dx);
-    theta *= 180 / Math.PI;
-    return theta;
-}
-
-function getAngleBetweenVertices(vert1, vert2){
-    return normalizeAngle(getAngleBetweenPoints(vert1[2], vert1[0], vert2[2], vert2[0])) * (Math.PI / 180);
-}
 
 
 

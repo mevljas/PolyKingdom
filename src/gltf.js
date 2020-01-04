@@ -20,6 +20,7 @@ import { vec3, mat4 } from 'gl-matrix';
 import { playerWeaponAudio, playerHurtAudio, zombieHurtAudio, enemyDeathAudio, enemyDetectionSounds } from './audio.js';
 import {playerObject} from "./playerObject";
 import {enemyObject} from "./enemyObject";
+import {colliison} from "./collision";
 
 
 class glTF extends GltfObject {
@@ -130,22 +131,9 @@ class glTF extends GltfObject {
         for (var i = 0, len = this.enemies.length; i < len; i++) {
             let enemy = this.enemies[i];
             if (!enemy.playerDetection) {
-                this.resolveEnemyDetectionRange(this.player, enemy);
+                colliison.resolveEnemyDetectionRange(this.player, enemy);
             } else if (enemy.node.alive){
-                enemy.rotate();
-                enemy.move();
-                this.checkIfEnemyCaughtPlayer(enemy.node, this.player.node);
-                //player attack
-                if (keys['Space']) {
-                    this.resolveWeaponCollision(this.player, enemy);
-                }
-                this.nodes.forEach(function (node2) {
-                    if (enemy.node !== node2 && !node2.name.includes("_floor") && node2.alive){
-                        this.resolveCollision(enemy.node, node2)
-                    }
-
-
-                }.bind(this));
+                enemy.update();
             }
 
 
@@ -166,181 +154,6 @@ class glTF extends GltfObject {
         this.updateEnemies();
     }
 
-    intervalIntersection(min1, max1, min2, max2) {
-        return !(min1 > max2 || min2 > max1);
-    }
-
-    aabbIntersection(aabb1, aabb2) {
-        return this.intervalIntersection(aabb1.min[0], aabb1.max[0], aabb2.min[0], aabb2.max[0])
-            // && this.intervalIntersection(aabb1.min[1], aabb1.max[1], aabb2.min[1], aabb2.max[1])
-            //removed because we dont care about height
-            && this.intervalIntersection(aabb1.min[2], aabb1.max[2], aabb2.min[2], aabb2.max[2]);
-    }
-
-    resolveCollision(a, b) {
-        //get current position
-        const posa = a.translation;
-        const posb = b.translation;
-
-        //get bounding box
-        const mina = vec3.add(vec3.create(), posa, a.aabbmin);
-        const maxa = vec3.add(vec3.create(), posa, a.aabbmax);
-        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
-        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
-
-        // Check if there is collision.
-        const isColliding = this.aabbIntersection({
-            min: mina,
-            max: maxa
-        }, {
-            min: minb,
-            max: maxb
-        });
-
-        if (!isColliding) {
-            return;
-        }
-        console.log(a.name+" is colliding with "+b.name);
-        // console.log(b.name);
-
-
-        // Move node A minimally to avoid collision.
-        const diffa = vec3.sub(vec3.create(), maxb, mina);
-        const diffb = vec3.sub(vec3.create(), maxa, minb);
-
-        let minDiff = Infinity;
-        let minDirection = vec3.create();
-        if (diffa[0] >= 0 && diffa[0] < minDiff) {
-            minDiff = diffa[0];
-            minDirection = [minDiff, 0, 0];
-        }
-        if (diffa[1] >= 0 && diffa[1] < minDiff) {
-            minDiff = diffa[1];
-            minDirection = [0, minDiff, 0];
-        }
-        if (diffa[2] >= 0 && diffa[2] < minDiff) {
-            minDiff = diffa[2];
-            minDirection = [0, 0, minDiff];
-        }
-        if (diffb[0] >= 0 && diffb[0] < minDiff) {
-            minDiff = diffb[0];
-            minDirection = [-minDiff, 0, 0];
-        }
-        if (diffb[1] >= 0 && diffb[1] < minDiff) {
-            minDiff = diffb[1];
-            minDirection = [0, -minDiff, 0];
-        }
-        if (diffb[2] >= 0 && diffb[2] < minDiff) {
-            minDiff = diffb[2];
-            minDirection = [0, 0, -minDiff];
-        }
-
-        vec3.add(a.translation, a.translation, minDirection);
-        a.applyTranslation(a.translation);
-    }
-
-    resolveWeaponCollision(first, second) {
-
-        let a = first.node;
-        let b = second.node;
-        //get current position
-        const posa = a.translation;
-        const posb = b.translation;
-
-        //get bounding box
-        //player boudning box should be bigger
-        const mina = vec3.add(vec3.create(), posa, a.aabbWeaponMin);
-        const maxa = vec3.add(vec3.create(), posa, a.aabbWeaponMax);
-        //enemy bounding box shouldb be the same ( scalin with big models)
-        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
-        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
-
-        // Check if there is collision.
-        const isColliding = this.aabbIntersection({
-            min: mina,
-            max: maxa
-        }, {
-            min: minb,
-            max: maxb
-        });
-
-        if (isColliding) {
-            console.log(b.name+" weaponHit");
-            second.subLives();
-            //prevents multiple hits.
-            keys['Space'] = false;
-            zombieHurtAudio.play();
-        }
-
-
-
-    }
-
-    resolveEnemyDetectionRange(first, second) {
-
-        let a = first.node;
-        let b = second.node;
-
-        //get current position
-        const posa = a.translation;
-        const posb = b.translation;
-
-        //get bounding box
-        //player boudning box should be bigger
-        const mina = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMin);
-        const maxa = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMax);
-        //enemy bounding box shouldb be the same ( scalin with big models)
-        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
-        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
-
-        // Check if there is collision.
-        const isColliding = this.aabbIntersection({
-            min: mina,
-            max: maxa
-        }, {
-            min: minb,
-            max: maxb
-        });
-
-        if (isColliding) {
-            console.log(b.name+" detected player");
-            second.playerDetection = true;
-            enemyDetectionSounds.play();
-        }
-
-
-    }
-
-
-
-    checkIfEnemyCaughtPlayer(a, b) {
-        //get current position
-        const posa = a.translation;
-        const posb = b.translation;
-
-        //get bounding box
-        const mina = vec3.add(vec3.create(), posa, a.aabbmin);
-        const maxa = vec3.add(vec3.create(), posa, a.aabbmax);
-        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
-        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
-
-        // Check if there is collision.
-        const isColliding = this.aabbIntersection({
-            min: mina,
-            max: maxa
-        }, {
-            min: minb,
-            max: maxb
-        });
-
-        if (!isColliding) {
-            return;
-        }
-        console.log(b.name+" caught you!");
-        this.player.takeAHit();
-
-
-    }
 
 
 }

@@ -19,6 +19,7 @@ import { keys } from './publicVariables.js';
 import { vec3, mat4 } from 'gl-matrix';
 import { playerWeaponAudio, playerHurtAudio, zombieHurtAudio, enemyDeathAudio, enemyDetectionSounds } from './audio.js';
 import {playerObject} from "./playerObject";
+import {colliison} from "./collision";
 
 
 class enemyObject {
@@ -31,6 +32,23 @@ class enemyObject {
         //if enemy detected player
         this.playerDetection = false;
 
+    }
+
+    update(){
+        this.rotate();
+        this.move();
+        colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
+        //player attack
+        if (keys['Space']) {
+            colliison.resolveWeaponCollision(this.gltf.player, this);
+        }
+        this.gltf.nodes.forEach(function (node2) {
+            if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive){
+                colliison.resolveCollision(this.node, node2)
+            }
+
+
+        }.bind(this));
     }
 
 
