@@ -10,7 +10,7 @@ class gltfRenderingParameters
         useIBL = true,
         usePunctual = false,
         exposure = 2.0,
-        clearColor = [50, 50, 50],
+        clearColor = [169,228,232],
         toneMap = ToneMaps.LINEAR,
         debugOutput = DebugOutput.NONE,
         useShaderLoD = true)
