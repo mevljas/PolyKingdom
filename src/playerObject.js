@@ -17,7 +17,7 @@ import {gltfAnimation} from "./animation";
 import {gltfSkin} from "./skin";
 import {vec3} from "gl-matrix";
 import {keys} from "./publicVariables";
-import {enemyDeathAudio, enemyDetectionSounds, playerHurtAudio, zombieHurtAudio} from "./audio";
+import {enemyDeathAudio, enemyDetectionSounds, playerHurtAudio, zombieHurtAudio, playerWalkingSound} from "./audio";
 import {colliison} from "./collision";
 
 class playerObject {
@@ -87,6 +87,7 @@ class playerObject {
         this.node.applyTranslation(tempVec);
         if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
             this.node.moved = true;
+            playerWalkingSound.play();
         }
         this.node.velocity = [0, 0, 0];
 
