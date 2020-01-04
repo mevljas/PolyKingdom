@@ -44,12 +44,7 @@ class gltfNode extends GltfObject
         this.aabbEnemyRangeMin= vec3.create();
         this.aabbEnemyRangeMax= vec3.create();
         this.initialRotation = this.rotation;
-        //if enemy detected player
-        this.playerDetection = false;
-        //enemy movement speed
-        this.movementSpeed = 0.005;
         this.lastTranslation = this.translation;
-        this.lives = 3;
         this.alive = true;
 
     }

@@ -18,6 +18,8 @@ import { gltfSkin } from './skin.js';
 import { keys } from './publicVariables.js';
 import { vec3, mat4 } from 'gl-matrix';
 import { playerWeaponAudio, playerHurtAudio, zombieHurtAudio, enemyDeathAudio, enemyDetectionSounds } from './audio.js';
+import {playerObject} from "./playerObject";
+import {enemyObject} from "./enemyObject";
 
 
 class glTF extends GltfObject {
@@ -40,7 +42,7 @@ class glTF extends GltfObject {
         this.animations = [];
         this.skins = [];
         this.path = file;
-        this.playerNode = null;
+        this.player = null;
         this.viewer = viewer;
         this.playerDirectionVector = 0;
         this.playerDirection = "up";
@@ -88,10 +90,10 @@ class glTF extends GltfObject {
         this.nodes.forEach(function (node) {
             //save player
             if (node.name === "player") {
-                this.playerNode = node;
+                this.player = new playerObject(node, this);
 
             } else if (node.name.includes("enemy")) {
-                this.enemies.push(node);
+                this.enemies.push(new enemyObject(node, this));
             }
 
         }.bind(this));
@@ -122,82 +124,24 @@ class glTF extends GltfObject {
     }
 
 
-    checkMovement() {
-        const right = vec3.set(vec3.create(),
-            -Math.sin(this.playerNode.initialRotation[1]), 0, -Math.cos(this.playerNode.initialRotation[1]));
-        const forward = vec3.set(vec3.create(),
-            Math.cos(this.playerNode.initialRotation[1]), 0, -Math.sin(this.playerNode.initialRotation[1]));
 
-        // 1: add movement acceleration
-        let acc = vec3.create();
-        //rotate
-        if (keys['KeyW'] && keys['KeyA']) {
-            vec3.sub(acc, acc, right);
-            vec3.sub(acc, acc, forward);
-            this.playerNode.rotate(5.49779);  //315
-
-
-        } else if (keys['KeyW'] && keys['KeyD']) {
-            vec3.sub(acc, acc, forward);
-            vec3.add(acc, acc, right);
-            this.playerNode.rotate(-2.35619);  //-135
-
-        } else if (keys['KeyD'] && keys['KeyS']) {
-            vec3.add(acc, acc, right);
-            vec3.add(acc, acc, forward);
-            this.playerNode.rotate(2.35619);  //135
-
-
-        } else if (keys['KeyS'] && keys['KeyA']) {
-            vec3.add(acc, acc, forward);
-            vec3.sub(acc, acc, right);
-            this.playerNode.rotate(0.785398);  //45
-
-        } else if (keys['KeyW']) {
-            vec3.sub(acc, acc, forward);
-            this.playerNode.rotate(-1.5708);  //-90
-
-        } else if (keys['KeyS']) {
-            vec3.add(acc, acc, forward);
-            this.playerNode.rotate(1.5708);  //90
-        } else if (keys['KeyD']) {
-            vec3.add(acc, acc, right);
-            this.playerNode.rotate(3.14159); //180
-        } else if (keys['KeyA']) {
-            vec3.sub(acc, acc, right);
-            this.playerNode.rotate(6.28319);  //360
-        }
-
-        // 2: update velocity
-        vec3.scaleAndAdd(this.playerNode.velocity, this.playerNode.velocity, acc, this.playerNode.acceleration);
-        let tempVec = Array.from(this.playerNode.translation);
-        vec3.add(tempVec, tempVec, this.playerNode.velocity,);
-        this.playerNode.applyTranslation(tempVec);
-        if (JSON.stringify(this.playerNode.velocity) !== "[0,0,0]") {
-            this.playerNode.moved = true;
-        }
-        this.playerNode.velocity = [0, 0, 0];
-
-
-    }
-
-    updatePlayer() {
-        this.checkMovement();
-        this.checkplayerCollision();
-    }
 
     updateEnemies() {
         for (var i = 0, len = this.enemies.length; i < len; i++) {
             let enemy = this.enemies[i];
             if (!enemy.playerDetection) {
-                this.resolveEnemyDetectionRange(this.playerNode, enemy);
-            } else if (enemy.alive){
-                this.rotateEnemy(enemy);
-                this.moveEnemy(enemy);
-                this.checkIfEnemyCaughtPlayer(enemy, this.playerNode);
+                this.resolveEnemyDetectionRange(this.player, enemy);
+            } else if (enemy.node.alive){
+                enemy.rotate();
+                enemy.move();
+                this.checkIfEnemyCaughtPlayer(enemy.node, this.player.node);
+                //player attack
+                if (keys['Space']) {
+                    this.resolveWeaponCollision(this.player, enemy);
+                }
                 this.nodes.forEach(function (node2) {
-                    if (enemy !== node2 && !node2.name.includes("_floor") && node2.alive){
-                        this.resolveCollision(enemy, node2)
+                    if (enemy.node !== node2 && !node2.name.includes("_floor") && node2.alive){
+                        this.resolveCollision(enemy.node, node2)
                     }
 
 
@@ -207,25 +151,6 @@ class glTF extends GltfObject {
 
         }
     }
-
-    checkplayerCollision() {
-        if (this.playerNode.moved || keys['Space']) {
-            for (var i = 0, len = this.nodes.length; i < len; i++) {
-                let node = this.nodes[i];
-                if (this.playerNode !== node && !node.name.includes("_floor") && node.alive) {
-                    this.resolveCollision(this.playerNode, node);
-                    if (keys['Space'] && node.name.includes("enemy")) {
-                        this.resolveWeaponCollision(this.playerNode, node);
-                    }
-                }
-
-            }
-            this.playerNode.moved = false;
-        }
-
-    }
-
-
 
 
 
@@ -237,7 +162,7 @@ class glTF extends GltfObject {
             this.initAABB();
         }
 
-        this.updatePlayer()
+        this.player.update();
         this.updateEnemies();
     }
 
@@ -314,7 +239,10 @@ class glTF extends GltfObject {
         a.applyTranslation(a.translation);
     }
 
-    resolveWeaponCollision(a, b) {
+    resolveWeaponCollision(first, second) {
+
+        let a = first.node;
+        let b = second.node;
         //get current position
         const posa = a.translation;
         const posb = b.translation;
@@ -338,8 +266,7 @@ class glTF extends GltfObject {
 
         if (isColliding) {
             console.log(b.name+" weaponHit");
-            this.subEnemyLives(b);
-            this.checkEnemyLives(b);
+            second.subLives();
             //prevents multiple hits.
             keys['Space'] = false;
             zombieHurtAudio.play();
@@ -349,7 +276,11 @@ class glTF extends GltfObject {
 
     }
 
-    resolveEnemyDetectionRange(a, b) {
+    resolveEnemyDetectionRange(first, second) {
+
+        let a = first.node;
+        let b = second.node;
+
         //get current position
         const posa = a.translation;
         const posb = b.translation;
@@ -373,24 +304,14 @@ class glTF extends GltfObject {
 
         if (isColliding) {
             console.log(b.name+" detected player");
-            b.playerDetection = true;
+            second.playerDetection = true;
             enemyDetectionSounds.play();
         }
 
 
     }
 
-    moveEnemy(enemy) {
-        // console.log("moving")
-        let enemyVector = enemy.translation;
-        let playerVector = this.playerNode.translation;
-        let vectorFromEnemyToPlayer = vec3.create();
-        vec3.set(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
-        vec3.scaleAndAdd(enemy.translation, enemy.translation, vectorFromEnemyToPlayer, enemy.movementSpeed);
-        enemy.applyTranslation(enemy.translation);
 
-
-    }
 
     checkIfEnemyCaughtPlayer(a, b) {
         //get current position
@@ -416,37 +337,11 @@ class glTF extends GltfObject {
             return;
         }
         console.log(b.name+" caught you!");
-        this.playerTakeAHit();
+        this.player.takeAHit();
 
 
     }
 
-    rotateEnemy(enemy){
-        let enemyVector = enemy.translation;
-        let playerVector = this.playerNode.translation;
-        let newAngle = getAngleBetweenVertices(enemyVector, playerVector);
-        enemy.rotate(newAngle);
-
-    }
-
-    checkEnemyLives(enemy){
-        if (enemy.lives <= 0){
-            console.log(enemy.name+" dead");
-            enemy.alive = false;
-            enemyDeathAudio.play();
-        }
-    }
-
-    subEnemyLives(enemy){
-        enemy.lives--;
-    }
-    playerTakeAHit(){
-        playerHurtAudio.play();
-        this.playerNode.lives--;
-        if (this.playerNode.lives <= 0){
-            console.log("player is dead");
-        }
-    }
 
 }
 
@@ -463,23 +358,7 @@ function getJsonLightsFromExtensions(extensions)
     return extensions.KHR_lights_punctual.lights;
 }
 
-function normalizeAngle(angle){
-    if (angle > 360) return angle - 360;
-    if (angle < 0) return 360 + angle;
-    else return angle;
-}
 
-function getAngleBetweenPoints(cx, cy, ex, ey){
-    let dy = ey - cy;
-    let dx = ex - cx;
-    let theta = Math.atan2(dy, dx);
-    theta *= 180 / Math.PI;
-    return theta;
-}
-
-function getAngleBetweenVertices(vert1, vert2){
-    return normalizeAngle(getAngleBetweenPoints(vert1[2], vert1[0], vert2[2], vert2[0])) * (Math.PI / 180);
-}
 
 
 

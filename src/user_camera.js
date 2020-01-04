@@ -118,7 +118,7 @@ class UserCamera extends gltfCamera
 
     moveTarget(){
         ///move camera as player moves
-        vec3.scale(this.target, this.viewer.gltf.playerNode.translation, this.scale);
+        vec3.scale(this.target, this.viewer.gltf.player.node.translation, this.scale);
     }
 
 
