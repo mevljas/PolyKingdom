@@ -25,9 +25,9 @@ function main()
     input.setupGlobalInputBindings(document);
     input.setupCanvasInputBindings(canvas);
 
-    const game = new gameObject(canvas, jsonIndex, input);
+    new gameObject(canvas, jsonIndex, input);
 
-    console.log("TEST222");
+    console.log("TEST2");
 
 
 }

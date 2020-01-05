@@ -44,7 +44,7 @@ class gameObject
         this.scaledGltfChanged = true;
         this.sceneScaleFactor = 1;
 
-        this.renderingParameters = new gltfRenderingParameters(environmentMap);
+        this.renderingParameters = new gltfRenderingParameters(this.environmentMap);
         this.userCamera = new UserCamera(this);
         this.currentlyRendering = false;
         this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters);

@@ -6162,11 +6162,11 @@ class gameObject
     constructor(
         canvas,
         modelIndex,
-        input,
-        environmentMap = undefined)
+        input)
     {
         this.onRendererReady = undefined;
         this.initialModel = "map";
+        this.environmentMap = "Courtyard of the Doge's palace";
 
         this.lastMouseX = 0.00;
         this.lastMouseY = 0.00;
@@ -6187,7 +6187,7 @@ class gameObject
         this.scaledGltfChanged = true;
         this.sceneScaleFactor = 1;
 
-        this.renderingParameters = new gltfRenderingParameters(environmentMap);
+        this.renderingParameters = new gltfRenderingParameters(this.environmentMap);
         this.userCamera = new UserCamera(this);
         this.currentlyRendering = false;
         this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters);
@@ -6758,9 +6758,9 @@ function main()
     input.setupGlobalInputBindings(document);
     input.setupCanvasInputBindings(canvas);
 
-    const game = new gameObject(canvas, jsonIndex, input, "Courtyard of the Doge's palace");
+    new gameObject(canvas, jsonIndex, input);
 
-    console.log("TEST222");
+    console.log("TEST2");
 
 
 }
