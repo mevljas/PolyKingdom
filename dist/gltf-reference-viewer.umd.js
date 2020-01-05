@@ -7194,7 +7194,11 @@
 
       const viewer = new gltfViewer(canvas, index, input, headless, onRendererReady, basePath, initialModel, envMap);
 
+      console.log("TEST");
+
       return viewer; // Succeeded in creating a glTF viewer!
+
+
   }
 
   function getWebGlContext(canvas)
