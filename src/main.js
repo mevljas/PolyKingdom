@@ -31,7 +31,7 @@ function gltf_rv(
 
     const viewer = new gltfViewer(canvas, index, input, headless, onRendererReady, basePath, initialModel, envMap);
 
-    console.log("TEST222");
+    console.log("TESTA225");
 
     return viewer; // Succeeded in creating a glTF viewer!
 

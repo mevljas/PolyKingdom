@@ -1,5 +1,5 @@
-import { HDRImage } from '../libs/hdrpng.js';
-import { WebGl } from './webgl.js';
+import { HDRImage } from '../../libs/hdrpng.js';
+import { WebGl } from '../webgl.js';
 import { GltfObject } from './gltf_object.js';
 import { isPowerOf2 } from './math_utils.js';
 

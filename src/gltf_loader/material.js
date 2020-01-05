@@ -2,7 +2,7 @@ import { mat3, vec3, vec4 } from 'gl-matrix';
 import { gltfTextureInfo } from './texture.js';
 import { jsToGl, initGlForMembers } from './utils.js';
 import { GltfObject } from './gltf_object.js';
-import { WebGl } from './webgl.js';
+import { WebGl } from '../webgl.js';
 
 class gltfMaterial extends GltfObject
 {

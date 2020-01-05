@@ -1,4 +1,4 @@
-import { getIsGltf, getIsGlb } from './utils.js';
+import { getIsGltf, getIsGlb } from './gltf_loader/utils.js';
 
 class gltfDragInput
 {

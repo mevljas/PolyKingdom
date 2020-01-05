@@ -1,6 +1,6 @@
 import { gltfShader } from './shader.js';
 import { stringHash, combineHashes } from './utils.js';
-import { WebGl } from './webgl.js';
+import { WebGl } from '../webgl.js';
 
 // THis class generates and caches the shader source text for a given permutation
 class ShaderCache

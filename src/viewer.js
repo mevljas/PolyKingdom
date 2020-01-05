@@ -1,15 +1,15 @@
 import { mat4, vec3 } from 'gl-matrix';
 import axios from '../libs/axios.min.js';
 import { glTF } from './gltf.js';
-import { gltfLoader } from './loader.js';
-import { gltfModelPathProvider } from './model_path_provider.js';
+import { gltfLoader } from './gltf_loader/loader.js';
+import { gltfModelPathProvider } from './gltf_loader/model_path_provider.js';
 import { gltfRenderer } from './renderer.js';
 import { gltfRenderingParameters, Environments, UserCameraIndex } from './rendering_parameters.js';
 import { UserCamera } from './user_camera.js';
-import { jsToGl, getIsGlb, Timer, getContainingFolder } from './utils.js';
-import { GlbParser } from './glb_parser.js';
-import { gltfEnvironmentLoader } from './environment.js';
-import { getScaleFactor, computePrimitiveCentroids } from './gltf_utils.js';
+import { jsToGl, getIsGlb, Timer, getContainingFolder } from './gltf_loader/utils.js';
+import { GlbParser } from './gltf_loader/glb_parser.js';
+import { gltfEnvironmentLoader } from './gltf_loader/environment.js';
+import { getScaleFactor, computePrimitiveCentroids } from './gltf_loader/gltf_utils.js';
 
 
 

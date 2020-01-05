@@ -1,7 +1,7 @@
 import { gltfImage, ImageMimeType } from './image.js';
 import { gltfTexture } from './texture.js';
 import { gltfSampler } from './sampler.js';
-import { WebGl } from './webgl.js';
+import { WebGl } from '../webgl.js';
 
 class gltfEnvironmentLoader
 {

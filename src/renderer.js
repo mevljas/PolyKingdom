@@ -1,10 +1,10 @@
 import { mat4, vec3 } from 'gl-matrix';
-import { gltfLight } from './light.js';
-import { gltfTextureInfo } from './texture.js';
-import { ShaderCache } from './shader_cache.js';
+import { gltfLight } from './gltf_loader/light.js';
+import { gltfTextureInfo } from './gltf_loader/texture.js';
+import { ShaderCache } from './gltf_loader/shader_cache.js';
 import { WebGl } from './webgl.js';
 import { ToneMaps, DebugOutput, Environments } from './rendering_parameters.js';
-import { ImageMimeType } from './image.js';
+import { ImageMimeType } from './gltf_loader/image.js';
 import metallicRoughnessShader from './shaders/metallic-roughness.frag';
 import primitiveShader from './shaders/primitive.vert';
 import texturesShader from './shaders/textures.glsl';

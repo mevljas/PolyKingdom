@@ -1,5 +1,5 @@
 import { UniformStruct } from './utils.js';
-import { WebGl } from './webgl.js';
+import { WebGl } from '../webgl.js';
 
 class gltfShader
 {
