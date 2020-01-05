@@ -41,8 +41,7 @@ class gameObject
 
 
 
-        // Holds the last camera index, used for scene scaling when changing to user camera.
-        this.prevCameraIndex = null;
+
 
         this.setupInputBindings(input);
 
@@ -329,21 +328,19 @@ class gameObject
         const transform = mat4.create();
 
         let scaled = false;
-        if (this.renderingParameters.userCameraActive() && (this.scaledGltfChanged || this.scaledSceneIndex !== this.renderingParameters.sceneIndex || this.prevCameraIndex !== this.renderingParameters.cameraIndex))
+        if (this.renderingParameters.userCameraActive() && (this.scaledGltfChanged || this.scaledSceneIndex !== this.renderingParameters.sceneIndex ))
         {
             this.sceneScaleFactor = getScaleFactor(gltf, this.renderingParameters.sceneIndex);
 
             scaled = true;
             this.scaledGltfChanged = false;
             this.scaledSceneIndex = this.renderingParameters.sceneIndex;
-            console.log("Rescaled scene " + this.scaledSceneIndex + " by " + this.sceneScaleFactor);
         }
-        else if(!this.renderingParameters.userCameraActive() && this.prevCameraIndex !== this.renderingParameters.cameraIndex)
+        else if(!this.renderingParameters.userCameraActive() )
         {
             this.sceneScaleFactor = 1;
         }
 
-        this.prevCameraIndex = this.renderingParameters.cameraIndex;
 
         mat4.scale(transform, transform, vec3.fromValues(this.sceneScaleFactor,  this.sceneScaleFactor,  this.sceneScaleFactor));
         scene.applyTransformHierarchy(gltf, transform);
