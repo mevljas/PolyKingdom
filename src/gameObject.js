@@ -23,33 +23,21 @@ class gameObject
     {
         this.onRendererReady = undefined;
         this.initialModel = "map";
-        this.environmentMap = "Courtyard of the Doge's palace"
-
-        this.lastMouseX = 0.00;
-        this.lastMouseY = 0.00;
-        this.mouseDown = false;
-
-        this.lastTouchX = 0.00;
-        this.lastTouchY = 0.00;
-        this.touchDown = false;
 
         this.canvas = canvas;
         this.canvas.style.cursor = "grab";
 
-        this.loadingTimer = new Timer();
         this.gltf = undefined;
-        this.lastDropped = undefined;
 
         this.scaledSceneIndex = 0;
         this.scaledGltfChanged = true;
         this.sceneScaleFactor = 1;
 
-        this.renderingParameters = new gltfRenderingParameters(this.environmentMap);
+        this.renderingParameters = new gltfRenderingParameters();
         this.userCamera = new UserCamera(this);
         this.currentlyRendering = false;
         this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters);
 
-        this.gltfLoadedCallback = function(){};
 
 
 
@@ -103,11 +91,6 @@ class gameObject
         }
     }
 
-    // callback = function(gltf) {}
-    setGltfLoadedCallback(callback)
-    {
-        this.gltfLoadedCallback = callback;
-    }
 
     setupInputBindings(input)
     {
@@ -145,7 +128,6 @@ class gameObject
 
     loadFromFileObject(mainFile, additionalFiles)
     {
-        this.lastDropped = { mainFile: mainFile, additionalFiles: additionalFiles };
 
         const gltfFile = mainFile.name;
         this.notifyLoadingStarted(gltfFile);
@@ -177,9 +159,8 @@ class gameObject
 
     loadFromPath(gltfFile)
     {
-        this.lastDropped = undefined;
 
-        gltfFile =  gltfFile;
+
         this.notifyLoadingStarted(gltfFile);
 
         const isGlb = getIsGlb(gltfFile);
@@ -243,10 +224,6 @@ class gameObject
     startRendering(gltf)
     {
         this.notifyLoadingEnded(gltf.path);
-        if(this.gltfLoadedCallback !== undefined)
-        {
-            this.gltfLoadedCallback(gltf);
-        }
 
         if (gltf.scenes.length === 0)
         {
@@ -409,14 +386,12 @@ class gameObject
 
     notifyLoadingStarted(path)
     {
-        this.loadingTimer.start();
 
         this.showSpinner();
     }
 
     notifyLoadingEnded(path)
     {
-        this.loadingTimer.stop();
 
         this.hideSpinner();
     }
