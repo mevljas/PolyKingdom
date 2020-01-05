@@ -5,7 +5,7 @@ import { WebGl } from './webgl.js';
 function main()
 {
     const canvasId = 'canvas';
-    const jsonFile = 'assets/models/model-index.json';
+    const jsonIndex = 'assets/models/model-index.json';
 
     const canvas = document.getElementById(canvasId);
     if (!canvas)
@@ -25,9 +25,9 @@ function main()
     input.setupGlobalInputBindings(document);
     input.setupCanvasInputBindings(canvas);
 
-    const game = new gameObject(canvas, jsonFile, input, false, undefined, "", "map", "Courtyard of the Doge's palace");
+    const game = new gameObject(canvas, jsonIndex, input, undefined, "", "map", "Courtyard of the Doge's palace");
 
-    console.log("TEST1252");
+    console.log("TEST");
 
 
 }

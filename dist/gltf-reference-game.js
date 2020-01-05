@@ -6165,13 +6165,11 @@ class gameObject
         canvas,
         modelIndex,
         input,
-        headless = false,
         onRendererReady = undefined,
         basePath = "",
         initialModel = "",
         environmentMap = undefined)
     {
-        this.headless = headless;
         this.onRendererReady = onRendererReady;
         this.basePath = basePath;
         this.initialModel = initialModel;
@@ -6207,28 +6205,21 @@ class gameObject
         // Holds the last camera index, used for scene scaling when changing to user camera.
         this.prevCameraIndex = null;
 
-        if (this.headless === true)
+        this.setupInputBindings(input);
+
+        if (this.initialModel.includes("/"))
         {
-            this.hideSpinner();
+            // no UI if a path is provided (e.g. in the vscode plugin)
+            this.loadFromPath(this.initialModel);
         }
         else
         {
-            this.setupInputBindings(input);
-
-            if (this.initialModel.includes("/"))
+            const self = this;
+            this.pathProvider = new gltfModelPathProvider(this.basePath + modelIndex);
+            this.pathProvider.initialize().then(() =>
             {
-                // no UI if a path is provided (e.g. in the vscode plugin)
-                this.loadFromPath(this.initialModel);
-            }
-            else
-            {
-                const self = this;
-                this.pathProvider = new gltfModelPathProvider(this.basePath + modelIndex);
-                this.pathProvider.initialize().then(() =>
-                {
-                    self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
-                });
-            }
+                self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
+            });
         }
 
         this.render(); // Starts a rendering loop.
@@ -6366,7 +6357,7 @@ class gameObject
         }).catch(function(error)
         {
             console.error(error.stack);
-            if (!self.headless) self.hideSpinner();
+            self.hideSpinner();
         });
     }
 
@@ -6453,10 +6444,7 @@ class gameObject
 
                 if (self.gltf.scenes.length !== 0)
                 {
-                    if (self.headless === false)
-                    {
-                        self.userCamera.updatePosition();
-                    }
+                    self.userCamera.updatePosition();
 
                     const scene = self.gltf.scenes[self.renderingParameters.sceneIndex];
 
@@ -6580,20 +6568,14 @@ class gameObject
     {
         this.loadingTimer.start();
 
-        if (!this.headless)
-        {
-            this.showSpinner();
-        }
+        this.showSpinner();
     }
 
     notifyLoadingEnded(path)
     {
         this.loadingTimer.stop();
 
-        if (!this.headless)
-        {
-            this.hideSpinner();
-        }
+        this.hideSpinner();
     }
 
     showSpinner()
@@ -6770,7 +6752,7 @@ class gltfInput
 function main()
 {
     const canvasId = 'canvas';
-    const jsonFile = 'assets/models/model-index.json';
+    const jsonIndex = 'assets/models/model-index.json';
 
     const canvas = document.getElementById(canvasId);
     if (!canvas)
@@ -6790,9 +6772,9 @@ function main()
     input.setupGlobalInputBindings(document);
     input.setupCanvasInputBindings(canvas);
 
-    const game = new gameObject(canvas, jsonFile, input, false, undefined, "", "map", "Courtyard of the Doge's palace");
+    const game = new gameObject(canvas, jsonIndex, input, undefined, "", "map", "Courtyard of the Doge's palace");
 
-    console.log("TEST1252");
+    console.log("TEST");
 
 
 }
