@@ -6769,10 +6769,11 @@
       }
   }
 
-  function main(
-      canvasId,
-      jsonFile)
+  function main()
   {
+      const canvasId = 'canvas';
+      const jsonFile = 'assets/models/model-index.json';
+
       const canvas = document.getElementById(canvasId);
       if (!canvas)
       {
@@ -6793,9 +6794,7 @@
 
       const game = new gameObject(canvas, jsonFile, input, false, undefined, "", "map", "Courtyard of the Doge's palace");
 
-      console.log("TEST15");
-
-      return game; // Succeeded in creating a glTF game!
+      console.log("TEST1252");
 
 
   }
