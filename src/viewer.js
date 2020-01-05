@@ -5,7 +5,6 @@ import { gltfLoader } from './loader.js';
 import { gltfModelPathProvider } from './model_path_provider.js';
 import { gltfRenderer } from './renderer.js';
 import { gltfRenderingParameters, Environments, UserCameraIndex } from './rendering_parameters.js';
-import { gltfUserInterface } from './user_interface.js';
 import { UserCamera } from './user_camera.js';
 import { jsToGl, getIsGlb, Timer, getContainingFolder } from './utils.js';
 import { GlbParser } from './glb_parser.js';
@@ -83,7 +82,6 @@ class gltfViewer
                 this.pathProvider = new gltfModelPathProvider(this.basePath + modelIndex);
                 this.pathProvider.initialize().then(() =>
                 {
-                    self.initializeGui();
                     self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
                 });
             }
@@ -282,10 +280,6 @@ class gltfViewer
         this.renderingParameters.animationTimer.reset();
         this.renderingParameters.animationIndex = "all";
 
-        if (this.gui !== undefined)
-        {
-            this.gui.update(gltf);
-        }
 
         this.gltf = gltf;
         this.currentlyRendering = true;
@@ -445,30 +439,6 @@ class gltfViewer
         }
     }
 
-    initializeGui()
-    {
-        const gui = new gltfUserInterface(
-            this.pathProvider,
-            this.initialModel,
-            this.renderingParameters,
-            this.stats);
-
-        const self = this;
-        gui.onModelChanged = () => self.loadFromPath(this.pathProvider.resolve(gui.selectedModel));
-        gui.onEnvironmentChanged = () =>
-        {
-            if (this.lastDropped === undefined)
-            {
-                self.loadFromPath(this.pathProvider.resolve(gui.selectedModel));
-            }
-            else
-            {
-                self.loadFromFileObject(this.lastDropped.mainFile, this.lastDropped.additionalFiles);
-            }
-        };
-        gui.initialize();
-        this.gui = gui;
-    }
 
     notifyLoadingStarted(path)
     {
