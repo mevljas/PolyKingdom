@@ -1,3 +1,7 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
 /**
  * Common utilities
  * @module glMatrix
@@ -6811,4 +6815,4 @@ function getWebGlContext(canvas)
     }
 }
 
-export { main };
+exports.main = main;

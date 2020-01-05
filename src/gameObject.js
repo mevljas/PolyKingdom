@@ -14,7 +14,7 @@ import { getScaleFactor, computePrimitiveCentroids } from './gltf_loader/gltf_ut
 
 
 
-class gltfViewer
+class gameObject
 {
     constructor(
         canvas,
@@ -473,4 +473,4 @@ class gltfViewer
 }
 
 
-export { gltfViewer };
+export { gameObject };

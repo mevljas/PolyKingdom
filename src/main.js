@@ -1,15 +1,10 @@
-import { gltfViewer } from './viewer.js';
+import { gameObject } from './gameObject.js';
 import { gltfInput } from './input.js';
 import { WebGl } from './webgl.js';
 
-function gltf_rv(
+function main(
     canvasId,
-    index,
-    envMap = "Courtyard of the Doge's palace",
-    headless = false,
-    onRendererReady = undefined,
-    basePath = "",
-    initialModel = "map")
+    jsonFile)
 {
     const canvas = document.getElementById(canvasId);
     if (!canvas)
@@ -29,11 +24,11 @@ function gltf_rv(
     input.setupGlobalInputBindings(document);
     input.setupCanvasInputBindings(canvas);
 
-    const viewer = new gltfViewer(canvas, index, input, headless, onRendererReady, basePath, initialModel, envMap);
+    const game = new gameObject(canvas, jsonFile, input, false, undefined, "", "map", "Courtyard of the Doge's palace");
 
-    console.log("TESTA225");
+    console.log("TEST15");
 
-    return viewer; // Succeeded in creating a glTF viewer!
+    return game; // Succeeded in creating a glTF game!
 
 
 }
@@ -55,4 +50,4 @@ function getWebGlContext(canvas)
     }
 }
 
-export { gltf_rv };
+export { main };

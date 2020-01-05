@@ -6,7 +6,7 @@ export default {
   input: 'src/main.js',
   output: [
     {
-      file: 'dist/gltf-reference-viewer.js',
+      file: 'dist/gltf-reference-game.js',
       format: 'cjs'
     },
     {
