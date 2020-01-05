@@ -14,12 +14,11 @@ import animationShader from './shaders/animation.glsl';
 
 class gltfRenderer
 {
-    constructor(canvas, defaultCamera, parameters, basePath)
+    constructor(canvas, defaultCamera, parameters)
     {
         this.canvas = canvas;
         this.defaultCamera = defaultCamera;
         this.parameters = parameters;
-        this.basePath = basePath;
         this.shader = undefined; // current shader
 
         this.currentWidth  = 0;

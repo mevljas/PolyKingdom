@@ -20,12 +20,10 @@ class gameObject
         canvas,
         modelIndex,
         input,
-        basePath = "",
         initialModel = "",
         environmentMap = undefined)
     {
         this.onRendererReady = undefined;
-        this.basePath = basePath;
         this.initialModel = initialModel;
 
         this.lastMouseX = 0.00;
@@ -50,7 +48,7 @@ class gameObject
         this.renderingParameters = new gltfRenderingParameters(environmentMap);
         this.userCamera = new UserCamera(this);
         this.currentlyRendering = false;
-        this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters, this.basePath);
+        this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters);
 
         this.gltfLoadedCallback = function(){};
 
@@ -69,7 +67,7 @@ class gameObject
         else
         {
             const self = this;
-            this.pathProvider = new gltfModelPathProvider(this.basePath + modelIndex);
+            this.pathProvider = new gltfModelPathProvider( modelIndex);
             this.pathProvider.initialize().then(() =>
             {
                 self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
@@ -186,11 +184,11 @@ class gameObject
         }
     }
 
-    loadFromPath(gltfFile, basePath = "")
+    loadFromPath(gltfFile)
     {
         this.lastDropped = undefined;
 
-        gltfFile = basePath + gltfFile;
+        gltfFile =  gltfFile;
         this.notifyLoadingStarted(gltfFile);
 
         const isGlb = getIsGlb(gltfFile);
@@ -248,7 +246,7 @@ class gameObject
         }
 
         const environment = Environments[this.renderingParameters.environmentName];
-        new gltfEnvironmentLoader(this.basePath).addEnvironmentMap(gltf, environment);
+        new gltfEnvironmentLoader().addEnvironmentMap(gltf, environment);
     }
 
     startRendering(gltf)

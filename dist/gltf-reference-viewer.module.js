@@ -5221,12 +5221,11 @@ var animationShader = "#define GLSLIFY 1\n#ifdef HAS_TARGET_POSITION0\nattribute
 
 class gltfRenderer
 {
-    constructor(canvas, defaultCamera, parameters, basePath)
+    constructor(canvas, defaultCamera, parameters)
     {
         this.canvas = canvas;
         this.defaultCamera = defaultCamera;
         this.parameters = parameters;
-        this.basePath = basePath;
         this.shader = undefined; // current shader
 
         this.currentWidth  = 0;
@@ -6066,9 +6065,8 @@ class GlbParser
 
 class gltfEnvironmentLoader
 {
-    constructor(basePath)
+    constructor()
     {
-        this.basePath = basePath;
     }
 
     addEnvironmentMap(gltf, environment)
@@ -6088,7 +6086,7 @@ class gltfEnvironmentLoader
             break;
         }
 
-        const imagesFolder = this.basePath + "assets/environments/" + environment.folder + "/";
+        const imagesFolder =   "assets/environments/" + environment.folder + "/";
         const diffusePrefix = imagesFolder + "diffuse/diffuse_";
         const diffuseSuffix = "_0" + extension;
         const specularPrefix = imagesFolder + "specular/specular_";
@@ -6148,7 +6146,7 @@ class gltfEnvironmentLoader
 
         gltf.textures.push(new gltfTexture(specularCubeSamplerIdx, indices, WebGl.context.TEXTURE_CUBE_MAP));
 
-        gltf.images.push(new gltfImage(this.basePath + "assets/images/brdfLUT.png", WebGl.context.TEXTURE_2D));
+        gltf.images.push(new gltfImage( "assets/images/brdfLUT.png", WebGl.context.TEXTURE_2D));
 
         // u_brdfLUT tex
         gltf.textures.push(new gltfTexture(lutSamplerIdx, [++imageIdx], WebGl.context.TEXTURE_2D));
@@ -6161,12 +6159,10 @@ class gameObject
         canvas,
         modelIndex,
         input,
-        basePath = "",
         initialModel = "",
         environmentMap = undefined)
     {
         this.onRendererReady = undefined;
-        this.basePath = basePath;
         this.initialModel = initialModel;
 
         this.lastMouseX = 0.00;
@@ -6191,7 +6187,7 @@ class gameObject
         this.renderingParameters = new gltfRenderingParameters(environmentMap);
         this.userCamera = new UserCamera(this);
         this.currentlyRendering = false;
-        this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters, this.basePath);
+        this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters);
 
         this.gltfLoadedCallback = function(){};
 
@@ -6210,7 +6206,7 @@ class gameObject
         else
         {
             const self = this;
-            this.pathProvider = new gltfModelPathProvider(this.basePath + modelIndex);
+            this.pathProvider = new gltfModelPathProvider( modelIndex);
             this.pathProvider.initialize().then(() =>
             {
                 self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
@@ -6327,11 +6323,11 @@ class gameObject
         }
     }
 
-    loadFromPath(gltfFile, basePath = "")
+    loadFromPath(gltfFile)
     {
         this.lastDropped = undefined;
 
-        gltfFile = basePath + gltfFile;
+        gltfFile =  gltfFile;
         this.notifyLoadingStarted(gltfFile);
 
         const isGlb = getIsGlb(gltfFile);
@@ -6389,7 +6385,7 @@ class gameObject
         }
 
         const environment = Environments[this.renderingParameters.environmentName];
-        new gltfEnvironmentLoader(this.basePath).addEnvironmentMap(gltf, environment);
+        new gltfEnvironmentLoader().addEnvironmentMap(gltf, environment);
     }
 
     startRendering(gltf)
@@ -6767,9 +6763,9 @@ function main()
     input.setupGlobalInputBindings(document);
     input.setupCanvasInputBindings(canvas);
 
-    const game = new gameObject(canvas, jsonIndex, input, "", "map", "Courtyard of the Doge's palace");
+    const game = new gameObject(canvas, jsonIndex, input, "map", "Courtyard of the Doge's palace");
 
-    console.log("TEST2");
+    console.log("TEST22");
 
 
 }
