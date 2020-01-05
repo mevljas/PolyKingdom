@@ -20,12 +20,11 @@ class gameObject
         canvas,
         modelIndex,
         input,
-        onRendererReady = undefined,
         basePath = "",
         initialModel = "",
         environmentMap = undefined)
     {
-        this.onRendererReady = onRendererReady;
+        this.onRendererReady = undefined;
         this.basePath = basePath;
         this.initialModel = initialModel;
 
