@@ -13,6 +13,12 @@ Usage
 
 `GUI` : Use to change models and settings
 
+`A,W,S,D` : Use to move the player.
+
+`Space` : Use to attack enemies.
+
+`R` : Reset camera.
+
 
 Setup
 -----

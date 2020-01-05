@@ -77,21 +77,7 @@ class UserCamera extends gltfCamera
         this.yRot = clamp(this.yRot, -yMax, yMax);
     }
 
-    pan(x, y)
-    {
-        const moveSpeed = 1 / (this.scaleFactor * 200);
 
-        const left = vec3.fromValues(-1, 0, 0);
-        this.toLocalRotation(left);
-        vec3.scale(left, left, x * moveSpeed);
-
-        const up = vec3.fromValues(0, 1, 0);
-        this.toLocalRotation(up);
-        vec3.scale(up, up, y * moveSpeed);
-
-        vec3.add(this.target, this.target, up);
-        vec3.add(this.target, this.target, left);
-    }
 
     fitViewToScene()
     {

@@ -27,8 +27,6 @@ function main()
 
     new gameObject(canvas, jsonIndex, input);
 
-    console.log("TEST222");
-
 
 }
 

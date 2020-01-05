@@ -227,9 +227,9 @@ class gameObject
                     const nodes = scene.gatherNodes(self.gltf);
 
                     const alphaModes = nodes
-                        .filter(n => n.mesh !== undefined)
+                        .filter(n => n.mesh !== undefined) //return only defined ones
                         .reduce((acc, n) => acc.concat(self.gltf.meshes[n.mesh].primitives), [])
-                        .map(p => self.gltf.materials[p.material].alphaMode);
+                        .map(p => self.gltf.materials[p.material].alphaMode); //create new array
 
                     let hasBlendPrimitives = false;
                     for(const alphaMode of alphaModes)
@@ -276,7 +276,6 @@ class gameObject
 
         gltf.update();
 
-        this.animateNode(gltf);
 
         scene.applyTransformHierarchy(gltf);
 
@@ -306,34 +305,6 @@ class gameObject
         }
     }
 
-    animateNode(gltf)
-    {
-        if(gltf.animations !== undefined && !this.renderingParameters.animationTimer.paused)
-        {
-            const t = this.renderingParameters.animationTimer.elapsedSec();
-
-            if(this.renderingParameters.animationIndex === "all")
-            {
-                // Special index, step all animations.
-                for(const anim of gltf.animations)
-                {
-                    if(anim)
-                    {
-                        anim.advance(gltf, t);
-                    }
-                }
-            }
-            else
-            {
-                // Step selected animation.
-                const anim = gltf.animations[this.renderingParameters.animationIndex];
-                if(anim)
-                {
-                    anim.advance(gltf, t);
-                }
-            }
-        }
-    }
 
 
     notifyLoadingStarted()

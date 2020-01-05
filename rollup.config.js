@@ -6,16 +6,8 @@ export default {
   input: 'src/main.js',
   output: [
     {
-      file: 'dist/gltf-reference-game.js',
-      format: 'cjs'
-    },
-    {
-      file: 'dist/gltf-reference-viewer.module.js',
-      format: 'esm'
-    },
-    {
-      name: 'gltf_rv',
-      file: 'dist/gltf-reference-viewer.umd.js',
+      name: 'PolyKingdom',
+      file: 'output/PolyKingdom.umd.js',
       format: 'umd',
       sourcemap: true
     }

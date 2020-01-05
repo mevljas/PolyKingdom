@@ -1,7 +1,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (factory((global.gltf_rv = {})));
+  (factory((global.PolyKingdom = {})));
 }(this, (function (exports) { 'use strict';
 
   /**
@@ -1898,29 +1898,6 @@
   // marker interface used to for parsing the uniforms
   class UniformStruct { }
 
-  class Timer
-  {
-      constructor()
-      {
-          this.startTime = undefined;
-          this.endTime = undefined;
-          this.seconds = undefined;
-      }
-
-      start()
-      {
-          this.startTime = new Date().getTime() / 1000;
-          this.endTime = undefined;
-          this.seconds = undefined;
-      }
-
-      stop()
-      {
-          this.endTime = new Date().getTime() / 1000;
-          this.seconds = this.endTime - this.startTime;
-      }
-  }
-
   class AnimationTimer
   {
       constructor()
@@ -1992,7 +1969,7 @@
       }
   }
 
-  // base class for all gltfLoader objects
+  // base class for all gltf objects
   class GltfObject
   {
       constructor()
@@ -2028,7 +2005,7 @@
           this.sparse = undefined; // CURRENTLY UNSUPPORTED
           this.name = undefined;
 
-          // non gltfLoader
+          // non gltf
           this.glBuffer = undefined;
           this.typedView = undefined;
       }
@@ -2201,7 +2178,7 @@
           this.byteLength = undefined;
           this.name = undefined;
 
-          // non gltfLoader
+          // non gltf
           this.buffer = undefined; // raw data blob
       }
 
@@ -2786,7 +2763,7 @@
           this.outerConeAngle = outerConeAngle;
           this.range = range;
           this.name = name;
-          // non gltfLoader
+          // non gltf
           this.node = node;
       }
 
@@ -2917,7 +2894,7 @@
           this.sampler = sampler; // index to gltfSampler, default sampler ?
           this.source = source; // index to gltfImage
 
-          // non gltfLoader
+          // non gltf
           this.glTexture = texture;
           this.type = type;
           this.initialized = false;
@@ -2985,7 +2962,7 @@
           this.alphaCutoff = 0.5;
           this.doubleSided = false;
 
-          // non gltfLoader properties
+          // non gltf properties
           this.type = "unlit";
           this.textures = [];
           this.properties = new Map();
@@ -3332,7 +3309,7 @@
           this.material = undefined;
           this.mode = WebGl.context.TRIANGLES;
 
-          // non gltfLoader
+          // non gltf
           this.glAttributes = [];
           this.defines = [];
           this.skip = true;
@@ -3521,7 +3498,7 @@
           this.skin = undefined;
           this.moved = false;
 
-          // non gltfLoader
+          // non gltf
           this.worldTransform = create$3();
           this.inverseWorldTransform = create$3();
           this.normalMatrix = create$3();
@@ -3964,7 +3941,7 @@
           this.samplers = [];
           this.name = '';
 
-          // not gltfLoader
+          // not gltf
           this.interpolators = [];
       }
 
@@ -4034,7 +4011,7 @@
           this.joints = [];
           this.skeleton = undefined;
 
-          // not gltfLoader
+          // not gltf
           this.jointMatrices = [];
           this.jointNormalMatrices = [];
       }
@@ -4066,11 +4043,7 @@
 
   const Input_ResetCamera = "r";
   const Input_RotateButton = 0;
-  const Input_AttackButton = "Space";
-  const Input_MoveUpButton = "w";
-  const Input_MoveDownButton = "s";
-  const Input_MoveLeftButton = "a";
-  const Input_MoveRightButton = "r";
+  const Input_PanButton = 1;
   let keys = [];
 
   const playerWeaponAudio = new Audio('assets/sounds/playerWeaponAttack.mp3');
@@ -4087,6 +4060,8 @@
 
       static aabbIntersection(aabb1, aabb2) {
           return this.intervalIntersection(aabb1.min[0], aabb1.max[0], aabb2.min[0], aabb2.max[0])
+              // && this.intervalIntersection(aabb1.min[1], aabb1.max[1], aabb2.min[1], aabb2.max[1])
+              //removed because we dont care about height
               && this.intervalIntersection(aabb1.min[2], aabb1.max[2], aabb2.min[2], aabb2.max[2]);
       }
 
@@ -4113,7 +4088,7 @@
           if (!isColliding) {
               return;
           }
-          console.log(a.name+" is colliding with "+b.name);
+          // console.log(a.name+" is colliding with "+b.name);
           // console.log(b.name);
 
 
@@ -4178,7 +4153,7 @@
           });
 
           if (isColliding) {
-              console.log(b.name+" weaponHit");
+              // console.log(b.name+" weaponHit");
               second.subLives();
               //prevents multiple hits.
               keys['Space'] = false;
@@ -4216,7 +4191,7 @@
           });
 
           if (isColliding) {
-              console.log(b.name+" detected player");
+              // console.log(b.name+" detected player");
               second.playerDetection = true;
               enemyDetectionSounds.play();
           }
@@ -4253,7 +4228,7 @@
           if (!isColliding) {
               return;
           }
-          console.log(b.name+" caught you!");
+          // console.log(b.name+" caught you!");
           second.takeAHit();
 
 
@@ -4275,55 +4250,55 @@
 
 
       checkMovement() {
-          const right = vec3.set(vec3.create(),
+          const right = set$4(create$4(),
               -Math.sin(this.node.initialRotation[1]), 0, -Math.cos(this.node.initialRotation[1]));
-          const forward = vec3.set(vec3.create(),
+          const forward = set$4(create$4(),
               Math.cos(this.node.initialRotation[1]), 0, -Math.sin(this.node.initialRotation[1]));
 
           // 1: add movement acceleration
-          let acc = vec3.create();
+          let acc = create$4();
           //rotate
-          if (keys[Input_MoveUpButton] && keys[Input_MoveLeftButton]) {
-              vec3.sub(acc, acc, right);
-              vec3.sub(acc, acc, forward);
+          if (keys['KeyW'] && keys['KeyA']) {
+              sub$4(acc, acc, right);
+              sub$4(acc, acc, forward);
               this.node.rotate(5.49779);  //315
 
 
-          } else if (keys[Input_MoveUpButton] && keys['KeyD']) {
-              vec3.sub(acc, acc, forward);
-              vec3.add(acc, acc, right);
+          } else if (keys['KeyW'] && keys['KeyD']) {
+              sub$4(acc, acc, forward);
+              add$4(acc, acc, right);
               this.node.rotate(-2.35619);  //-135
 
-          } else if (keys[Input_MoveRightButton] && keys[Input_MoveDownButton]) {
-              vec3.add(acc, acc, right);
-              vec3.add(acc, acc, forward);
+          } else if (keys['KeyD'] && keys['KeyS']) {
+              add$4(acc, acc, right);
+              add$4(acc, acc, forward);
               this.node.rotate(2.35619);  //135
 
 
-          } else if (keys[Input_MoveDownButton] && keys[Input_MoveLeftButton]) {
-              vec3.add(acc, acc, forward);
-              vec3.sub(acc, acc, right);
+          } else if (keys['KeyS'] && keys['KeyA']) {
+              add$4(acc, acc, forward);
+              sub$4(acc, acc, right);
               this.node.rotate(0.785398);  //45
 
-          } else if (keys[Input_MoveUpButton]) {
-              vec3.sub(acc, acc, forward);
+          } else if (keys['KeyW']) {
+              sub$4(acc, acc, forward);
               this.node.rotate(-1.5708);  //-90
 
-          } else if (keys[Input_MoveDownButton]) {
-              vec3.add(acc, acc, forward);
+          } else if (keys['KeyS']) {
+              add$4(acc, acc, forward);
               this.node.rotate(1.5708);  //90
-          } else if (keys[Input_MoveRightButton]) {
-              vec3.add(acc, acc, right);
+          } else if (keys['KeyD']) {
+              add$4(acc, acc, right);
               this.node.rotate(3.14159); //180
-          } else if (keys[Input_MoveLeftButton]) {
-              vec3.sub(acc, acc, right);
+          } else if (keys['KeyA']) {
+              sub$4(acc, acc, right);
               this.node.rotate(6.28319);  //360
           }
 
           // 2: update velocity
-          vec3.scaleAndAdd(this.node.velocity, this.node.velocity, acc, this.node.acceleration);
+          scaleAndAdd(this.node.velocity, this.node.velocity, acc, this.node.acceleration);
           let tempVec = Array.from(this.node.translation);
-          vec3.add(tempVec, tempVec, this.node.velocity,);
+          add$4(tempVec, tempVec, this.node.velocity,);
           this.node.applyTranslation(tempVec);
           if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
               this.node.moved = true;
@@ -4337,12 +4312,13 @@
       update() {
           this.checkMovement();
           this.checkCollision();
+          this.setHealtBar();
       }
 
 
       checkCollision() {
-          if (this.node.moved) {
-              for (var i = 0, len = this.gltf.nodes.length; i < len; i++) {
+          if (this.node.moved || keys['Space']) {
+              for (var i = 0, len$$1 = this.gltf.nodes.length; i < len$$1; i++) {
                   let node = this.gltf.nodes[i];
                   if (this.node !== node && !node.name.includes("_floor") && node.alive) {
                       colliison.resolveCollision(this.node, node);
@@ -4358,9 +4334,14 @@
 
       takeAHit(){
           playerHurtAudio.play();
-          if (--this.node.lives <= 0){
-              console.log("player is dead");
+          if (--this.lives <= 0){
+              window.location.replace("Game_Over.html");
           }
+
+      }
+
+      setHealtBar(){
+          document.getElementById("healtBar").style.width = this.lives +"%";
       }
 
   }
@@ -4382,7 +4363,7 @@
           this.move();
           colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
           //player attack
-          if (keys[Input_AttackButton]) {
+          if (keys['Space']) {
               colliison.resolveWeaponCollision(this.gltf.player, this);
           }
           this.gltf.nodes.forEach(function (node2) {
@@ -4420,9 +4401,12 @@
 
       subLives(){
           if (--this.lives <= 0){
-              console.log(this.node.name+" dead");
+              // console.log(this.node.name+" dead");
               this.node.alive = false;
               enemyDeathAudio.play();
+              if (++this.gltf.killedEnemies === this.gltf.enemies.length){
+                  window.location.replace("Victory.html");
+              }
           }
       }
 
@@ -4474,6 +4458,7 @@
           this.playerDirection = "up";
           this.setUpAABB = true;
           this.enemies = [];
+          this.killedEnemies = 0;
       }
 
       initGl() {
@@ -4749,9 +4734,10 @@
 
   class gltfModelPathProvider
   {
-      constructor(modelIndexerPath)
+      constructor(modelIndexerPath, ignoredVariants = ["glTF-Draco", "glTF-Embedded"])
       {
           this.modelIndexerPath = modelIndexerPath;
+          this.ignoredVariants = ignoredVariants;
           this.modelsDictionary = undefined;
       }
 
@@ -4793,6 +4779,11 @@
 
               for (const variant of Object.keys(entry.variants))
               {
+                  if (this.ignoredVariants.includes(variant))
+                  {
+                      continue;
+                  }
+
                   const fileName = entry.variants[variant];
                   const modelPath = combinePaths(modelsFolder, entry.name, variant, fileName);
                   let modelKey = getFileNameWithoutExtension(fileName);
@@ -5113,6 +5104,41 @@
       }
   }
 
+  const UserCameraIndex = "orbit camera";
+
+  class gltfRenderingParameters
+  {
+      constructor()
+      {
+          this.environmentName = "Courtyard of the Doge's palace";
+          this.useIBL = true;
+          this.usePunctual = false;
+          this.exposure = 2.0;
+          this.clearColor = [169,228,232];
+          this.toneMap = "Linear";
+          this.useShaderLoD = true;
+          this.debugOutput = "None";
+          this.sceneIndex = 0;
+          this.cameraIndex = UserCameraIndex;
+          this.animationTimer = new AnimationTimer();
+          this.animationIndex = "all";
+          this.skinning = true;
+          this.morphing = true;
+      }
+
+      userCameraActive()
+      {
+          return this.cameraIndex === UserCameraIndex;
+      }
+  }
+
+
+
+  const Environments =
+  {
+      "Courtyard of the Doge's palace": { folder: "doge2", mipLevel: 11, type: ImageMimeType.HDR }
+  };
+
   var metallicRoughnessShader = "//\n// This fragment shader defines a reference implementation for Physically Based Shading of\n// a microfacet surface material defined by a glTF model.\n//\n// References:\n// [1] Real Shading in Unreal Engine 4\n//     http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf\n// [2] Physically Based Shading at Disney\n//     http://blog.selfshadow.com/publications/s2012-shading-course/burley/s2012_pbs_disney_brdf_notes_v3.pdf\n// [3] README.md - Environment Maps\n//     https://github.com/KhronosGroup/glTF-WebGL-PBR/#environment-maps\n// [4] \"An Inexpensive BRDF Model for Physically based Rendering\" by Christophe Schlick\n//     https://www.cs.virginia.edu/~jdl/bib/appearance/analytic%20models/schlick94b.pdf\n\n#ifdef USE_TEX_LOD\n#extension GL_EXT_shader_texture_lod: enable\n#endif\n\n#extension GL_OES_standard_derivatives : enable\n\n#ifdef USE_HDR\n#extension GL_OES_texture_float : enable\n#extension GL_OES_texture_float_linear : enable\n#endif\n\nprecision highp float;\n#define GLSLIFY 1\n\n#include <tonemapping.glsl>\n#include <textures.glsl>\n#include <functions.glsl>\n\n// KHR_lights_punctual extension.\n// see https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_lights_punctual\n\nstruct Light\n{\n    vec3 direction;\n    float range;\n\n    vec3 color;\n    float intensity;\n\n    vec3 position;\n    float innerConeCos;\n\n    float outerConeCos;\n    int type;\n\n    vec2 padding;\n};\n\nconst int LightType_Directional = 0;\nconst int LightType_Point = 1;\nconst int LightType_Spot = 2;\n\n#ifdef USE_PUNCTUAL\nuniform Light u_Lights[LIGHT_COUNT];\n#endif\n\n#if defined(MATERIAL_SPECULARGLOSSINESS) || defined(MATERIAL_METALLICROUGHNESS)\nuniform float u_MetallicFactor;\nuniform float u_RoughnessFactor;\nuniform vec4 u_BaseColorFactor;\n#endif\n\n#ifdef MATERIAL_SPECULARGLOSSINESS\nuniform vec3 u_SpecularFactor;\nuniform vec4 u_DiffuseFactor;\nuniform float u_GlossinessFactor;\n#endif\n\n#ifdef ALPHAMODE_MASK\nuniform float u_AlphaCutoff;\n#endif\n\nuniform vec3 u_Camera;\n\nuniform int u_MipCount;\n\nstruct MaterialInfo\n{\n    float perceptualRoughness;    // roughness value, as authored by the model creator (input to shader)\n    vec3 reflectance0;            // full reflectance color (normal incidence angle)\n\n    float alphaRoughness;         // roughness mapped to a more linear change in the roughness (proposed by [2])\n    vec3 diffuseColor;            // color contribution from diffuse lighting\n\n    vec3 reflectance90;           // reflectance color at grazing angle\n    vec3 specularColor;           // color contribution from specular lighting\n};\n\n// Calculation of the lighting contribution from an optional Image Based Light source.\n// Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].\n// See our README.md on Environment Maps [3] for additional discussion.\n#ifdef USE_IBL\nvec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v)\n{\n    float NdotV = clamp(dot(n, v), 0.0, 1.0);\n\n    float lod = clamp(materialInfo.perceptualRoughness * float(u_MipCount), 0.0, float(u_MipCount));\n    vec3 reflection = normalize(reflect(-v, n));\n\n    vec2 brdfSamplePoint = clamp(vec2(NdotV, materialInfo.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));\n    // retrieve a scale and bias to F0. See [1], Figure 3\n    vec2 brdf = texture2D(u_brdfLUT, brdfSamplePoint).rg;\n\n    vec4 diffuseSample = textureCube(u_DiffuseEnvSampler, n);\n\n#ifdef USE_TEX_LOD\n    vec4 specularSample = textureCubeLodEXT(u_SpecularEnvSampler, reflection, lod);\n#else\n    vec4 specularSample = textureCube(u_SpecularEnvSampler, reflection);\n#endif\n\n#ifdef USE_HDR\n    // Already linear.\n    vec3 diffuseLight = diffuseSample.rgb;\n    vec3 specularLight = specularSample.rgb;\n#else\n    vec3 diffuseLight = SRGBtoLINEAR(diffuseSample).rgb;\n    vec3 specularLight = SRGBtoLINEAR(specularSample).rgb;\n#endif\n\n    vec3 diffuse = diffuseLight * materialInfo.diffuseColor;\n    vec3 specular = specularLight * (materialInfo.specularColor * brdf.x + brdf.y);\n\n    return diffuse + specular;\n}\n#endif\n\n// Lambert lighting\n// see https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/\nvec3 diffuse(MaterialInfo materialInfo)\n{\n    return materialInfo.diffuseColor / M_PI;\n}\n\n// The following equation models the Fresnel reflectance term of the spec equation (aka F())\n// Implementation of fresnel from [4], Equation 15\nvec3 specularReflection(MaterialInfo materialInfo, AngularInfo angularInfo)\n{\n    return materialInfo.reflectance0 + (materialInfo.reflectance90 - materialInfo.reflectance0) * pow(clamp(1.0 - angularInfo.VdotH, 0.0, 1.0), 5.0);\n}\n\n// Smith Joint GGX\n// Note: Vis = G / (4 * NdotL * NdotV)\n// see Eric Heitz. 2014. Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs. Journal of Computer Graphics Techniques, 3\n// see Real-Time Rendering. Page 331 to 336.\n// see https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg)\nfloat visibilityOcclusion(MaterialInfo materialInfo, AngularInfo angularInfo)\n{\n    float NdotL = angularInfo.NdotL;\n    float NdotV = angularInfo.NdotV;\n    float alphaRoughnessSq = materialInfo.alphaRoughness * materialInfo.alphaRoughness;\n\n    float GGXV = NdotL * sqrt(NdotV * NdotV * (1.0 - alphaRoughnessSq) + alphaRoughnessSq);\n    float GGXL = NdotV * sqrt(NdotL * NdotL * (1.0 - alphaRoughnessSq) + alphaRoughnessSq);\n\n    float GGX = GGXV + GGXL;\n    if (GGX > 0.0)\n    {\n        return 0.5 / GGX;\n    }\n    return 0.0;\n}\n\n// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())\n// Implementation from \"Average Irregularity Representation of a Roughened Surface for Ray Reflection\" by T. S. Trowbridge, and K. P. Reitz\n// Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.\nfloat microfacetDistribution(MaterialInfo materialInfo, AngularInfo angularInfo)\n{\n    float alphaRoughnessSq = materialInfo.alphaRoughness * materialInfo.alphaRoughness;\n    float f = (angularInfo.NdotH * alphaRoughnessSq - angularInfo.NdotH) * angularInfo.NdotH + 1.0;\n    return alphaRoughnessSq / (M_PI * f * f);\n}\n\nvec3 getPointShade(vec3 pointToLight, MaterialInfo materialInfo, vec3 normal, vec3 view)\n{\n    AngularInfo angularInfo = getAngularInfo(pointToLight, normal, view);\n\n    if (angularInfo.NdotL > 0.0 || angularInfo.NdotV > 0.0)\n    {\n        // Calculate the shading terms for the microfacet specular shading model\n        vec3 F = specularReflection(materialInfo, angularInfo);\n        float Vis = visibilityOcclusion(materialInfo, angularInfo);\n        float D = microfacetDistribution(materialInfo, angularInfo);\n\n        // Calculation of analytical lighting contribution\n        vec3 diffuseContrib = (1.0 - F) * diffuse(materialInfo);\n        vec3 specContrib = F * Vis * D;\n\n        // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)\n        return angularInfo.NdotL * (diffuseContrib + specContrib);\n    }\n\n    return vec3(0.0, 0.0, 0.0);\n}\n\n// https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#range-property\nfloat getRangeAttenuation(float range, float distance)\n{\n    if (range <= 0.0)\n    {\n        // negative range means unlimited\n        return 1.0;\n    }\n    return max(min(1.0 - pow(distance / range, 4.0), 1.0), 0.0) / pow(distance, 2.0);\n}\n\n// https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles\nfloat getSpotAttenuation(vec3 pointToLight, vec3 spotDirection, float outerConeCos, float innerConeCos)\n{\n    float actualCos = dot(normalize(spotDirection), normalize(-pointToLight));\n    if (actualCos > outerConeCos)\n    {\n        if (actualCos < innerConeCos)\n        {\n            return smoothstep(outerConeCos, innerConeCos, actualCos);\n        }\n        return 1.0;\n    }\n    return 0.0;\n}\n\nvec3 applyDirectionalLight(Light light, MaterialInfo materialInfo, vec3 normal, vec3 view)\n{\n    vec3 pointToLight = -light.direction;\n    vec3 shade = getPointShade(pointToLight, materialInfo, normal, view);\n    return light.intensity * light.color * shade;\n}\n\nvec3 applyPointLight(Light light, MaterialInfo materialInfo, vec3 normal, vec3 view)\n{\n    vec3 pointToLight = light.position - v_Position;\n    float distance = length(pointToLight);\n    float attenuation = getRangeAttenuation(light.range, distance);\n    vec3 shade = getPointShade(pointToLight, materialInfo, normal, view);\n    return attenuation * light.intensity * light.color * shade;\n}\n\nvec3 applySpotLight(Light light, MaterialInfo materialInfo, vec3 normal, vec3 view)\n{\n    vec3 pointToLight = light.position - v_Position;\n    float distance = length(pointToLight);\n    float rangeAttenuation = getRangeAttenuation(light.range, distance);\n    float spotAttenuation = getSpotAttenuation(pointToLight, light.direction, light.outerConeCos, light.innerConeCos);\n    vec3 shade = getPointShade(pointToLight, materialInfo, normal, view);\n    return rangeAttenuation * spotAttenuation * light.intensity * light.color * shade;\n}\n\nvoid main()\n{\n    // Metallic and Roughness material properties are packed together\n    // In glTF, these factors can be specified by fixed scalar values\n    // or from a metallic-roughness map\n    float perceptualRoughness = 0.0;\n    float metallic = 0.0;\n    vec4 baseColor = vec4(0.0, 0.0, 0.0, 1.0);\n    vec3 diffuseColor = vec3(0.0);\n    vec3 specularColor= vec3(0.0);\n    vec3 f0 = vec3(0.04);\n\n#ifdef MATERIAL_SPECULARGLOSSINESS\n\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\n    vec4 sgSample = SRGBtoLINEAR(texture2D(u_SpecularGlossinessSampler, getSpecularGlossinessUV()));\n    perceptualRoughness = (1.0 - sgSample.a * u_GlossinessFactor); // glossiness to roughness\n    f0 = sgSample.rgb * u_SpecularFactor; // specular\n#else\n    f0 = u_SpecularFactor;\n    perceptualRoughness = 1.0 - u_GlossinessFactor;\n#endif // ! HAS_SPECULAR_GLOSSINESS_MAP\n\n#ifdef HAS_DIFFUSE_MAP\n    baseColor = SRGBtoLINEAR(texture2D(u_DiffuseSampler, getDiffuseUV())) * u_DiffuseFactor;\n#else\n    baseColor = u_DiffuseFactor;\n#endif // !HAS_DIFFUSE_MAP\n\n    baseColor *= getVertexColor();\n\n    // f0 = specular\n    specularColor = f0;\n    float oneMinusSpecularStrength = 1.0 - max(max(f0.r, f0.g), f0.b);\n    diffuseColor = baseColor.rgb * oneMinusSpecularStrength;\n\n#ifdef DEBUG_METALLIC\n    // do conversion between metallic M-R and S-G metallic\n    metallic = solveMetallic(baseColor.rgb, specularColor, oneMinusSpecularStrength);\n#endif // ! DEBUG_METALLIC\n\n#endif // ! MATERIAL_SPECULARGLOSSINESS\n\n#ifdef MATERIAL_METALLICROUGHNESS\n\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\n    // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.\n    // This layout intentionally reserves the 'r' channel for (optional) occlusion map data\n    vec4 mrSample = texture2D(u_MetallicRoughnessSampler, getMetallicRoughnessUV());\n    perceptualRoughness = mrSample.g * u_RoughnessFactor;\n    metallic = mrSample.b * u_MetallicFactor;\n#else\n    metallic = u_MetallicFactor;\n    perceptualRoughness = u_RoughnessFactor;\n#endif\n\n    // The albedo may be defined from a base texture or a flat color\n#ifdef HAS_BASE_COLOR_MAP\n    baseColor = SRGBtoLINEAR(texture2D(u_BaseColorSampler, getBaseColorUV())) * u_BaseColorFactor;\n#else\n    baseColor = u_BaseColorFactor;\n#endif\n\n    baseColor *= getVertexColor();\n\n    diffuseColor = baseColor.rgb * (vec3(1.0) - f0) * (1.0 - metallic);\n\n    specularColor = mix(f0, baseColor.rgb, metallic);\n\n#endif // ! MATERIAL_METALLICROUGHNESS\n\n#ifdef ALPHAMODE_MASK\n    if(baseColor.a < u_AlphaCutoff)\n    {\n        discard;\n    }\n    baseColor.a = 1.0;\n#endif\n\n#ifdef ALPHAMODE_OPAQUE\n    baseColor.a = 1.0;\n#endif\n\n#ifdef MATERIAL_UNLIT\n    gl_FragColor = vec4(LINEARtoSRGB(baseColor.rgb), baseColor.a);\n    return;\n#endif\n\n    perceptualRoughness = clamp(perceptualRoughness, 0.0, 1.0);\n    metallic = clamp(metallic, 0.0, 1.0);\n\n    // Roughness is authored as perceptual roughness; as is convention,\n    // convert to material roughness by squaring the perceptual roughness [2].\n    float alphaRoughness = perceptualRoughness * perceptualRoughness;\n\n    // Compute reflectance.\n    float reflectance = max(max(specularColor.r, specularColor.g), specularColor.b);\n\n    vec3 specularEnvironmentR0 = specularColor.rgb;\n    // Anything less than 2% is physically impossible and is instead considered to be shadowing. Compare to \"Real-Time-Rendering\" 4th editon on page 325.\n    vec3 specularEnvironmentR90 = vec3(clamp(reflectance * 50.0, 0.0, 1.0));\n\n    MaterialInfo materialInfo = MaterialInfo(\n        perceptualRoughness,\n        specularEnvironmentR0,\n        alphaRoughness,\n        diffuseColor,\n        specularEnvironmentR90,\n        specularColor\n    );\n\n    // LIGHTING\n\n    vec3 color = vec3(0.0, 0.0, 0.0);\n    vec3 normal = getNormal();\n    vec3 view = normalize(u_Camera - v_Position);\n\n#ifdef USE_PUNCTUAL\n    for (int i = 0; i < LIGHT_COUNT; ++i)\n    {\n        Light light = u_Lights[i];\n        if (light.type == LightType_Directional)\n        {\n            color += applyDirectionalLight(light, materialInfo, normal, view);\n        }\n        else if (light.type == LightType_Point)\n        {\n            color += applyPointLight(light, materialInfo, normal, view);\n        }\n        else if (light.type == LightType_Spot)\n        {\n            color += applySpotLight(light, materialInfo, normal, view);\n        }\n    }\n#endif\n\n    // Calculate lighting contribution from image based lighting source (IBL)\n#ifdef USE_IBL\n    color += getIBLContribution(materialInfo, normal, view);\n#endif\n\n    float ao = 1.0;\n    // Apply optional PBR terms for additional (optional) shading\n#ifdef HAS_OCCLUSION_MAP\n    ao = texture2D(u_OcclusionSampler,  getOcclusionUV()).r;\n    color = mix(color, color * ao, u_OcclusionStrength);\n#endif\n\n    vec3 emissive = vec3(0);\n#ifdef HAS_EMISSIVE_MAP\n    emissive = SRGBtoLINEAR(texture2D(u_EmissiveSampler, getEmissiveUV())).rgb * u_EmissiveFactor;\n    color += emissive;\n#endif\n\n#ifndef DEBUG_OUTPUT // no debug\n\n   // regular shading\n    gl_FragColor = vec4(toneMap(color), baseColor.a);\n\n#else // debug output\n\n    #ifdef DEBUG_METALLIC\n        gl_FragColor.rgb = vec3(metallic);\n    #endif\n\n    #ifdef DEBUG_ROUGHNESS\n        gl_FragColor.rgb = vec3(perceptualRoughness);\n    #endif\n\n    #ifdef DEBUG_NORMAL\n        #ifdef HAS_NORMAL_MAP\n            gl_FragColor.rgb = texture2D(u_NormalSampler, getNormalUV()).rgb;\n        #else\n            gl_FragColor.rgb = vec3(0.5, 0.5, 1.0);\n        #endif\n    #endif\n\n    #ifdef DEBUG_BASECOLOR\n        gl_FragColor.rgb = LINEARtoSRGB(baseColor.rgb);\n    #endif\n\n    #ifdef DEBUG_OCCLUSION\n        gl_FragColor.rgb = vec3(ao);\n    #endif\n\n    #ifdef DEBUG_EMISSIVE\n        gl_FragColor.rgb = LINEARtoSRGB(emissive);\n    #endif\n\n    #ifdef DEBUG_F0\n        gl_FragColor.rgb = vec3(f0);\n    #endif\n\n    #ifdef DEBUG_ALPHA\n        gl_FragColor.rgb = vec3(baseColor.a);\n    #endif\n\n    gl_FragColor.a = 1.0;\n\n#endif // !DEBUG_OUTPUT\n}\n"; // eslint-disable-line
 
   var primitiveShader = "#define GLSLIFY 1\n#include <animation.glsl>\n\nattribute vec4 a_Position;\nvarying vec3 v_Position;\n\n#ifdef HAS_NORMALS\nattribute vec4 a_Normal;\n#endif\n\n#ifdef HAS_TANGENTS\nattribute vec4 a_Tangent;\n#endif\n\n#ifdef HAS_NORMALS\n#ifdef HAS_TANGENTS\nvarying mat3 v_TBN;\n#else\nvarying vec3 v_Normal;\n#endif\n#endif\n\n#ifdef HAS_UV_SET1\nattribute vec2 a_UV1;\n#endif\n\n#ifdef HAS_UV_SET2\nattribute vec2 a_UV2;\n#endif\n\nvarying vec2 v_UVCoord1;\nvarying vec2 v_UVCoord2;\n\n#ifdef HAS_VERTEX_COLOR_VEC3\nattribute vec3 a_Color;\nvarying vec3 v_Color;\n#endif\n\n#ifdef HAS_VERTEX_COLOR_VEC4\nattribute vec4 a_Color;\nvarying vec4 v_Color;\n#endif\n\nuniform mat4 u_ViewProjectionMatrix;\nuniform mat4 u_ModelMatrix;\nuniform mat4 u_NormalMatrix;\n\nvec4 getPosition()\n{\n    vec4 pos = a_Position;\n\n#ifdef USE_MORPHING\n    pos += getTargetPosition();\n#endif\n\n#ifdef USE_SKINNING\n    pos = getSkinningMatrix() * pos;\n#endif\n\n    return pos;\n}\n\n#ifdef HAS_NORMALS\nvec4 getNormal()\n{\n    vec4 normal = a_Normal;\n\n#ifdef USE_MORPHING\n    normal += getTargetNormal();\n#endif\n\n#ifdef USE_SKINNING\n    normal = getSkinningNormalMatrix() * normal;\n#endif\n\n    return normalize(normal);\n}\n#endif\n\n#ifdef HAS_TANGENTS\nvec4 getTangent()\n{\n    vec4 tangent = a_Tangent;\n\n#ifdef USE_MORPHING\n    tangent += getTargetTangent();\n#endif\n\n#ifdef USE_SKINNING\n    tangent = getSkinningMatrix() * tangent;\n#endif\n\n    return normalize(tangent);\n}\n#endif\n\nvoid main()\n{\n    vec4 pos = u_ModelMatrix * getPosition();\n    v_Position = vec3(pos.xyz) / pos.w;\n\n    #ifdef HAS_NORMALS\n    #ifdef HAS_TANGENTS\n    vec4 tangent = getTangent();\n    vec3 normalW = normalize(vec3(u_NormalMatrix * vec4(getNormal().xyz, 0.0)));\n    vec3 tangentW = normalize(vec3(u_ModelMatrix * vec4(tangent.xyz, 0.0)));\n    vec3 bitangentW = cross(normalW, tangentW) * tangent.w;\n    v_TBN = mat3(tangentW, bitangentW, normalW);\n    #else // !HAS_TANGENTS\n    v_Normal = normalize(vec3(u_NormalMatrix * vec4(getNormal().xyz, 0.0)));\n    #endif\n    #endif // !HAS_NORMALS\n\n    v_UVCoord1 = vec2(0.0, 0.0);\n    v_UVCoord2 = vec2(0.0, 0.0);\n\n    #ifdef HAS_UV_SET1\n    v_UVCoord1 = a_UV1;\n    #endif\n\n    #ifdef HAS_UV_SET2\n    v_UVCoord2 = a_UV2;\n    #endif\n\n    #if defined(HAS_VERTEX_COLOR_VEC3) || defined(HAS_VERTEX_COLOR_VEC4)\n    v_Color = a_Color;\n    #endif\n\n    gl_Position = u_ViewProjectionMatrix * pos;\n}\n"; // eslint-disable-line
@@ -5127,12 +5153,11 @@
 
   class gltfRenderer
   {
-      constructor(canvas, defaultCamera, parameters, basePath)
+      constructor(canvas, defaultCamera, parameters)
       {
           this.canvas = canvas;
           this.defaultCamera = defaultCamera;
           this.parameters = parameters;
-          this.basePath = basePath;
           this.shader = undefined; // current shader
 
           this.currentWidth  = 0;
@@ -5212,7 +5237,7 @@
           WebGl.context.clear(WebGl.context.COLOR_BUFFER_BIT | WebGl.context.DEPTH_BUFFER_BIT);
       }
 
-      // render complete gltfLoader scene with given camera
+      // render complete gltf scene with given camera
       drawScene(gltf, scene, sortByDepth, predicateDrawPrimivitve)
       {
           let currentCamera = undefined;
@@ -5504,9 +5529,10 @@
               fragDefines.push("USE_TEX_LOD 1");
           }
 
-          fragDefines.push("USE_HDR 1");
-
-
+          if (Environments[this.parameters.environmentName].type === ImageMimeType.HDR)
+          {
+              fragDefines.push("USE_HDR 1");
+          }
 
 
       }
@@ -5527,6 +5553,10 @@
           if (gltf.envData === undefined)
           {
               let linear = true;
+              if (Environments[this.parameters.environmentName].type !== ImageMimeType.HDR)
+              {
+                  linear = false;
+              }
               
               gltf.envData = {};
               gltf.envData.diffuseEnvMap = new gltfTextureInfo(gltf.textures.length - 3, 0, linear);
@@ -5540,47 +5570,13 @@
           WebGl.setTexture(this.shader.getUniformLocation("u_SpecularEnvSampler"), gltf, gltf.envData.specularEnvMap, texSlotOffset + 1);
           WebGl.setTexture(this.shader.getUniformLocation("u_brdfLUT"), gltf, gltf.envData.lut, texSlotOffset + 2);
 
-          const mipCount = 11;
+          const mipCount = Environments[this.parameters.environmentName].mipLevel;
           this.shader.updateUniform("u_MipCount", mipCount);
       }
 
       destroy()
       {
           this.shaderCache.destroy();
-      }
-  }
-
-  const UserCameraIndex = "orbit camera";
-
-  class gltfRenderingParameters
-  {
-      constructor(
-          environmentName = Object.keys(Environments)[0],
-          useIBL = true,
-          usePunctual = false,
-          exposure = 2.0,
-          clearColor = [169,228,232],
-          toneMap = ToneMaps.LINEAR,
-          useShaderLoD = true)
-      {
-          this.environmentName = environmentName;
-          this.useIBL = useIBL;
-          this.usePunctual = usePunctual;
-          this.exposure = exposure;
-          this.clearColor = clearColor;
-          this.toneMap = toneMap;
-          this.useShaderLoD = useShaderLoD;
-          this.sceneIndex = 0;
-          this.cameraIndex = UserCameraIndex;
-          this.animationTimer = new AnimationTimer();
-          this.animationIndex = "all";
-          this.skinning = true;
-          this.morphing = true;
-      }
-
-      userCameraActive()
-      {
-          return this.cameraIndex === UserCameraIndex;
       }
   }
 
@@ -5802,21 +5798,7 @@
           this.yRot = clamp(this.yRot, -yMax, yMax);
       }
 
-      pan(x, y)
-      {
-          const moveSpeed = 1 / (this.scaleFactor * 200);
 
-          const left = fromValues$4(-1, 0, 0);
-          this.toLocalRotation(left);
-          scale$4(left, left, x * moveSpeed);
-
-          const up = fromValues$4(0, 1, 0);
-          this.toLocalRotation(up);
-          scale$4(up, up, y * moveSpeed);
-
-          add$4(this.target, this.target, up);
-          add$4(this.target, this.target, left);
-      }
 
       fitViewToScene()
       {
@@ -5851,9 +5833,8 @@
 
   class gltfEnvironmentLoader
   {
-      constructor(basePath)
+      constructor()
       {
-          this.basePath = basePath;
       }
 
       addEnvironmentMap(gltf, environment)
@@ -5873,7 +5854,7 @@
               break;
           }
 
-          const imagesFolder = this.basePath + "assets/environments/" + environment.folder + "/";
+          const imagesFolder =   "assets/environments/" + environment.folder + "/";
           const diffusePrefix = imagesFolder + "diffuse/diffuse_";
           const diffuseSuffix = "_0" + extension;
           const specularPrefix = imagesFolder + "specular/specular_";
@@ -5933,85 +5914,50 @@
 
           gltf.textures.push(new gltfTexture(specularCubeSamplerIdx, indices, WebGl.context.TEXTURE_CUBE_MAP));
 
-          gltf.images.push(new gltfImage(this.basePath + "assets/images/brdfLUT.png", WebGl.context.TEXTURE_2D));
+          gltf.images.push(new gltfImage( "assets/images/brdfLUT.png", WebGl.context.TEXTURE_2D));
 
           // u_brdfLUT tex
           gltf.textures.push(new gltfTexture(lutSamplerIdx, [++imageIdx], WebGl.context.TEXTURE_2D));
       }
   }
 
-  class gltfViewer
+  class gameObject
   {
       constructor(
           canvas,
           modelIndex,
-          input,
-          headless = false,
-          onRendererReady = undefined,
-          basePath = "",
-          initialModel = "",
-          environmentMap = undefined)
+          input)
       {
-          this.headless = headless;
-          this.onRendererReady = onRendererReady;
-          this.basePath = basePath;
-          this.initialModel = initialModel;
-
-          this.lastMouseX = 0.00;
-          this.lastMouseY = 0.00;
-          this.mouseDown = false;
-
-          this.lastTouchX = 0.00;
-          this.lastTouchY = 0.00;
-          this.touchDown = false;
+          this.onRendererReady = undefined;
+          this.initialModel = "map";
 
           this.canvas = canvas;
           this.canvas.style.cursor = "grab";
 
-          this.loadingTimer = new Timer();
           this.gltf = undefined;
-          this.lastDropped = undefined;
 
           this.scaledSceneIndex = 0;
           this.scaledGltfChanged = true;
           this.sceneScaleFactor = 1;
 
-          this.renderingParameters = new gltfRenderingParameters(environmentMap);
+          this.renderingParameters = new gltfRenderingParameters();
           this.userCamera = new UserCamera(this);
           this.currentlyRendering = false;
-          this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters, this.basePath);
-
-          this.gltfLoadedCallback = function(){};
+          this.renderer = new gltfRenderer(canvas, this.userCamera, this.renderingParameters);
 
 
 
-          // Holds the last camera index, used for scene scaling when changing to user camera.
-          this.prevCameraIndex = null;
 
-          if (this.headless === true)
+
+
+          this.setupInputBindings(input);
+
+          const self = this;
+          this.pathProvider = new gltfModelPathProvider( modelIndex);
+          this.pathProvider.initialize().then(() =>
           {
-              this.hideSpinner();
-          }
-          else
-          {
-              this.setupInputBindings(input);
-
-              if (this.initialModel.includes("/"))
-              {
-                  // no UI if a path is provided (e.g. in the vscode plugin)
-                  this.loadFromPath(this.initialModel);
-              }
-              else
-              {
-                  const self = this;
-                  this.stats = new Stats();
-                  this.pathProvider = new gltfModelPathProvider(this.basePath + modelIndex);
-                  this.pathProvider.initialize().then(() =>
-                  {
-                      self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
-                  });
-              }
-          }
+              self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
+          });
 
           this.render(); // Starts a rendering loop.
       }
@@ -6051,11 +5997,6 @@
           }
       }
 
-      // callback = function(gltfLoader) {}
-      setGltfLoadedCallback(callback)
-      {
-          this.gltfLoadedCallback = callback;
-      }
 
       setupInputBindings(input)
       {
@@ -6065,13 +6006,6 @@
               if (this.renderingParameters.userCameraActive())
               {
                   this.userCamera.rotate(deltaX, deltaY);
-              }
-          };
-          input.onPan = (deltaX, deltaY) =>
-          {
-              if (this.renderingParameters.userCameraActive())
-              {
-                  this.userCamera.pan(deltaX, deltaY);
               }
           };
           input.onZoom = (delta) =>
@@ -6088,14 +6022,14 @@
                   self.userCamera.reset(self.gltf, self.renderingParameters.sceneIndex);
               }
           };
+
       }
 
 
-      loadFromPath(gltfFile, basePath = "")
+      loadFromPath(gltfFile)
       {
-          this.lastDropped = undefined;
 
-          gltfFile = basePath + gltfFile;
+
           this.notifyLoadingStarted(gltfFile);
 
 
@@ -6108,7 +6042,7 @@
           }).catch(function(error)
           {
               console.error(error.stack);
-              if (!self.headless) self.hideSpinner();
+              self.hideSpinner();
           });
       }
 
@@ -6135,29 +6069,26 @@
 
       injectEnvironment(gltf)
       {
-          // this is hacky, because we inject stuff into the gltfLoader
+          // this is hacky, because we inject stuff into the gltf
 
           // because the environment loader adds images with paths that are not relative
-          // to the gltfLoader, we have to resolve all image paths before that
+          // to the gltf, we have to resolve all image paths before that
           for (const image of gltf.images)
           {
               image.resolveRelativePath(getContainingFolder(gltf.path));
           }
 
-          new gltfEnvironmentLoader(this.basePath).addEnvironmentMap(gltf, { folder: "pisa", mipLevel: 11, type: ImageMimeType.HDR });
+          const environment = Environments[this.renderingParameters.environmentName];
+          new gltfEnvironmentLoader().addEnvironmentMap(gltf, environment);
       }
 
       startRendering(gltf)
       {
           this.notifyLoadingEnded(gltf.path);
-          if(this.gltfLoadedCallback !== undefined)
-          {
-              this.gltfLoadedCallback(gltf);
-          }
 
           if (gltf.scenes.length === 0)
           {
-              throw "No scenes in the gltfLoader";
+              throw "No scenes in the gltf";
           }
 
           this.renderingParameters.cameraIndex = UserCameraIndex;
@@ -6184,10 +6115,6 @@
 
 
 
-              if (self.stats !== undefined)
-              {
-                  self.stats.begin();
-              }
 
               if (self.currentlyRendering)
               {
@@ -6198,10 +6125,7 @@
 
                   if (self.gltf.scenes.length !== 0)
                   {
-                      if (self.headless === false)
-                      {
-                          self.userCamera.updatePosition();
-                      }
+                      self.userCamera.updatePosition();
 
                       const scene = self.gltf.scenes[self.renderingParameters.sceneIndex];
 
@@ -6210,9 +6134,9 @@
                       const nodes = scene.gatherNodes(self.gltf);
 
                       const alphaModes = nodes
-                          .filter(n => n.mesh !== undefined)
+                          .filter(n => n.mesh !== undefined) //return only defined ones
                           .reduce((acc, n) => acc.concat(self.gltf.meshes[n.mesh].primitives), [])
-                          .map(p => self.gltf.materials[p.material].alphaMode);
+                          .map(p => self.gltf.materials[p.material].alphaMode); //create new array
 
                       let hasBlendPrimitives = false;
                       for(const alphaMode of alphaModes)
@@ -6245,10 +6169,6 @@
                   }
               }
 
-              if (self.stats !== undefined)
-              {
-                  self.stats.end();
-              }
 
               window.requestAnimationFrame(renderFrame);
           }
@@ -6263,28 +6183,25 @@
 
           gltf.update();
 
-          this.animateNode(gltf);
 
           scene.applyTransformHierarchy(gltf);
 
           const transform = create$3();
 
           let scaled = false;
-          if (this.renderingParameters.userCameraActive() && (this.scaledGltfChanged || this.scaledSceneIndex !== this.renderingParameters.sceneIndex || this.prevCameraIndex !== this.renderingParameters.cameraIndex))
+          if (this.renderingParameters.userCameraActive() && (this.scaledGltfChanged || this.scaledSceneIndex !== this.renderingParameters.sceneIndex ))
           {
               this.sceneScaleFactor = getScaleFactor(gltf, this.renderingParameters.sceneIndex);
 
               scaled = true;
               this.scaledGltfChanged = false;
               this.scaledSceneIndex = this.renderingParameters.sceneIndex;
-              console.log("Rescaled scene " + this.scaledSceneIndex + " by " + this.sceneScaleFactor);
           }
-          else if(!this.renderingParameters.userCameraActive() && this.prevCameraIndex !== this.renderingParameters.cameraIndex)
+          else if(!this.renderingParameters.userCameraActive() )
           {
               this.sceneScaleFactor = 1;
           }
 
-          this.prevCameraIndex = this.renderingParameters.cameraIndex;
 
           scale$3(transform, transform, fromValues$4(this.sceneScaleFactor,  this.sceneScaleFactor,  this.sceneScaleFactor));
           scene.applyTransformHierarchy(gltf, transform);
@@ -6295,56 +6212,18 @@
           }
       }
 
-      animateNode(gltf)
-      {
-          if(gltf.animations !== undefined && !this.renderingParameters.animationTimer.paused)
-          {
-              const t = this.renderingParameters.animationTimer.elapsedSec();
 
-              if(this.renderingParameters.animationIndex === "all")
-              {
-                  // Special index, step all animations.
-                  for(const anim of gltf.animations)
-                  {
-                      if(anim)
-                      {
-                          anim.advance(gltf, t);
-                      }
-                  }
-              }
-              else
-              {
-                  // Step selected animation.
-                  const anim = gltf.animations[this.renderingParameters.animationIndex];
-                  if(anim)
-                  {
-                      anim.advance(gltf, t);
-                  }
-              }
-          }
+
+      notifyLoadingStarted()
+      {
+
+          this.showSpinner();
       }
 
-
-      notifyLoadingStarted(path)
+      notifyLoadingEnded()
       {
-          this.loadingTimer.start();
-          console.log("Loading '" + path + "' with environment '" + this.renderingParameters.environmentName + "'");
 
-          if (!this.headless)
-          {
-              this.showSpinner();
-          }
-      }
-
-      notifyLoadingEnded(path)
-      {
-          this.loadingTimer.stop();
-          console.log("Loading '" + path + "' took " + this.loadingTimer.seconds + " seconds");
-
-          if (!this.headless)
-          {
-              this.hideSpinner();
-          }
+          this.hideSpinner();
       }
 
       showSpinner()
@@ -6368,6 +6247,8 @@
 
   }
 
+  const ZoomThreshold = 1.0;
+
   class gltfMouseInput
   {
       constructor(canvas)
@@ -6376,6 +6257,7 @@
 
           this.onZoom = () => { };
           this.onRotate = () => { };
+          this.onPan = () => { };
 
           this.mouseDown = false;
           this.pressedButton = undefined;
@@ -6437,6 +6319,18 @@
           }
       }
 
+      mouseWheelHandler(event)
+      {
+          event.preventDefault();
+
+          if (Math.abs(event.deltaY) < ZoomThreshold)
+          {
+              return;
+          }
+
+          this.canvas.style.cursor = "none";
+          this.onZoom(event.deltaY);
+      }
   }
 
   class gltfKeyboardInput
@@ -6461,7 +6355,7 @@
               this.onResetCamera();
           }
           keys[event.code] = true;
-          if (event.code === Input_AttackButton){
+          if (event.code === 'Space'){
               playerWeaponAudio.play();
           }
       }
@@ -6480,10 +6374,13 @@
 
           this.onZoom = () => { };
           this.onRotate = () => { };
+          this.onPan = () => { };
+          this.onDropFiles = () => { };
           this.onResetCamera = () => { };
 
           this.mouseInput.onZoom = (delta => this.onZoom(delta)).bind(this);
           this.mouseInput.onRotate = ((x, y) => this.onRotate(x, y)).bind(this);
+          this.mouseInput.onPan = ((x, y) => this.onPan(x, y)).bind(this);
           this.keyboardInput.onResetCamera = (() => this.onResetCamera()).bind(this);
       }
 
@@ -6500,15 +6397,11 @@
       }
   }
 
-  function gltf_rv(
-      canvasId,
-      index,
-      envMap = "Courtyard of the Doge's palace",
-      headless = false,
-      onRendererReady = undefined,
-      basePath = "",
-      initialModel = "map")
+  function main()
   {
+      const canvasId = 'canvas';
+      const jsonIndex = 'assets/models/model-index.json';
+
       const canvas = document.getElementById(canvasId);
       if (!canvas)
       {
@@ -6527,9 +6420,9 @@
       input.setupGlobalInputBindings(document);
       input.setupCanvasInputBindings(canvas);
 
-      const viewer = new gltfViewer(canvas, index, input, headless, onRendererReady, basePath, initialModel, envMap);
+      new gameObject(canvas, jsonIndex, input);
 
-      return viewer; // Succeeded in creating a glTF viewer!
+
   }
 
   function getWebGlContext(canvas)
@@ -6549,9 +6442,9 @@
       }
   }
 
-  exports.gltf_rv = gltf_rv;
+  exports.main = main;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=gltfLoader-reference-viewer.umd.js.map
+//# sourceMappingURL=PolyKingdom.umd.js.map

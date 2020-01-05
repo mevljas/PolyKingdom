@@ -12,8 +12,7 @@ const open = require('open');
 let mainWindow;
 
 function createWindow () {
-    mainWindow = new BrowserWindow({ width: 1920, height: 1080,
-        icon: path.join(__dirname, "../assets/images/gltf.png")
+    mainWindow = new BrowserWindow({ width: 1920, height: 1080
     });
 
     //opens debug console
