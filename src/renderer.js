@@ -3,7 +3,7 @@ import { gltfLight } from './gltf_loader/light.js';
 import { gltfTextureInfo } from './gltf_loader/texture.js';
 import { ShaderCache } from './gltf_loader/shader_cache.js';
 import { WebGl } from './webgl.js';
-import { ToneMaps, DebugOutput, Environments } from './rendering_parameters.js';
+import {  Environments } from './rendering_parameters.js';
 import { ImageMimeType } from './gltf_loader/image.js';
 import metallicRoughnessShader from './shaders/metallic-roughness.frag';
 import primitiveShader from './shaders/primitive.vert';

@@ -6459,7 +6459,7 @@ function main()
 
     new gameObject(canvas, jsonIndex, input);
 
-    console.log("TEST22");
+    console.log("TEST222");
 
 
 }
