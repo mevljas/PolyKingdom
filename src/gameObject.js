@@ -101,13 +101,6 @@ class gameObject
                 this.userCamera.rotate(deltaX, deltaY);
             }
         };
-        input.onPan = (deltaX, deltaY) =>
-        {
-            if (this.renderingParameters.userCameraActive())
-            {
-                this.userCamera.pan(deltaX, deltaY);
-            }
-        };
         input.onZoom = (delta) =>
         {
             if (this.renderingParameters.userCameraActive())
@@ -122,39 +115,9 @@ class gameObject
                 self.userCamera.reset(self.gltf, self.renderingParameters.sceneIndex);
             }
         };
-        input.onDropFiles = this.loadFromFileObject.bind(this);
+
     }
 
-    loadFromFileObject(mainFile, additionalFiles)
-    {
-
-        const gltfFile = mainFile.name;
-        this.notifyLoadingStarted(gltfFile);
-
-        const reader = new FileReader();
-        const self = this;
-        if (getIsGlb(gltfFile))
-        {
-            reader.onloadend = function(event)
-            {
-                const data = event.target.result;
-                const glbParser = new GlbParser(data);
-                const glb = glbParser.extractGlbData();
-                self.createGltf(gltfFile, glb.json, glb.buffers);
-            };
-            reader.readAsArrayBuffer(mainFile);
-        }
-        else
-        {
-            reader.onloadend = function(event)
-            {
-                const data = event.target.result;
-                const json = JSON.parse(data);
-                self.createGltf(gltfFile, json, additionalFiles);
-            };
-            reader.readAsText(mainFile);
-        }
-    }
 
     loadFromPath(gltfFile)
     {
@@ -162,20 +125,12 @@ class gameObject
 
         this.notifyLoadingStarted(gltfFile);
 
-        const isGlb = getIsGlb(gltfFile);
 
         const self = this;
-        return axios.get(gltfFile, { responseType: isGlb ? "arraybuffer" : "json" }).then(function(response)
+        return axios.get(gltfFile, { responseType:  "json" }).then(function(response)
         {
             let json = response.data;
             let buffers = undefined;
-            if (isGlb)
-            {
-                const glbParser = new GlbParser(response.data);
-                const glb = glbParser.extractGlbData();
-                json = glb.json;
-                buffers = glb.buffers;
-            }
             return self.createGltf(gltfFile, json, buffers);
         }).catch(function(error)
         {
@@ -381,13 +336,13 @@ class gameObject
     }
 
 
-    notifyLoadingStarted(path)
+    notifyLoadingStarted()
     {
 
         this.showSpinner();
     }
 
-    notifyLoadingEnded(path)
+    notifyLoadingEnded()
     {
 
         this.hideSpinner();

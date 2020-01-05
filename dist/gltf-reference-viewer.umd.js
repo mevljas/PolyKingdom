@@ -1871,21 +1871,6 @@
       return Math.min(Math.max(number, min$$1), max$$1);
   }
 
-  function getIsGlb(filename)
-  {
-      return getExtension(filename) == "glb";
-  }
-
-  function getExtension(filename)
-  {
-      const split = filename.toLowerCase().split(".");
-      if (split.length == 1)
-      {
-          return undefined;
-      }
-      return split[split.length - 1];
-  }
-
   function getFileName(filePath)
   {
       const split = filePath.split("/");
@@ -5916,109 +5901,6 @@
 
   }
 
-  class GlbParser
-  {
-      constructor(data)
-      {
-          this.data = data;
-          this.glbHeaderInts = 3;
-          this.glbChunkHeaderInts = 2;
-          this.glbMagic = 0x46546C67;
-          this.glbVersion = 2;
-          this.jsonChunkType = 0x4E4F534A;
-          this.binaryChunkType = 0x004E4942;
-      }
-
-      extractGlbData()
-      {
-          const glbInfo = this.getCheckedGlbInfo();
-          if (glbInfo === undefined)
-          {
-              return undefined;
-          }
-
-          let json = undefined;
-          let buffers = [];
-          const chunkInfos = this.getAllChunkInfos();
-          for (let chunkInfo of chunkInfos)
-          {
-              if (chunkInfo.type == this.jsonChunkType && !json)
-              {
-                  json = this.getJsonFromChunk(chunkInfo);
-              }
-              else if (chunkInfo.type == this.binaryChunkType)
-              {
-                  buffers.push(this.getBufferFromChunk(chunkInfo));
-              }
-          }
-
-          return { json: json, buffers: buffers };
-      }
-
-      getCheckedGlbInfo()
-      {
-          const header = new Uint32Array(this.data, 0, this.glbHeaderInts);
-          const magic = header[0];
-          const version = header[1];
-          const length = header[2];
-
-          if (!this.checkEquality(magic, this.glbMagic, "glb magic") ||
-              !this.checkEquality(version, this.glbVersion, "glb header version") ||
-              !this.checkEquality(length, this.data.byteLength, "glb byte length"))
-          {
-              return undefined;
-          }
-
-          return { "magic": magic, "version": version, "length": length };
-      }
-
-      getAllChunkInfos()
-      {
-          let infos = [];
-          let chunkStart = this.glbHeaderInts * 4;
-          while (chunkStart < this.data.byteLength)
-          {
-              const chunkInfo = this.getChunkInfo(chunkStart);
-              infos.push(chunkInfo);
-              chunkStart += chunkInfo.length + this.glbChunkHeaderInts * 4;
-          }
-          return infos;
-      }
-
-      getChunkInfo(headerStart)
-      {
-          const header = new Uint32Array(this.data, headerStart, this.glbChunkHeaderInts);
-          const chunkStart = headerStart + this.glbChunkHeaderInts * 4;
-          const chunkLength = header[0];
-          const chunkType = header[1];
-          return { "start": chunkStart, "length": chunkLength, "type": chunkType };
-      }
-
-      getJsonFromChunk(chunkInfo)
-      {
-          const chunkLength = chunkInfo.length;
-          const jsonStart = (this.glbHeaderInts + this.glbChunkHeaderInts) * 4;
-          const jsonSlice = new Uint8Array(this.data, jsonStart, chunkLength);
-          return JSON.parse(String.fromCharCode.apply(null, jsonSlice));
-      }
-
-      getBufferFromChunk(chunkInfo)
-      {
-          return this.data.slice(chunkInfo.start, chunkInfo.start + chunkInfo.length);
-      }
-
-      checkEquality(actual, expected, name)
-      {
-          if (actual == expected)
-          {
-              return true;
-          }
-
-          console.error("Found invalid/unsupported " + name + ", expected: " + expected + ", but was: " + actual);
-          return false;
-      }
-  }
-
   class gltfEnvironmentLoader
   {
       constructor()
@@ -6196,13 +6078,6 @@
                   this.userCamera.rotate(deltaX, deltaY);
               }
           };
-          input.onPan = (deltaX, deltaY) =>
-          {
-              if (this.renderingParameters.userCameraActive())
-              {
-                  this.userCamera.pan(deltaX, deltaY);
-              }
-          };
           input.onZoom = (delta) =>
           {
               if (this.renderingParameters.userCameraActive())
@@ -6217,39 +6092,9 @@
                   self.userCamera.reset(self.gltf, self.renderingParameters.sceneIndex);
               }
           };
-          input.onDropFiles = this.loadFromFileObject.bind(this);
+
       }
 
-      loadFromFileObject(mainFile, additionalFiles)
-      {
-
-          const gltfFile = mainFile.name;
-          this.notifyLoadingStarted(gltfFile);
-
-          const reader = new FileReader();
-          const self = this;
-          if (getIsGlb(gltfFile))
-          {
-              reader.onloadend = function(event)
-              {
-                  const data = event.target.result;
-                  const glbParser = new GlbParser(data);
-                  const glb = glbParser.extractGlbData();
-                  self.createGltf(gltfFile, glb.json, glb.buffers);
-              };
-              reader.readAsArrayBuffer(mainFile);
-          }
-          else
-          {
-              reader.onloadend = function(event)
-              {
-                  const data = event.target.result;
-                  const json = JSON.parse(data);
-                  self.createGltf(gltfFile, json, additionalFiles);
-              };
-              reader.readAsText(mainFile);
-          }
-      }
 
       loadFromPath(gltfFile)
       {
@@ -6257,20 +6102,12 @@
 
           this.notifyLoadingStarted(gltfFile);
 
-          const isGlb = getIsGlb(gltfFile);
 
           const self = this;
-          return axios_min.get(gltfFile, { responseType: isGlb ? "arraybuffer" : "json" }).then(function(response)
+          return axios_min.get(gltfFile, { responseType:  "json" }).then(function(response)
           {
               let json = response.data;
               let buffers = undefined;
-              if (isGlb)
-              {
-                  const glbParser = new GlbParser(response.data);
-                  const glb = glbParser.extractGlbData();
-                  json = glb.json;
-                  buffers = glb.buffers;
-              }
               return self.createGltf(gltfFile, json, buffers);
           }).catch(function(error)
           {
@@ -6476,13 +6313,13 @@
       }
 
 
-      notifyLoadingStarted(path)
+      notifyLoadingStarted()
       {
 
           this.showSpinner();
       }
 
-      notifyLoadingEnded(path)
+      notifyLoadingEnded()
       {
 
           this.hideSpinner();
@@ -6684,7 +6521,7 @@
 
       new gameObject(canvas, jsonIndex, input);
 
-      console.log("TEST42");
+      console.log("TEST");
 
 
   }
