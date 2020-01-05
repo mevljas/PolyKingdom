@@ -19,11 +19,11 @@ class gameObject
     constructor(
         canvas,
         modelIndex,
-        input,
-        environmentMap = undefined)
+        input)
     {
         this.onRendererReady = undefined;
         this.initialModel = "map";
+        this.environmentMap = "Courtyard of the Doge's palace"
 
         this.lastMouseX = 0.00;
         this.lastMouseY = 0.00;
