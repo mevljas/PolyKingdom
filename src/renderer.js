@@ -395,54 +395,7 @@ class gltfRenderer
             fragDefines.push("USE_HDR 1");
         }
 
-        switch(this.parameters.toneMap)
-        {
-        case(ToneMaps.UNCHARTED):
-            fragDefines.push("TONEMAP_UNCHARTED 1");
-            break;
-        case(ToneMaps.HEJL_RICHARD):
-            fragDefines.push("TONEMAP_HEJLRICHARD 1");
-            break;
-        case(ToneMaps.ACES):
-            fragDefines.push("TONEMAP_ACES 1");
-            break;
-        case(ToneMaps.LINEAR):
-        default:
-            break;
-        }
 
-        if(this.parameters.debugOutput !== DebugOutput.NONE)
-        {
-            fragDefines.push("DEBUG_OUTPUT 1");
-        }
-
-        switch(this.parameters.debugOutput)
-        {
-        case(DebugOutput.METALLIC):
-            fragDefines.push("DEBUG_METALLIC 1");
-            break;
-        case(DebugOutput.ROUGHNESS):
-            fragDefines.push("DEBUG_ROUGHNESS 1");
-            break;
-        case(DebugOutput.NORMAL):
-            fragDefines.push("DEBUG_NORMAL 1");
-            break;
-        case(DebugOutput.BASECOLOR):
-            fragDefines.push("DEBUG_BASECOLOR 1");
-            break;
-        case(DebugOutput.OCCLUSION):
-            fragDefines.push("DEBUG_OCCLUSION 1");
-            break;
-        case(DebugOutput.EMISIVE):
-            fragDefines.push("DEBUG_EMISSIVE 1");
-            break;
-        case(DebugOutput.F0):
-            fragDefines.push("DEBUG_F0 1");
-            break;
-        case(DebugOutput.ALPHA):
-            fragDefines.push("DEBUG_ALPHA 1");
-            break;
-        }
     }
 
     applyLights(gltf)

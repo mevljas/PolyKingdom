@@ -12,9 +12,9 @@ class gltfRenderingParameters
         this.usePunctual = false;
         this.exposure = 2.0;
         this.clearColor = [169,228,232];
-        this.toneMap = ToneMaps.LINEAR;
+        this.toneMap = "Linear";
         this.useShaderLoD = true;
-        this.debugOutput = DebugOutput.NONE;
+        this.debugOutput = "None";
         this.sceneIndex = 0;
         this.cameraIndex = UserCameraIndex;
         this.animationTimer = new AnimationTimer();
@@ -29,20 +29,11 @@ class gltfRenderingParameters
     }
 }
 
-const ToneMaps =
-{
-    LINEAR: "Linear"
-};
 
-const DebugOutput =
-{
-    NONE: "None"
-
-};
 
 const Environments =
 {
     "Courtyard of the Doge's palace": { folder: "doge2", mipLevel: 11, type: ImageMimeType.HDR }
 };
 
-export { UserCameraIndex, gltfRenderingParameters, Environments, ToneMaps, DebugOutput };
+export { UserCameraIndex, gltfRenderingParameters, Environments };
