@@ -78,7 +78,6 @@ class gltfViewer
             else
             {
                 const self = this;
-                this.stats = new Stats();
                 this.pathProvider = new gltfModelPathProvider(this.basePath + modelIndex);
                 this.pathProvider.initialize().then(() =>
                 {
@@ -299,10 +298,6 @@ class gltfViewer
 
 
 
-            if (self.stats !== undefined)
-            {
-                self.stats.begin();
-            }
 
             if (self.currentlyRendering)
             {
@@ -360,10 +355,6 @@ class gltfViewer
                 }
             }
 
-            if (self.stats !== undefined)
-            {
-                self.stats.end();
-            }
 
             window.requestAnimationFrame(renderFrame);
         }

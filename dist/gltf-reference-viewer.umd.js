@@ -6230,7 +6230,6 @@
               else
               {
                   const self = this;
-                  this.stats = new Stats();
                   this.pathProvider = new gltfModelPathProvider(this.basePath + modelIndex);
                   this.pathProvider.initialize().then(() =>
                   {
@@ -6451,10 +6450,6 @@
 
 
 
-              if (self.stats !== undefined)
-              {
-                  self.stats.begin();
-              }
 
               if (self.currentlyRendering)
               {
@@ -6512,10 +6507,6 @@
                   }
               }
 
-              if (self.stats !== undefined)
-              {
-                  self.stats.end();
-              }
 
               window.requestAnimationFrame(renderFrame);
           }
