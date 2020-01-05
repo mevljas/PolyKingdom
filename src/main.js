@@ -25,9 +25,9 @@ function main()
     input.setupGlobalInputBindings(document);
     input.setupCanvasInputBindings(canvas);
 
-    const game = new gameObject(canvas, jsonIndex, input, "map", "Courtyard of the Doge's palace");
+    const game = new gameObject(canvas, jsonIndex, input, "Courtyard of the Doge's palace");
 
-    console.log("TEST22");
+    console.log("TEST222");
 
 
 }

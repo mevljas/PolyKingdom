@@ -6159,11 +6159,10 @@ class gameObject
         canvas,
         modelIndex,
         input,
-        initialModel = "",
         environmentMap = undefined)
     {
         this.onRendererReady = undefined;
-        this.initialModel = initialModel;
+        this.initialModel = "map";
 
         this.lastMouseX = 0.00;
         this.lastMouseY = 0.00;
@@ -6198,20 +6197,12 @@ class gameObject
 
         this.setupInputBindings(input);
 
-        if (this.initialModel.includes("/"))
+        const self = this;
+        this.pathProvider = new gltfModelPathProvider( modelIndex);
+        this.pathProvider.initialize().then(() =>
         {
-            // no UI if a path is provided (e.g. in the vscode plugin)
-            this.loadFromPath(this.initialModel);
-        }
-        else
-        {
-            const self = this;
-            this.pathProvider = new gltfModelPathProvider( modelIndex);
-            this.pathProvider.initialize().then(() =>
-            {
-                self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
-            });
-        }
+            self.loadFromPath(self.pathProvider.resolve(self.initialModel),undefined);
+        });
 
         this.render(); // Starts a rendering loop.
     }
@@ -6763,9 +6754,9 @@ function main()
     input.setupGlobalInputBindings(document);
     input.setupCanvasInputBindings(canvas);
 
-    const game = new gameObject(canvas, jsonIndex, input, "map", "Courtyard of the Doge's palace");
+    const game = new gameObject(canvas, jsonIndex, input, "Courtyard of the Doge's palace");
 
-    console.log("TEST22");
+    console.log("TEST222");
 
 
 }
