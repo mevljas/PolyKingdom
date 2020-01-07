@@ -1,4 +1,4 @@
-import { Input_PanButton, Input_RotateButton } from './publicVariables.js';
+import { Input_RotateButton } from './publicVariables.js';
 
 const ZoomThreshold = 1.0;
 
@@ -65,9 +65,6 @@ class gltfMouseInput
         {
         case Input_RotateButton:
             this.onRotate(deltaX, deltaY);
-            break;
-        case Input_PanButton:
-            this.onPan(deltaX, deltaY);
             break;
         }
     }

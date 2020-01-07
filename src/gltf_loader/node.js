@@ -33,7 +33,7 @@ class gltfNode extends GltfObject
         this.type = type;
         //velocity for movement
         this.velocity = [0, 0, 0];
-        this.acceleration = 0.3;
+        this.acceleration = 0.25;
         //bounding box
         this.aabbmin= undefined;
         this.aabbmax= undefined;

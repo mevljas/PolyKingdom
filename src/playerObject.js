@@ -16,7 +16,13 @@ import {gltfImage} from "./gltf_loader/image";
 import {gltfAnimation} from "./gltf_loader/animation";
 import {gltfSkin} from "./gltf_loader/skin";
 import {vec3} from "gl-matrix";
-import {keys} from "./publicVariables";
+import {
+    Input_MoveDownButton,
+    Input_MoveLeftButton,
+    Input_MoveRightButton,
+    Input_MoveUpButton,
+    keys
+} from "./publicVariables";
 import {enemyDeathAudio, enemyDetectionSounds, playerHurtAudio, zombieHurtAudio, playerWalkingSound} from "./audio";
 import {colliison} from "./collision";
 
@@ -26,7 +32,7 @@ class playerObject {
         this.gltf = gtlf;
         this.directionVector = 0;
         this.direction = "up";
-        this.lives = 100;
+        this.lives = 50;
 
     }
 
@@ -43,39 +49,39 @@ class playerObject {
         // 1: add movement acceleration
         let acc = vec3.create();
         //rotate
-        if (keys['KeyW'] && keys['KeyA']) {
+        if (keys[Input_MoveUpButton] && keys[Input_MoveLeftButton]) {
             vec3.sub(acc, acc, right);
             vec3.sub(acc, acc, forward);
             this.node.rotate(5.49779);  //315
 
 
-        } else if (keys['KeyW'] && keys['KeyD']) {
+        } else if (keys[Input_MoveUpButton] && keys[Input_MoveRightButton]) {
             vec3.sub(acc, acc, forward);
             vec3.add(acc, acc, right);
             this.node.rotate(-2.35619);  //-135
 
-        } else if (keys['KeyD'] && keys['KeyS']) {
+        } else if (keys[Input_MoveRightButton] && keys[Input_MoveDownButton]) {
             vec3.add(acc, acc, right);
             vec3.add(acc, acc, forward);
             this.node.rotate(2.35619);  //135
 
 
-        } else if (keys['KeyS'] && keys['KeyA']) {
+        } else if (keys[Input_MoveDownButton] && keys[Input_MoveLeftButton]) {
             vec3.add(acc, acc, forward);
             vec3.sub(acc, acc, right);
             this.node.rotate(0.785398);  //45
 
-        } else if (keys['KeyW']) {
+        } else if (keys[Input_MoveUpButton]) {
             vec3.sub(acc, acc, forward);
             this.node.rotate(-1.5708);  //-90
 
-        } else if (keys['KeyS']) {
+        } else if (keys[Input_MoveDownButton]) {
             vec3.add(acc, acc, forward);
             this.node.rotate(1.5708);  //90
-        } else if (keys['KeyD']) {
+        } else if (keys[Input_MoveRightButton]) {
             vec3.add(acc, acc, right);
             this.node.rotate(3.14159); //180
-        } else if (keys['KeyA']) {
+        } else if (keys[Input_MoveLeftButton]) {
             vec3.sub(acc, acc, right);
             this.node.rotate(6.28319);  //360
         }
@@ -126,7 +132,7 @@ class playerObject {
     }
 
     setHealtBar(){
-        document.getElementById("healtBar").style.width = this.lives +"%";
+        document.getElementById("healtBar").style.width = this.lives * 2 +"%";
     }
 
 }

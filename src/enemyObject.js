@@ -20,6 +20,7 @@ import { vec3, mat4 } from 'gl-matrix';
 import { playerWeaponAudio, playerHurtAudio, zombieHurtAudio, enemyDeathAudio, enemyDetectionSounds } from './audio.js';
 import {playerObject} from "./playerObject";
 import {colliison} from "./collision";
+import {Input_AttackButton} from "./publicVariables";
 
 
 class enemyObject {
@@ -39,8 +40,9 @@ class enemyObject {
         this.move();
         colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
         //player attack
-        if (keys['Space']) {
+        if (keys[Input_AttackButton]) {
             colliison.resolveWeaponCollision(this.gltf.player, this);
+            keys[Input_AttackButton] = false;
         }
         this.gltf.nodes.forEach(function (node2) {
             if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive){

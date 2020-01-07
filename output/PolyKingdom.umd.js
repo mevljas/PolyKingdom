@@ -3509,7 +3509,7 @@
           this.type = type;
           //velocity for movement
           this.velocity = [0, 0, 0];
-          this.acceleration = 0.3;
+          this.acceleration = 0.25;
           //bounding box
           this.aabbmin= undefined;
           this.aabbmax= undefined;
@@ -4043,7 +4043,11 @@
 
   const Input_ResetCamera = "r";
   const Input_RotateButton = 0;
-  const Input_PanButton = 1;
+  const Input_MoveUpButton = 'KeyW';
+  const Input_MoveDownButton = 'KeyS';
+  const Input_MoveLeftButton = 'KeyA';
+  const Input_MoveRightButton = 'KeyD';
+  const Input_AttackButton = 'Space';
   let keys = [];
 
   const playerWeaponAudio = new Audio('assets/sounds/playerWeaponAttack.mp3');
@@ -4241,7 +4245,7 @@
           this.gltf = gtlf;
           this.directionVector = 0;
           this.direction = "up";
-          this.lives = 100;
+          this.lives = 50;
 
       }
 
@@ -4258,39 +4262,39 @@
           // 1: add movement acceleration
           let acc = create$4();
           //rotate
-          if (keys['KeyW'] && keys['KeyA']) {
+          if (keys[Input_MoveUpButton] && keys[Input_MoveLeftButton]) {
               sub$4(acc, acc, right);
               sub$4(acc, acc, forward);
               this.node.rotate(5.49779);  //315
 
 
-          } else if (keys['KeyW'] && keys['KeyD']) {
+          } else if (keys[Input_MoveUpButton] && keys[Input_MoveRightButton]) {
               sub$4(acc, acc, forward);
               add$4(acc, acc, right);
               this.node.rotate(-2.35619);  //-135
 
-          } else if (keys['KeyD'] && keys['KeyS']) {
+          } else if (keys[Input_MoveRightButton] && keys[Input_MoveDownButton]) {
               add$4(acc, acc, right);
               add$4(acc, acc, forward);
               this.node.rotate(2.35619);  //135
 
 
-          } else if (keys['KeyS'] && keys['KeyA']) {
+          } else if (keys[Input_MoveDownButton] && keys[Input_MoveLeftButton]) {
               add$4(acc, acc, forward);
               sub$4(acc, acc, right);
               this.node.rotate(0.785398);  //45
 
-          } else if (keys['KeyW']) {
+          } else if (keys[Input_MoveUpButton]) {
               sub$4(acc, acc, forward);
               this.node.rotate(-1.5708);  //-90
 
-          } else if (keys['KeyS']) {
+          } else if (keys[Input_MoveDownButton]) {
               add$4(acc, acc, forward);
               this.node.rotate(1.5708);  //90
-          } else if (keys['KeyD']) {
+          } else if (keys[Input_MoveRightButton]) {
               add$4(acc, acc, right);
               this.node.rotate(3.14159); //180
-          } else if (keys['KeyA']) {
+          } else if (keys[Input_MoveLeftButton]) {
               sub$4(acc, acc, right);
               this.node.rotate(6.28319);  //360
           }
@@ -4341,7 +4345,7 @@
       }
 
       setHealtBar(){
-          document.getElementById("healtBar").style.width = this.lives +"%";
+          document.getElementById("healtBar").style.width = this.lives * 2 +"%";
       }
 
   }
@@ -4363,8 +4367,9 @@
           this.move();
           colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
           //player attack
-          if (keys['Space']) {
+          if (keys[Input_AttackButton]) {
               colliison.resolveWeaponCollision(this.gltf.player, this);
+              keys[Input_AttackButton] = false;
           }
           this.gltf.nodes.forEach(function (node2) {
               if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive){
@@ -6313,9 +6318,6 @@
           case Input_RotateButton:
               this.onRotate(deltaX, deltaY);
               break;
-          case Input_PanButton:
-              this.onPan(deltaX, deltaY);
-              break;
           }
       }
 
@@ -6355,7 +6357,7 @@
               this.onResetCamera();
           }
           keys[event.code] = true;
-          if (event.code === 'Space'){
+          if (event.code === Input_AttackButton){
               playerWeaponAudio.play();
           }
       }
