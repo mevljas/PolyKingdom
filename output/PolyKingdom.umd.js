@@ -2746,6 +2746,14 @@
   class gltfLight extends GltfObject
   {
       constructor(
+          // type = "directional",
+          // color = [1, 1, 1],
+          // intensity = 1,
+          // innerConeAngle = 0,
+          // outerConeAngle = Math.PI / 4,
+          // range = -1,
+          // name = undefined,
+          // node = undefined)
           type = "directional",
           color = [1, 1, 1],
           intensity = 1,
@@ -4486,6 +4494,7 @@
 
           this.materials.push(gltfMaterial.createDefault());
           this.samplers.push(gltfSampler.createDefault());
+          // this.lights.push(new gltfLight());
 
           if (json.scenes !== undefined) {
               if (json.scene === undefined && json.scenes.length > 0) {
