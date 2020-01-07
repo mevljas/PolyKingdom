@@ -1,24 +1,7 @@
-import { gltfAccessor } from './gltf_loader/accessor.js';
-import { gltfBuffer } from './gltf_loader/buffer.js';
-import { gltfBufferView } from './gltf_loader/buffer_view.js';
-import { gltfCamera } from './gltf_loader/camera.js';
-import { gltfImage } from './gltf_loader/image.js';
-import { gltfLight } from './gltf_loader/light.js';
-import { gltfMaterial } from './gltf_loader/material.js';
-import { gltfMesh } from './gltf_loader/mesh.js';
-import { gltfNode } from './gltf_loader/node.js';
-import { gltfSampler } from './gltf_loader/sampler.js';
-import { gltfScene } from './gltf_loader/scene.js';
-import { gltfTexture } from './gltf_loader/texture.js';
-import { initGlForMembers, objectsFromJsons, objectFromJson } from './gltf_loader/utils';
-import { gltfAsset } from './gltf_loader/asset.js';
-import { GltfObject } from './gltf_loader/gltf_object.js';
-import { gltfAnimation } from './gltf_loader/animation.js';
-import { gltfSkin } from './gltf_loader/skin.js';
+
 import { keys } from './publicVariables.js';
 import { vec3, mat4 } from 'gl-matrix';
-import { playerWeaponAudio, playerHurtAudio, zombieHurtAudio, enemyDeathAudio, enemyDetectionSounds } from './audio.js';
-import {playerObject} from "./playerObject";
+import { enemyDeathAudio } from './audio.js';
 import {colliison} from "./collision";
 import {Input_AttackButton} from "./publicVariables";
 

@@ -1,7 +1,6 @@
 import { vec3 } from 'gl-matrix';
 import { gltfCamera } from './gltf_loader/camera.js';
 import { jsToGl, clamp } from './gltf_loader/utils.js';
-import { getSceneExtends } from './gltf_loader/gltf_utils.js';
 
 const VecZero = vec3.create();
 

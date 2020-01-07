@@ -1,20 +1,4 @@
-import {GltfObject} from "./gltf_loader/gltf_object";
-import {initGlForMembers, objectFromJson, objectsFromJsons} from "./gltf_loader/utils";
-import {gltfAsset} from "./gltf_loader/asset";
-import {gltfCamera} from "./gltf_loader/camera";
-import {gltfAccessor} from "./gltf_loader/accessor";
-import {gltfMesh} from "./gltf_loader/mesh";
-import {gltfSampler} from "./gltf_loader/sampler";
-import {gltfMaterial} from "./gltf_loader/material";
-import {gltfBuffer} from "./gltf_loader/buffer";
-import {gltfBufferView} from "./gltf_loader/buffer_view";
-import {gltfScene} from "./gltf_loader/scene";
-import {gltfTexture} from "./gltf_loader/texture";
-import {gltfNode} from "./gltf_loader/node";
-import {gltfLight} from "./gltf_loader/light";
-import {gltfImage} from "./gltf_loader/image";
-import {gltfAnimation} from "./gltf_loader/animation";
-import {gltfSkin} from "./gltf_loader/skin";
+
 import {vec3} from "gl-matrix";
 import {
     Input_MoveDownButton,

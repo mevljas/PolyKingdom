@@ -15,9 +15,7 @@ import { gltfAsset } from './gltf_loader/asset.js';
 import { GltfObject } from './gltf_loader/gltf_object.js';
 import { gltfAnimation } from './gltf_loader/animation.js';
 import { gltfSkin } from './gltf_loader/skin.js';
-import { keys } from './publicVariables.js';
 import { vec3, mat4 } from 'gl-matrix';
-import { playerWeaponAudio, playerHurtAudio, zombieHurtAudio, enemyDeathAudio, enemyDetectionSounds } from './audio.js';
 import {playerObject} from "./playerObject";
 import {enemyObject} from "./enemyObject";
 import {colliison} from "./collision";
@@ -102,8 +100,8 @@ class glTF extends GltfObject {
     }
 
     initAABB() {
-        let weaponScalingFactor = 3.2;     //for weapon collsion
-        let enemyRangeScalingFactor = 15;     //for enemy detection range
+        let weaponScalingFactor = 3.3;     //for weapon collsion
+        let enemyRangeScalingFactor = 16;     //for enemy detection range
         this.nodes.forEach(function (node2) {
             // copy AABB
             if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
