@@ -9,8 +9,8 @@ class gltfRenderingParameters
     {
         this.environmentName = "Courtyard of the Doge's palace";
         this.useIBL = true;
-        this.usePunctual = false;
-        this.exposure = 2.0;
+        this.usePunctual = true;
+        this.exposure = 1.0;
         this.clearColor = [169,228,232];
         this.toneMap = "Linear";
         this.useShaderLoD = true;

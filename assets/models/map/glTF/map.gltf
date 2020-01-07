@@ -3,6 +3,28 @@
         "generator" : "Khronos glTF Blender I/O v0.9.36",
         "version" : "2.0"
     },
+    "extensionsUsed" : [
+        "KHR_lights_punctual"
+    ],
+    "extensionsRequired" : [
+        "KHR_lights_punctual"
+    ],
+    "extensions" : {
+        "KHR_lights_punctual" : {
+            "lights" : [
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 4.760000228881836,
+                    "type" : "directional",
+                    "name" : "Sun"
+                }
+            ]
+        }
+    },
     "scene" : 0,
     "scenes" : [
         {
@@ -169,7 +191,8 @@
                 158,
                 159,
                 160,
-                161
+                161,
+                163
             ]
         }
     ],
@@ -2425,6 +2448,37 @@
                 -8.866424560546875,
                 6.174301624298096,
                 -31.79113006591797
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 0
+                }
+            },
+            "name" : "Sun_floor_Orientation",
+            "rotation" : [
+                -0.7071067690849304,
+                0,
+                0,
+                0.7071067690849304
+            ]
+        },
+        {
+            "children" : [
+                162
+            ],
+            "name" : "Sun_floor",
+            "rotation" : [
+                0.006775029003620148,
+                -0.024577951058745384,
+                -0.3117586672306061,
+                0.9498192071914673
+            ],
+            "translation" : [
+                70.00286865234375,
+                165.76438903808594,
+                -24.46505355834961
             ]
         }
     ],

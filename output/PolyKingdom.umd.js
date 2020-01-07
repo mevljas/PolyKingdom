@@ -2746,14 +2746,6 @@
   class gltfLight extends GltfObject
   {
       constructor(
-          // type = "directional",
-          // color = [1, 1, 1],
-          // intensity = 1,
-          // innerConeAngle = 0,
-          // outerConeAngle = Math.PI / 4,
-          // range = -1,
-          // name = undefined,
-          // node = undefined)
           type = "directional",
           color = [1, 1, 1],
           intensity = 1,
@@ -4494,7 +4486,6 @@
 
           this.materials.push(gltfMaterial.createDefault());
           this.samplers.push(gltfSampler.createDefault());
-          // this.lights.push(new gltfLight());
 
           if (json.scenes !== undefined) {
               if (json.scene === undefined && json.scenes.length > 0) {
@@ -5121,8 +5112,8 @@
       {
           this.environmentName = "Courtyard of the Doge's palace";
           this.useIBL = true;
-          this.usePunctual = false;
-          this.exposure = 2.0;
+          this.usePunctual = true;
+          this.exposure = 1.0;
           this.clearColor = [169,228,232];
           this.toneMap = "Linear";
           this.useShaderLoD = true;
