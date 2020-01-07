@@ -4516,7 +4516,7 @@
       }
 
       initAABB() {
-          let weaponScalingFactor = 3;     //for weapon collsion
+          let weaponScalingFactor = 3.2;     //for weapon collsion
           let enemyRangeScalingFactor = 15;     //for enemy detection range
           this.nodes.forEach(function (node2) {
               // copy AABB
