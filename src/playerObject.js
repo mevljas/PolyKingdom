@@ -1,4 +1,3 @@
-
 import {vec3} from "gl-matrix";
 import {
     Input_MoveDownButton,
@@ -7,7 +6,7 @@ import {
     Input_MoveUpButton,
     keys
 } from "./publicVariables";
-import {enemyDeathAudio, enemyDetectionSounds, playerHurtAudio, zombieHurtAudio, playerWalkingSound} from "./audio";
+import {playerHurtAudio, playerWalkingSound} from "./audio";
 import {colliison} from "./collision";
 
 class playerObject {
@@ -19,9 +18,6 @@ class playerObject {
         this.lives = 50;
 
     }
-
-
-
 
 
     checkMovement() {
@@ -106,24 +102,19 @@ class playerObject {
     }
 
 
-
-    takeAHit(){
+    takeAHit() {
         playerHurtAudio.play();
-        if (--this.lives <= 0){
+        if (--this.lives <= 0) {
             window.location.replace("Game_Over.html");
         }
 
     }
 
-    setHealtBar(){
-        document.getElementById("healtBar").style.width = this.lives * 2 +"%";
+    setHealtBar() {
+        document.getElementById("healtBar").style.width = this.lives * 2 + "%";
     }
 
 }
 
 
-
-
-
-
-export { playerObject };
+export {playerObject};

@@ -4160,10 +4160,8 @@
               // console.log(b.name+" weaponHit");
               second.subLives();
               //prevents multiple hits.
-              keys['Space'] = false;
               zombieHurtAudio.play();
           }
-
 
 
       }
@@ -4202,7 +4200,6 @@
 
 
       }
-
 
 
       static checkIfEnemyCaughtPlayer(first, second) {
@@ -4248,9 +4245,6 @@
           this.lives = 50;
 
       }
-
-
-
 
 
       checkMovement() {
@@ -4335,17 +4329,16 @@
       }
 
 
-
-      takeAHit(){
+      takeAHit() {
           playerHurtAudio.play();
-          if (--this.lives <= 0){
+          if (--this.lives <= 0) {
               window.location.replace("Game_Over.html");
           }
 
       }
 
-      setHealtBar(){
-          document.getElementById("healtBar").style.width = this.lives * 2 +"%";
+      setHealtBar() {
+          document.getElementById("healtBar").style.width = this.lives * 2 + "%";
       }
 
   }
@@ -4362,24 +4355,23 @@
 
       }
 
-      update(){
+      update() {
           this.rotate();
           this.move();
           colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
           //player attack
           if (keys[Input_AttackButton]) {
               colliison.resolveWeaponCollision(this.gltf.player, this);
-              keys[Input_AttackButton] = false;
+              // keys[Input_AttackButton] = false;
           }
           this.gltf.nodes.forEach(function (node2) {
-              if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive){
+              if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive) {
                   colliison.resolveCollision(this.node, node2);
               }
 
 
           }.bind(this));
       }
-
 
 
       move() {
@@ -4395,8 +4387,7 @@
       }
 
 
-
-      rotate(){
+      rotate() {
           let enemyVector = this.node.translation;
           let playerVector = this.gltf.player.node.translation;
           let newAngle = getAngleBetweenVertices(enemyVector, playerVector);
@@ -4404,28 +4395,27 @@
 
       }
 
-      subLives(){
-          if (--this.lives <= 0){
+      subLives() {
+          if (--this.lives <= 0) {
               // console.log(this.node.name+" dead");
               this.node.alive = false;
               enemyDeathAudio.play();
-              if (++this.gltf.killedEnemies === this.gltf.enemies.length){
+              if (++this.gltf.killedEnemies === this.gltf.enemies.length) {
                   window.location.replace("Victory.html");
               }
           }
       }
 
 
-
   }
 
-  function normalizeAngle(angle$$1){
+  function normalizeAngle(angle$$1) {
       if (angle$$1 > 360) return angle$$1 - 360;
       if (angle$$1 < 0) return 360 + angle$$1;
       else return angle$$1;
   }
 
-  function getAngleBetweenPoints(cx, cy, ex, ey){
+  function getAngleBetweenPoints(cx, cy, ex, ey) {
       let dy = ey - cy;
       let dx = ex - cx;
       let theta = Math.atan2(dy, dx);
@@ -4433,7 +4423,7 @@
       return theta;
   }
 
-  function getAngleBetweenVertices(vert1, vert2){
+  function getAngleBetweenVertices(vert1, vert2) {
       return normalizeAngle(getAngleBetweenPoints(vert1[2], vert1[0], vert2[2], vert2[0])) * (Math.PI / 180);
   }
 
@@ -4516,8 +4506,8 @@
       }
 
       initAABB() {
-          let weaponScalingFactor = 3.2;     //for weapon collsion
-          let enemyRangeScalingFactor = 15;     //for enemy detection range
+          let weaponScalingFactor = 2.2;     //for weapon collsion
+          let enemyRangeScalingFactor = 16;     //for enemy detection range
           this.nodes.forEach(function (node2) {
               // copy AABB
               if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
@@ -4540,23 +4530,19 @@
       }
 
 
-
-
       updateEnemies() {
           for (var i = 0, len$$1 = this.enemies.length; i < len$$1; i++) {
               let enemy = this.enemies[i];
               if (!enemy.playerDetection) {
                   colliison.resolveEnemyDetectionRange(this.player, enemy);
-              } else if (enemy.node.alive){
+              } else if (enemy.node.alive) {
                   enemy.update();
               }
 
 
           }
+          keys[Input_AttackButton] = false;
       }
-
-
-
 
 
       update() {
@@ -4570,17 +4556,13 @@
       }
 
 
-
   }
 
-  function getJsonLightsFromExtensions(extensions)
-  {
-      if (extensions === undefined)
-      {
+  function getJsonLightsFromExtensions(extensions) {
+      if (extensions === undefined) {
           return [];
       }
-      if (extensions.KHR_lights_punctual === undefined)
-      {
+      if (extensions.KHR_lights_punctual === undefined) {
           return [];
       }
       return extensions.KHR_lights_punctual.lights;
@@ -5156,16 +5138,14 @@
 
   var animationShader = "#define GLSLIFY 1\n#ifdef HAS_TARGET_POSITION0\nattribute vec3 a_Target_Position0;\n#endif\n\n#ifdef HAS_TARGET_POSITION1\nattribute vec3 a_Target_Position1;\n#endif\n\n#ifdef HAS_TARGET_POSITION2\nattribute vec3 a_Target_Position2;\n#endif\n\n#ifdef HAS_TARGET_POSITION3\nattribute vec3 a_Target_Position3;\n#endif\n\n#ifdef HAS_TARGET_POSITION4\nattribute vec3 a_Target_Position4;\n#endif\n\n#ifdef HAS_TARGET_POSITION5\nattribute vec3 a_Target_Position5;\n#endif\n\n#ifdef HAS_TARGET_POSITION6\nattribute vec3 a_Target_Position6;\n#endif\n\n#ifdef HAS_TARGET_POSITION7\nattribute vec3 a_Target_Position7;\n#endif\n\n#ifdef HAS_TARGET_NORMAL0\nattribute vec3 a_Target_Normal0;\n#endif\n\n#ifdef HAS_TARGET_NORMAL1\nattribute vec3 a_Target_Normal1;\n#endif\n\n#ifdef HAS_TARGET_NORMAL2\nattribute vec3 a_Target_Normal2;\n#endif\n\n#ifdef HAS_TARGET_NORMAL3\nattribute vec3 a_Target_Normal3;\n#endif\n\n#ifdef HAS_TARGET_TANGENT0\nattribute vec3 a_Target_Tangent0;\n#endif\n\n#ifdef HAS_TARGET_TANGENT1\nattribute vec3 a_Target_Tangent1;\n#endif\n\n#ifdef HAS_TARGET_TANGENT2\nattribute vec3 a_Target_Tangent2;\n#endif\n\n#ifdef HAS_TARGET_TANGENT3\nattribute vec3 a_Target_Tangent3;\n#endif\n\n#ifdef USE_MORPHING\nuniform float u_morphWeights[WEIGHT_COUNT];\n#endif\n\n#ifdef HAS_JOINT_SET1\nattribute vec4 a_Joint1;\n#endif\n\n#ifdef HAS_JOINT_SET2\nattribute vec4 a_Joint2;\n#endif\n\n#ifdef HAS_WEIGHT_SET1\nattribute vec4 a_Weight1;\n#endif\n\n#ifdef HAS_WEIGHT_SET2\nattribute vec4 a_Weight2;\n#endif\n\n#ifdef USE_SKINNING\nuniform mat4 u_jointMatrix[JOINT_COUNT];\nuniform mat4 u_jointNormalMatrix[JOINT_COUNT];\n#endif\n\n#ifdef USE_SKINNING\nmat4 getSkinningMatrix()\n{\n    mat4 skin = mat4(0);\n\n    #if defined(HAS_WEIGHT_SET1) && defined(HAS_JOINT_SET1)\n    skin +=\n        a_Weight1.x * u_jointMatrix[int(a_Joint1.x)] +\n        a_Weight1.y * u_jointMatrix[int(a_Joint1.y)] +\n        a_Weight1.z * u_jointMatrix[int(a_Joint1.z)] +\n        a_Weight1.w * u_jointMatrix[int(a_Joint1.w)];\n    #endif\n\n    #if defined(HAS_WEIGHT_SET2) && defined(HAS_JOINT_SET2)\n    skin +=\n        a_Weight2.x * u_jointMatrix[int(a_Joint2.x)] +\n        a_Weight2.y * u_jointMatrix[int(a_Joint2.y)] +\n        a_Weight2.z * u_jointMatrix[int(a_Joint2.z)] +\n        a_Weight2.w * u_jointMatrix[int(a_Joint2.w)];\n    #endif\n\n    return skin;\n}\n\nmat4 getSkinningNormalMatrix()\n{\n    mat4 skin = mat4(0);\n\n    #if defined(HAS_WEIGHT_SET1) && defined(HAS_JOINT_SET1)\n    skin +=\n        a_Weight1.x * u_jointNormalMatrix[int(a_Joint1.x)] +\n        a_Weight1.y * u_jointNormalMatrix[int(a_Joint1.y)] +\n        a_Weight1.z * u_jointNormalMatrix[int(a_Joint1.z)] +\n        a_Weight1.w * u_jointNormalMatrix[int(a_Joint1.w)];\n    #endif\n\n    #if defined(HAS_WEIGHT_SET2) && defined(HAS_JOINT_SET2)\n    skin +=\n        a_Weight2.x * u_jointNormalMatrix[int(a_Joint2.x)] +\n        a_Weight2.y * u_jointNormalMatrix[int(a_Joint2.y)] +\n        a_Weight2.z * u_jointNormalMatrix[int(a_Joint2.z)] +\n        a_Weight2.w * u_jointNormalMatrix[int(a_Joint2.w)];\n    #endif\n\n    return skin;\n}\n#endif // !USE_SKINNING\n\n#ifdef USE_MORPHING\nvec4 getTargetPosition()\n{\n    vec4 pos = vec4(0);\n\n#ifdef HAS_TARGET_POSITION0\n    pos.xyz += u_morphWeights[0] * a_Target_Position0;\n#endif\n\n#ifdef HAS_TARGET_POSITION1\n    pos.xyz += u_morphWeights[1] * a_Target_Position1;\n#endif\n\n#ifdef HAS_TARGET_POSITION2\n    pos.xyz += u_morphWeights[2] * a_Target_Position2;\n#endif\n\n#ifdef HAS_TARGET_POSITION3\n    pos.xyz += u_morphWeights[3] * a_Target_Position3;\n#endif\n\n#ifdef HAS_TARGET_POSITION4\n    pos.xyz += u_morphWeights[4] * a_Target_Position4;\n#endif\n\n    return pos;\n}\n\nvec4 getTargetNormal()\n{\n    vec4 normal = vec4(0);\n\n#ifdef HAS_TARGET_NORMAL0\n    normal.xyz += u_morphWeights[0] * a_Target_Normal0;\n#endif\n\n#ifdef HAS_TARGET_NORMAL1\n    normal.xyz += u_morphWeights[1] * a_Target_Normal1;\n#endif\n\n#ifdef HAS_TARGET_NORMAL2\n    normal.xyz += u_morphWeights[2] * a_Target_Normal2;\n#endif\n\n#ifdef HAS_TARGET_NORMAL3\n    normal.xyz += u_morphWeights[3] * a_Target_Normal3;\n#endif\n\n#ifdef HAS_TARGET_NORMAL4\n    normal.xyz += u_morphWeights[4] * a_Target_Normal4;\n#endif\n\n    return normal;\n}\n\nvec4 getTargetTangent()\n{\n    vec4 tangent = vec4(0);\n\n#ifdef HAS_TARGET_TANGENT0\n    tangent.xyz += u_morphWeights[0] * a_Target_Tangent0;\n#endif\n\n#ifdef HAS_TARGET_TANGENT1\n    tangent.xyz += u_morphWeights[1] * a_Target_Tangent1;\n#endif\n\n#ifdef HAS_TARGET_TANGENT2\n    tangent.xyz += u_morphWeights[2] * a_Target_Tangent2;\n#endif\n\n#ifdef HAS_TARGET_TANGENT3\n    tangent.xyz += u_morphWeights[3] * a_Target_Tangent3;\n#endif\n\n#ifdef HAS_TARGET_TANGENT4\n    tangent.xyz += u_morphWeights[4] * a_Target_Tangent4;\n#endif\n\n    return tangent;\n}\n\n#endif // !USE_MORPHING\n"; // eslint-disable-line
 
-  class gltfRenderer
-  {
-      constructor(canvas, defaultCamera, parameters)
-      {
+  class gltfRenderer {
+      constructor(canvas, defaultCamera, parameters) {
           this.canvas = canvas;
           this.defaultCamera = defaultCamera;
           this.parameters = parameters;
           this.shader = undefined; // current shader
 
-          this.currentWidth  = 0;
+          this.currentWidth = 0;
           this.currentHeight = 0;
 
           const shaderSources = new Map();
@@ -5208,10 +5188,8 @@
       /////////////////////////////////////////////////////////////////////
 
       // app state
-      init()
-      {
-          if (!this.parameters.useShaderLoD)
-          {
+      init() {
+          if (!this.parameters.useShaderLoD) {
               this.parameters.useIBL = false;
               this.parameters.usePunctual = true;
           }
@@ -5223,36 +5201,29 @@
           WebGl.context.clearDepth(1.0);
       }
 
-      resize(width, height)
-      {
-          if (this.currentWidth !== width || this.currentHeight !== height)
-          {
-              this.canvas.width  = width;
+      resize(width, height) {
+          if (this.currentWidth !== width || this.currentHeight !== height) {
+              this.canvas.width = width;
               this.canvas.height = height;
               this.currentHeight = height;
-              this.currentWidth  = width;
+              this.currentWidth = width;
               WebGl.context.viewport(0, 0, width, height);
           }
       }
 
       // frame state
-      newFrame()
-      {
-          WebGl.context.clearColor(this.parameters.clearColor[0] / 255.0, this.parameters.clearColor[1] / 255.0, this.parameters.clearColor[2]  / 255.0, 1.0);
+      newFrame() {
+          WebGl.context.clearColor(this.parameters.clearColor[0] / 255.0, this.parameters.clearColor[1] / 255.0, this.parameters.clearColor[2] / 255.0, 1.0);
           WebGl.context.clear(WebGl.context.COLOR_BUFFER_BIT | WebGl.context.DEPTH_BUFFER_BIT);
       }
 
       // render complete gltf scene with given camera
-      drawScene(gltf, scene, sortByDepth, predicateDrawPrimivitve)
-      {
+      drawScene(gltf, scene, sortByDepth, predicateDrawPrimivitve) {
           let currentCamera = undefined;
 
-          if(!this.parameters.userCameraActive())
-          {
+          if (!this.parameters.userCameraActive()) {
               currentCamera = gltf.cameras[this.parameters.cameraIndex].clone();
-          }
-          else
-          {
+          } else {
               currentCamera = this.defaultCamera;
           }
 
@@ -5269,26 +5240,19 @@
           const nodes = scene.gatherNodes(gltf);
 
           // Update skins.
-          for(const node of nodes)
-          {
-              if(node.mesh !== undefined && node.skin !== undefined)
-              {
+          for (const node of nodes) {
+              if (node.mesh !== undefined && node.skin !== undefined) {
                   this.updateSkin(gltf, node);
               }
           }
 
-          if(!sortByDepth)
-          {
-              for (const node of nodes)
-              {
+          if (!sortByDepth) {
+              for (const node of nodes) {
                   let mesh = gltf.meshes[node.mesh];
-                  if (node.alive){
-                      if (mesh !== undefined)
-                      {
-                          for (let primitive of mesh.primitives)
-                          {
-                              if(predicateDrawPrimivitve ? predicateDrawPrimivitve(primitive) : true)
-                              {
+                  if (node.alive) {
+                      if (mesh !== undefined) {
+                          for (let primitive of mesh.primitives) {
+                              if (predicateDrawPrimivitve ? predicateDrawPrimivitve(primitive) : true) {
                                   this.drawPrimitive(gltf, primitive, node, this.viewProjectionMatrix);
                               }
                           }
@@ -5296,15 +5260,11 @@
                   }
 
               }
-          }
-          else
-          {
+          } else {
               const sortedPrimitives = currentCamera.sortPrimitivesByDepth(gltf, nodes);
 
-              for (const sortedPrimitive of sortedPrimitives)
-              {
-                  if(predicateDrawPrimivitve ? predicateDrawPrimivitve(sortedPrimitive.primitive) : true)
-                  {
+              for (const sortedPrimitive of sortedPrimitives) {
+                  if (predicateDrawPrimivitve ? predicateDrawPrimivitve(sortedPrimitive.primitive) : true) {
                       this.drawPrimitive(gltf, sortedPrimitive.primitive, sortedPrimitive.node, this.viewProjectionMatrix);
                   }
               }
@@ -5312,8 +5272,7 @@
       }
 
       // vertices with given material
-      drawPrimitive(gltf, primitive, node, viewProjectionMatrix)
-      {
+      drawPrimitive(gltf, primitive, node, viewProjectionMatrix) {
           if (primitive.skip) return;
 
           const material = gltf.materials[primitive.material];
@@ -5328,22 +5287,19 @@
           this.pushFragParameterDefines(fragDefines);
 
           const fragmentHash = this.shaderCache.selectShader(material.getShaderIdentifier(), fragDefines);
-          const vertexHash  = this.shaderCache.selectShader(primitive.getShaderIdentifier(), vertDefines);
+          const vertexHash = this.shaderCache.selectShader(primitive.getShaderIdentifier(), vertDefines);
 
-          if (fragmentHash && vertexHash)
-          {
+          if (fragmentHash && vertexHash) {
               this.shader = this.shaderCache.getShaderProgram(fragmentHash, vertexHash);
           }
 
-          if (this.shader === undefined)
-          {
+          if (this.shader === undefined) {
               return;
           }
 
           WebGl.context.useProgram(this.shader.program);
 
-          if (this.parameters.usePunctual)
-          {
+          if (this.parameters.usePunctual) {
               this.applyLights(gltf);
           }
 
@@ -5356,63 +5312,49 @@
 
           this.updateAnimationUniforms(gltf, node, primitive);
 
-          if (material.doubleSided)
-          {
+          if (material.doubleSided) {
               WebGl.context.disable(WebGl.context.CULL_FACE);
-          }
-          else
-          {
+          } else {
               WebGl.context.enable(WebGl.context.CULL_FACE);
           }
 
-          if(material.alphaMode === 'BLEND')
-          {
+          if (material.alphaMode === 'BLEND') {
               WebGl.context.enable(WebGl.context.BLEND);
               WebGl.context.blendFuncSeparate(WebGl.context.SRC_ALPHA, WebGl.context.ONE_MINUS_SRC_ALPHA, WebGl.context.ONE, WebGl.context.ONE_MINUS_SRC_ALPHA);
               WebGl.context.blendEquation(WebGl.context.FUNC_ADD);
-          }
-          else
-          {
+          } else {
               WebGl.context.disable(WebGl.context.BLEND);
           }
 
           const drawIndexed = primitive.indices !== undefined;
-          if (drawIndexed)
-          {
-              if (!WebGl.setIndices(gltf, primitive.indices))
-              {
+          if (drawIndexed) {
+              if (!WebGl.setIndices(gltf, primitive.indices)) {
                   return;
               }
           }
 
           let vertexCount = 0;
-          for (const attribute of primitive.glAttributes)
-          {
+          for (const attribute of primitive.glAttributes) {
               const gltfAccessor = gltf.accessors[attribute.accessor];
               vertexCount = gltfAccessor.count;
 
               const location = this.shader.getAttributeLocation(attribute.name);
-              if (location < 0)
-              {
+              if (location < 0) {
                   continue; // only skip this attribute
               }
-              if (!WebGl.enableAttribute(gltf, location, gltfAccessor))
-              {
+              if (!WebGl.enableAttribute(gltf, location, gltfAccessor)) {
                   return; // skip this primitive
               }
           }
 
-          for(let [uniform, val] of material.getProperties().entries())
-          {
+          for (let [uniform, val] of material.getProperties().entries()) {
               this.shader.updateUniform(uniform, val);
           }
 
-          for(let i = 0; i < material.textures.length; ++i)
-          {
+          for (let i = 0; i < material.textures.length; ++i) {
               let info = material.textures[i];
               const location = this.shader.getUniformLocation(info.samplerName);
-              if (location < 0)
-              {
+              if (location < 0) {
                   continue; // only skip this texture
               }
               if (!WebGl.setTexture(location, gltf, info, i)) // binds texture and sampler
@@ -5421,26 +5363,20 @@
               }
           }
 
-          if (this.parameters.useIBL)
-          {
+          if (this.parameters.useIBL) {
               this.applyEnvironmentMap(gltf, material.textures.length);
           }
 
-          if (drawIndexed)
-          {
+          if (drawIndexed) {
               const indexAccessor = gltf.accessors[primitive.indices];
               WebGl.context.drawElements(primitive.mode, indexAccessor.count, indexAccessor.componentType, 0);
-          }
-          else
-          {
+          } else {
               WebGl.context.drawArrays(primitive.mode, 0, vertexCount);
           }
 
-          for (const attribute of primitive.glAttributes)
-          {
+          for (const attribute of primitive.glAttributes) {
               const location = this.shader.getAttributeLocation(attribute.name);
-              if (location < 0)
-              {
+              if (location < 0) {
                   continue; // skip this attribute
               }
               WebGl.context.disableVertexAttribArray(location);
@@ -5448,36 +5384,29 @@
       }
 
       // returns all lights that are relevant for rendering or the default light if there are none
-      getVisibleLights(gltf, scene)
-      {
+      getVisibleLights(gltf, scene) {
           let lights = [];
-          for (let light of gltf.lights)
-          {
-              if (light.node !== undefined)
-              {
-                  if (scene.includesNode(gltf, light.node))
-                  {
+          for (let light of gltf.lights) {
+              if (light.node !== undefined) {
+                  if (scene.includesNode(gltf, light.node)) {
                       lights.push(light);
                   }
               }
           }
-          return lights.length > 0 ? lights : [ new gltfLight() ];
+          return lights.length > 0 ? lights : [new gltfLight()];
       }
 
-      updateSkin(gltf, node)
-      {
-          if(this.parameters.skinning && gltf.skins !== undefined) // && !this.parameters.animationTimer.paused
+      updateSkin(gltf, node) {
+          if (this.parameters.skinning && gltf.skins !== undefined) // && !this.parameters.animationTimer.paused
           {
               const skin = gltf.skins[node.skin];
               skin.computeJoints(gltf, node);
           }
       }
 
-      pushVertParameterDefines(vertDefines, gltf, node, primitive)
-      {
+      pushVertParameterDefines(vertDefines, gltf, node, primitive) {
           // skinning
-          if(this.parameters.skinning && node.skin !== undefined && primitive.hasWeights && primitive.hasJoints)
-          {
+          if (this.parameters.skinning && node.skin !== undefined && primitive.hasWeights && primitive.hasJoints) {
               const skin = gltf.skins[node.skin];
 
               vertDefines.push("USE_SKINNING 1");
@@ -5485,84 +5414,68 @@
           }
 
           // morphing
-          if(this.parameters.morphing && node.mesh !== undefined && primitive.targets.length > 0)
-          {
+          if (this.parameters.morphing && node.mesh !== undefined && primitive.targets.length > 0) {
               const mesh = gltf.meshes[node.mesh];
-              if(mesh.weights !== undefined && mesh.weights.length > 0)
-              {
+              if (mesh.weights !== undefined && mesh.weights.length > 0) {
                   vertDefines.push("USE_MORPHING 1");
                   vertDefines.push("WEIGHT_COUNT " + Math.min(mesh.weights.length, 8));
               }
           }
       }
 
-      updateAnimationUniforms(gltf, node, primitive)
-      {
-          if(this.parameters.skinning && node.skin !== undefined && primitive.hasWeights && primitive.hasJoints)
-          {
+      updateAnimationUniforms(gltf, node, primitive) {
+          if (this.parameters.skinning && node.skin !== undefined && primitive.hasWeights && primitive.hasJoints) {
               const skin = gltf.skins[node.skin];
 
               this.shader.updateUniform("u_jointMatrix", skin.jointMatrices);
               this.shader.updateUniform("u_jointNormalMatrix", skin.jointNormalMatrices);
           }
 
-          if(this.parameters.morphing && node.mesh !== undefined && primitive.targets.length > 0)
-          {
+          if (this.parameters.morphing && node.mesh !== undefined && primitive.targets.length > 0) {
               const mesh = gltf.meshes[node.mesh];
-              if(mesh.weights !== undefined && mesh.weights.length > 0)
-              {
+              if (mesh.weights !== undefined && mesh.weights.length > 0) {
                   this.shader.updateUniformArray("u_morphWeights", mesh.weights);
               }
           }
       }
 
-      pushFragParameterDefines(fragDefines)
-      {
-          if (this.parameters.usePunctual)
-          {
+      pushFragParameterDefines(fragDefines) {
+          if (this.parameters.usePunctual) {
               fragDefines.push("USE_PUNCTUAL 1");
               fragDefines.push("LIGHT_COUNT " + this.visibleLights.length);
           }
 
-          if (this.parameters.useIBL)
-          {
+          if (this.parameters.useIBL) {
               fragDefines.push("USE_IBL 1");
           }
 
-          if(this.parameters.useShaderLoD)
-          {
+          if (this.parameters.useShaderLoD) {
               fragDefines.push("USE_TEX_LOD 1");
           }
 
-          if (Environments[this.parameters.environmentName].type === ImageMimeType.HDR)
-          {
+          if (Environments[this.parameters.environmentName].type === ImageMimeType.HDR) {
               fragDefines.push("USE_HDR 1");
           }
 
 
       }
 
-      applyLights(gltf)
-      {
+      applyLights(gltf) {
           let uniformLights = [];
-          for (let light of this.visibleLights)
-          {
+          for (let light of this.visibleLights) {
               uniformLights.push(light.toUniform(gltf));
           }
 
           this.shader.updateUniform("u_Lights", uniformLights);
       }
 
-      applyEnvironmentMap(gltf, texSlotOffset)
-      {
-          if (gltf.envData === undefined)
-          {
+      applyEnvironmentMap(gltf, texSlotOffset) {
+          if (gltf.envData === undefined) {
               let linear = true;
-              if (Environments[this.parameters.environmentName].type !== ImageMimeType.HDR)
-              {
+              if (Environments[this.parameters.environmentName].type !== ImageMimeType.HDR) {
                   linear = false;
               }
-              
+
               gltf.envData = {};
               gltf.envData.diffuseEnvMap = new gltfTextureInfo(gltf.textures.length - 3, 0, linear);
               gltf.envData.specularEnvMap = new gltfTextureInfo(gltf.textures.length - 2, 0, linear);
@@ -5579,9 +5492,190 @@
           this.shader.updateUniform("u_MipCount", mipCount);
       }
 
-      destroy()
-      {
+      destroy() {
           this.shaderCache.destroy();
+      }
+  }
+
+  const VecZero = create$4();
+
+  class UserCamera extends gltfCamera {
+      constructor(
+          viewer,
+          position = [0, 0, 0],
+          target = [0, 0, 0],
+          up = [0, 1, 0],
+          xRot = 0,
+          yRot = 0,
+          //how much we zoom in
+          zoom) {
+          super();
+
+          this.position = jsToGl(position);
+          this.target = jsToGl(target);
+          this.up = jsToGl(up);
+          this.xRot = xRot;
+          this.yRot = yRot;
+          //zoom at the begining
+          this.initialZoom = 0.022;
+          this.zoom = this.initialZoom;
+          this.zoomFactor = 1.04;
+          this.rotateSpeed = 1 / 180;
+          this.scaleFactor = 100;
+          this.viewer = viewer;
+          //scaler for player translation
+          this.scale = 0.00183;
+      }
+
+      updatePosition() {
+
+          this.moveTarget();
+          //camera direction
+          const direction = fromValues$4(1, 0.3, 0);
+          this.toLocalRotation(direction);
+
+          const position = create$4();
+          scale$4(position, direction, this.zoom);
+          add$4(position, position, this.target);
+
+          this.position = position;
+      }
+
+      reset() {
+          this.xRot = 0;
+          this.yRot = 0;
+          this.zoom = this.initialZoom;
+      }
+
+      zoomIn(value) {
+          if (value > 0) {
+              this.zoom *= this.zoomFactor;
+          } else {
+              this.zoom /= this.zoomFactor;
+          }
+      }
+
+      rotate(x, y) {
+          const yMax = Math.PI / 2 - 0.01;
+          this.xRot += (x * this.rotateSpeed);
+          this.yRot += (y * this.rotateSpeed);
+          this.yRot = clamp(this.yRot, -yMax, yMax);
+      }
+
+
+      fitViewToScene() {
+          this.moveTarget();
+      }
+
+      toLocalRotation(vector) {
+          rotateX$1(vector, vector, VecZero, -this.yRot);
+          rotateY$1(vector, vector, VecZero, -this.xRot);
+      }
+
+      getLookAtTarget() {
+          return this.target;
+      }
+
+      getPosition() {
+          return this.position;
+      }
+
+
+      moveTarget() {
+          ///move camera as player moves
+          scale$4(this.target, this.viewer.gltf.player.node.translation, this.scale);
+      }
+
+
+  }
+
+  class gltfEnvironmentLoader
+  {
+      constructor()
+      {
+      }
+
+      addEnvironmentMap(gltf, environment)
+      {
+          let extension;
+          switch (environment.type)
+          {
+          case (ImageMimeType.HDR):
+              extension = ".hdr";
+              break;
+          case (ImageMimeType.PNG):
+              extension = ".png";
+              break;
+          case (ImageMimeType.JPEG):
+          default:
+              extension = ".jpg";
+              break;
+          }
+
+          const imagesFolder =   "assets/environments/" + environment.folder + "/";
+          const diffusePrefix = imagesFolder + "diffuse/diffuse_";
+          const diffuseSuffix = "_0" + extension;
+          const specularPrefix = imagesFolder + "specular/specular_";
+          const specularSuffix = "_";
+
+          const CubeMapSides =
+          [
+              { name: "right", type: WebGl.context.TEXTURE_CUBE_MAP_POSITIVE_X },
+              { name: "left", type: WebGl.context.TEXTURE_CUBE_MAP_NEGATIVE_X },
+              { name: "top", type: WebGl.context.TEXTURE_CUBE_MAP_POSITIVE_Y },
+              { name: "bottom", type: WebGl.context.TEXTURE_CUBE_MAP_NEGATIVE_Y },
+              { name: "front", type: WebGl.context.TEXTURE_CUBE_MAP_POSITIVE_Z },
+              { name: "back", type: WebGl.context.TEXTURE_CUBE_MAP_NEGATIVE_Z },
+          ];
+
+          gltf.samplers.push(new gltfSampler(WebGl.context.LINEAR, WebGl.context.LINEAR, WebGl.context.CLAMP_TO_EDGE, WebGl.context.CLAMP_TO_EDGE, "DiffuseCubeMapSampler"));
+          const diffuseCubeSamplerIdx = gltf.samplers.length - 1;
+
+          gltf.samplers.push(new gltfSampler(WebGl.context.LINEAR, WebGl.context.LINEAR_MIPMAP_LINEAR, WebGl.context.CLAMP_TO_EDGE, WebGl.context.CLAMP_TO_EDGE, "SpecularCubeMapSampler"));
+          const specularCubeSamplerIdx = gltf.samplers.length - 1;
+
+          gltf.samplers.push(new gltfSampler(WebGl.context.LINEAR, WebGl.context.LINEAR, WebGl.context.CLAMP_TO_EDGE, WebGl.context.CLAMP_TO_EDGE, "LUTSampler"));
+          const lutSamplerIdx = gltf.samplers.length - 1;
+
+          let imageIdx = gltf.images.length;
+
+          // u_DiffuseEnvSampler faces
+          for (const side of CubeMapSides)
+          {
+              const imagePath = diffusePrefix + side.name + diffuseSuffix;
+              const image = new gltfImage(imagePath, side.type);
+              image.mimeType = environment.type;
+              gltf.images.push(image);
+          }
+
+          // u_DiffuseEnvSampler tex
+          gltf.textures.push(new gltfTexture(diffuseCubeSamplerIdx, [imageIdx, ++imageIdx, ++imageIdx, ++imageIdx, ++imageIdx, ++imageIdx], WebGl.context.TEXTURE_CUBE_MAP));
+
+          const indices = [];
+          function addSide(basePath, side, mipLevel)
+          {
+              for (let i = 0; i < mipLevel; i++)
+              {
+                  const imagePath = basePath + i + extension;
+                  const image = new gltfImage(imagePath, side, i);
+                  image.mimeType = environment.type;
+                  gltf.images.push(image);
+                  indices.push(++imageIdx);
+              }
+          }
+
+          // u_SpecularEnvSampler tex
+          for (const side of CubeMapSides)
+          {
+              addSide(specularPrefix + side.name + specularSuffix, side.type, environment.mipLevel);
+          }
+
+          gltf.textures.push(new gltfTexture(specularCubeSamplerIdx, indices, WebGl.context.TEXTURE_CUBE_MAP));
+
+          gltf.images.push(new gltfImage( "assets/images/brdfLUT.png", WebGl.context.TEXTURE_2D));
+
+          // u_brdfLUT tex
+          gltf.textures.push(new gltfTexture(lutSamplerIdx, [++imageIdx], WebGl.context.TEXTURE_2D));
       }
   }
 
@@ -5726,203 +5820,6 @@
               primitive.setCentroid(centroid);
           }
 
-      }
-  }
-
-  const VecZero = create$4();
-
-  class UserCamera extends gltfCamera
-  {
-      constructor(
-          viewer,
-          position = [0, 0, 0],
-          target = [0, 0,0],
-          up = [0, 1, 0],
-          xRot = 0,
-          yRot = 0,
-          //how much we zoom in
-          zoom)
-      {
-          super();
-
-          this.position = jsToGl(position);
-          this.target = jsToGl(target);
-          this.up = jsToGl(up);
-          this.xRot = xRot;
-          this.yRot = yRot;
-          //zoom at the begining
-          this.initialZoom = 0.022;
-          this.zoom = this.initialZoom;
-          this.zoomFactor = 1.04;
-          this.rotateSpeed = 1 / 180;
-          this.scaleFactor = 100;
-          this.viewer = viewer;
-          //scaler for player translation
-          this.scale = 0.00183;
-      }
-
-      updatePosition()
-      {
-
-          this.moveTarget();
-          //camera direction
-          const direction = fromValues$4(1, 0.3, 0);
-          this.toLocalRotation(direction);
-
-          const position = create$4();
-          scale$4(position, direction, this.zoom);
-          add$4(position, position, this.target);
-
-          this.position = position;
-      }
-
-      reset()
-      {
-          this.xRot = 0;
-          this.yRot = 0;
-          this.zoom = this.initialZoom;
-      }
-
-      zoomIn(value)
-      {
-          if (value > 0)
-          {
-              this.zoom *= this.zoomFactor;
-          }
-          else
-          {
-              this.zoom /= this.zoomFactor;
-          }
-      }
-
-      rotate(x, y)
-      {
-          const yMax = Math.PI / 2 - 0.01;
-          this.xRot += (x * this.rotateSpeed);
-          this.yRot += (y * this.rotateSpeed);
-          this.yRot = clamp(this.yRot, -yMax, yMax);
-      }
-
-
-
-      fitViewToScene()
-      {
-          this.moveTarget();
-      }
-
-      toLocalRotation(vector)
-      {
-          rotateX$1(vector, vector, VecZero, -this.yRot);
-          rotateY$1(vector, vector, VecZero, -this.xRot);
-      }
-
-      getLookAtTarget()
-      {
-          return this.target;
-      }
-
-      getPosition()
-      {
-          return this.position;
-      }
-
-
-
-      moveTarget(){
-          ///move camera as player moves
-          scale$4(this.target, this.viewer.gltf.player.node.translation, this.scale);
-      }
-
-
-  }
-
-  class gltfEnvironmentLoader
-  {
-      constructor()
-      {
-      }
-
-      addEnvironmentMap(gltf, environment)
-      {
-          let extension;
-          switch (environment.type)
-          {
-          case (ImageMimeType.HDR):
-              extension = ".hdr";
-              break;
-          case (ImageMimeType.PNG):
-              extension = ".png";
-              break;
-          case (ImageMimeType.JPEG):
-          default:
-              extension = ".jpg";
-              break;
-          }
-
-          const imagesFolder =   "assets/environments/" + environment.folder + "/";
-          const diffusePrefix = imagesFolder + "diffuse/diffuse_";
-          const diffuseSuffix = "_0" + extension;
-          const specularPrefix = imagesFolder + "specular/specular_";
-          const specularSuffix = "_";
-
-          const CubeMapSides =
-          [
-              { name: "right", type: WebGl.context.TEXTURE_CUBE_MAP_POSITIVE_X },
-              { name: "left", type: WebGl.context.TEXTURE_CUBE_MAP_NEGATIVE_X },
-              { name: "top", type: WebGl.context.TEXTURE_CUBE_MAP_POSITIVE_Y },
-              { name: "bottom", type: WebGl.context.TEXTURE_CUBE_MAP_NEGATIVE_Y },
-              { name: "front", type: WebGl.context.TEXTURE_CUBE_MAP_POSITIVE_Z },
-              { name: "back", type: WebGl.context.TEXTURE_CUBE_MAP_NEGATIVE_Z },
-          ];
-
-          gltf.samplers.push(new gltfSampler(WebGl.context.LINEAR, WebGl.context.LINEAR, WebGl.context.CLAMP_TO_EDGE, WebGl.context.CLAMP_TO_EDGE, "DiffuseCubeMapSampler"));
-          const diffuseCubeSamplerIdx = gltf.samplers.length - 1;
-
-          gltf.samplers.push(new gltfSampler(WebGl.context.LINEAR, WebGl.context.LINEAR_MIPMAP_LINEAR, WebGl.context.CLAMP_TO_EDGE, WebGl.context.CLAMP_TO_EDGE, "SpecularCubeMapSampler"));
-          const specularCubeSamplerIdx = gltf.samplers.length - 1;
-
-          gltf.samplers.push(new gltfSampler(WebGl.context.LINEAR, WebGl.context.LINEAR, WebGl.context.CLAMP_TO_EDGE, WebGl.context.CLAMP_TO_EDGE, "LUTSampler"));
-          const lutSamplerIdx = gltf.samplers.length - 1;
-
-          let imageIdx = gltf.images.length;
-
-          // u_DiffuseEnvSampler faces
-          for (const side of CubeMapSides)
-          {
-              const imagePath = diffusePrefix + side.name + diffuseSuffix;
-              const image = new gltfImage(imagePath, side.type);
-              image.mimeType = environment.type;
-              gltf.images.push(image);
-          }
-
-          // u_DiffuseEnvSampler tex
-          gltf.textures.push(new gltfTexture(diffuseCubeSamplerIdx, [imageIdx, ++imageIdx, ++imageIdx, ++imageIdx, ++imageIdx, ++imageIdx], WebGl.context.TEXTURE_CUBE_MAP));
-
-          const indices = [];
-          function addSide(basePath, side, mipLevel)
-          {
-              for (let i = 0; i < mipLevel; i++)
-              {
-                  const imagePath = basePath + i + extension;
-                  const image = new gltfImage(imagePath, side, i);
-                  image.mimeType = environment.type;
-                  gltf.images.push(image);
-                  indices.push(++imageIdx);
-              }
-          }
-
-          // u_SpecularEnvSampler tex
-          for (const side of CubeMapSides)
-          {
-              addSide(specularPrefix + side.name + specularSuffix, side.type, environment.mipLevel);
-          }
-
-          gltf.textures.push(new gltfTexture(specularCubeSamplerIdx, indices, WebGl.context.TEXTURE_CUBE_MAP));
-
-          gltf.images.push(new gltfImage( "assets/images/brdfLUT.png", WebGl.context.TEXTURE_2D));
-
-          // u_brdfLUT tex
-          gltf.textures.push(new gltfTexture(lutSamplerIdx, [++imageIdx], WebGl.context.TEXTURE_2D));
       }
   }
 
@@ -6254,15 +6151,16 @@
 
   const ZoomThreshold = 1.0;
 
-  class gltfMouseInput
-  {
-      constructor(canvas)
-      {
+  class gltfMouseInput {
+      constructor(canvas) {
           this.canvas = canvas;
 
-          this.onZoom = () => { };
-          this.onRotate = () => { };
-          this.onPan = () => { };
+          this.onZoom = () => {
+          };
+          this.onRotate = () => {
+          };
+          this.onPan = () => {
+          };
 
           this.mouseDown = false;
           this.pressedButton = undefined;
@@ -6270,20 +6168,17 @@
           this.lastMouseY = 0;
       }
 
-      setupGlobalInputBindings(document)
-      {
+      setupGlobalInputBindings(document) {
           document.onmouseup = this.mouseUpHandler.bind(this);
           document.onmousemove = this.mouseMoveHandler.bind(this);
       }
 
-      setupCanvasInputBindings(canvas)
-      {
+      setupCanvasInputBindings(canvas) {
           canvas.onmousedown = this.mouseDownHandler.bind(this);
           canvas.onwheel = this.mouseWheelHandler.bind(this);
       }
 
-      mouseDownHandler(event)
-      {
+      mouseDownHandler(event) {
           this.mouseDown = true;
           this.pressedButton = event.button;
           this.lastMouseX = event.clientX;
@@ -6291,18 +6186,15 @@
           this.canvas.style.cursor = "none";
       }
 
-      mouseUpHandler()
-      {
+      mouseUpHandler() {
           this.mouseDown = false;
           this.canvas.style.cursor = "grab";
       }
 
-      mouseMoveHandler(event)
-      {
+      mouseMoveHandler(event) {
           event.preventDefault();
 
-          if (!this.mouseDown)
-          {
+          if (!this.mouseDown) {
               this.canvas.style.cursor = "grab";
               return;
           }
@@ -6313,20 +6205,17 @@
           this.lastMouseX = event.clientX;
           this.lastMouseY = event.clientY;
 
-          switch (this.pressedButton)
-          {
+          switch (this.pressedButton) {
           case Input_RotateButton:
               this.onRotate(deltaX, deltaY);
               break;
           }
       }
 
-      mouseWheelHandler(event)
-      {
+      mouseWheelHandler(event) {
           event.preventDefault();
 
-          if (Math.abs(event.deltaY) < ZoomThreshold)
-          {
+          if (Math.abs(event.deltaY) < ZoomThreshold) {
               return;
           }
 
@@ -6335,34 +6224,31 @@
       }
   }
 
-  class gltfKeyboardInput
-  {
-      constructor()
-      {
-          this.onResetCamera = () => { };
+  class gltfKeyboardInput {
+      constructor() {
+          this.onResetCamera = () => {
+          };
       }
 
-      setupGlobalInputBindings(document)
-      {
+      setupGlobalInputBindings(document) {
           document.onkeydown = this.keyDownHandler.bind(this);
           document.onkeyup = this.keyUpHandler.bind(this);
       }
 
-      setupCanvasInputBindings() { }
+      setupCanvasInputBindings() {
+      }
 
-      keyDownHandler(event)
-      {
-          if (event.key === Input_ResetCamera)
-          {
+      keyDownHandler(event) {
+          if (event.key === Input_ResetCamera) {
               this.onResetCamera();
           }
           keys[event.code] = true;
-          if (event.code === Input_AttackButton){
+          if (event.code === Input_AttackButton) {
               playerWeaponAudio.play();
           }
       }
-      keyUpHandler(event)
-      {
+
+      keyUpHandler(event) {
           keys[event.code] = false;
       }
   }

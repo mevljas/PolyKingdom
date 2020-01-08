@@ -1,27 +1,25 @@
-import { mat4, vec3 } from 'gl-matrix';
-import { gltfLight } from './gltf_loader/light.js';
-import { gltfTextureInfo } from './gltf_loader/texture.js';
-import { ShaderCache } from './gltf_loader/shader_cache.js';
-import { WebGl } from './webgl.js';
-import {  Environments } from './rendering_parameters.js';
-import { ImageMimeType } from './gltf_loader/image.js';
+import {mat4, vec3} from 'gl-matrix';
+import {gltfLight} from './gltf_loader/light.js';
+import {gltfTextureInfo} from './gltf_loader/texture.js';
+import {ShaderCache} from './gltf_loader/shader_cache.js';
+import {WebGl} from './webgl.js';
+import {Environments} from './rendering_parameters.js';
+import {ImageMimeType} from './gltf_loader/image.js';
 import metallicRoughnessShader from './shaders/metallic-roughness.frag';
 import primitiveShader from './shaders/primitive.vert';
 import texturesShader from './shaders/textures.glsl';
-import tonemappingShader from'./shaders/tonemapping.glsl';
+import tonemappingShader from './shaders/tonemapping.glsl';
 import shaderFunctions from './shaders/functions.glsl';
 import animationShader from './shaders/animation.glsl';
 
-class gltfRenderer
-{
-    constructor(canvas, defaultCamera, parameters)
-    {
+class gltfRenderer {
+    constructor(canvas, defaultCamera, parameters) {
         this.canvas = canvas;
         this.defaultCamera = defaultCamera;
         this.parameters = parameters;
         this.shader = undefined; // current shader
 
-        this.currentWidth  = 0;
+        this.currentWidth = 0;
         this.currentHeight = 0;
 
         const shaderSources = new Map();
@@ -64,10 +62,8 @@ class gltfRenderer
     /////////////////////////////////////////////////////////////////////
 
     // app state
-    init()
-    {
-        if (!this.parameters.useShaderLoD)
-        {
+    init() {
+        if (!this.parameters.useShaderLoD) {
             this.parameters.useIBL = false;
             this.parameters.usePunctual = true;
         }
@@ -79,36 +75,29 @@ class gltfRenderer
         WebGl.context.clearDepth(1.0);
     }
 
-    resize(width, height)
-    {
-        if (this.currentWidth !== width || this.currentHeight !== height)
-        {
-            this.canvas.width  = width;
+    resize(width, height) {
+        if (this.currentWidth !== width || this.currentHeight !== height) {
+            this.canvas.width = width;
             this.canvas.height = height;
             this.currentHeight = height;
-            this.currentWidth  = width;
+            this.currentWidth = width;
             WebGl.context.viewport(0, 0, width, height);
         }
     }
 
     // frame state
-    newFrame()
-    {
-        WebGl.context.clearColor(this.parameters.clearColor[0] / 255.0, this.parameters.clearColor[1] / 255.0, this.parameters.clearColor[2]  / 255.0, 1.0);
+    newFrame() {
+        WebGl.context.clearColor(this.parameters.clearColor[0] / 255.0, this.parameters.clearColor[1] / 255.0, this.parameters.clearColor[2] / 255.0, 1.0);
         WebGl.context.clear(WebGl.context.COLOR_BUFFER_BIT | WebGl.context.DEPTH_BUFFER_BIT);
     }
 
     // render complete gltf scene with given camera
-    drawScene(gltf, scene, sortByDepth, predicateDrawPrimivitve)
-    {
+    drawScene(gltf, scene, sortByDepth, predicateDrawPrimivitve) {
         let currentCamera = undefined;
 
-        if(!this.parameters.userCameraActive())
-        {
+        if (!this.parameters.userCameraActive()) {
             currentCamera = gltf.cameras[this.parameters.cameraIndex].clone();
-        }
-        else
-        {
+        } else {
             currentCamera = this.defaultCamera;
         }
 
@@ -125,26 +114,19 @@ class gltfRenderer
         const nodes = scene.gatherNodes(gltf);
 
         // Update skins.
-        for(const node of nodes)
-        {
-            if(node.mesh !== undefined && node.skin !== undefined)
-            {
+        for (const node of nodes) {
+            if (node.mesh !== undefined && node.skin !== undefined) {
                 this.updateSkin(gltf, node);
             }
         }
 
-        if(!sortByDepth)
-        {
-            for (const node of nodes)
-            {
+        if (!sortByDepth) {
+            for (const node of nodes) {
                 let mesh = gltf.meshes[node.mesh];
-                if (node.alive){
-                    if (mesh !== undefined)
-                    {
-                        for (let primitive of mesh.primitives)
-                        {
-                            if(predicateDrawPrimivitve ? predicateDrawPrimivitve(primitive) : true)
-                            {
+                if (node.alive) {
+                    if (mesh !== undefined) {
+                        for (let primitive of mesh.primitives) {
+                            if (predicateDrawPrimivitve ? predicateDrawPrimivitve(primitive) : true) {
                                 this.drawPrimitive(gltf, primitive, node, this.viewProjectionMatrix);
                             }
                         }
@@ -152,15 +134,11 @@ class gltfRenderer
                 }
 
             }
-        }
-        else
-        {
+        } else {
             const sortedPrimitives = currentCamera.sortPrimitivesByDepth(gltf, nodes);
 
-            for (const sortedPrimitive of sortedPrimitives)
-            {
-                if(predicateDrawPrimivitve ? predicateDrawPrimivitve(sortedPrimitive.primitive) : true)
-                {
+            for (const sortedPrimitive of sortedPrimitives) {
+                if (predicateDrawPrimivitve ? predicateDrawPrimivitve(sortedPrimitive.primitive) : true) {
                     this.drawPrimitive(gltf, sortedPrimitive.primitive, sortedPrimitive.node, this.viewProjectionMatrix);
                 }
             }
@@ -168,8 +146,7 @@ class gltfRenderer
     }
 
     // vertices with given material
-    drawPrimitive(gltf, primitive, node, viewProjectionMatrix)
-    {
+    drawPrimitive(gltf, primitive, node, viewProjectionMatrix) {
         if (primitive.skip) return;
 
         const material = gltf.materials[primitive.material];
@@ -184,22 +161,19 @@ class gltfRenderer
         this.pushFragParameterDefines(fragDefines);
 
         const fragmentHash = this.shaderCache.selectShader(material.getShaderIdentifier(), fragDefines);
-        const vertexHash  = this.shaderCache.selectShader(primitive.getShaderIdentifier(), vertDefines);
+        const vertexHash = this.shaderCache.selectShader(primitive.getShaderIdentifier(), vertDefines);
 
-        if (fragmentHash && vertexHash)
-        {
+        if (fragmentHash && vertexHash) {
             this.shader = this.shaderCache.getShaderProgram(fragmentHash, vertexHash);
         }
 
-        if (this.shader === undefined)
-        {
+        if (this.shader === undefined) {
             return;
         }
 
         WebGl.context.useProgram(this.shader.program);
 
-        if (this.parameters.usePunctual)
-        {
+        if (this.parameters.usePunctual) {
             this.applyLights(gltf);
         }
 
@@ -212,63 +186,49 @@ class gltfRenderer
 
         this.updateAnimationUniforms(gltf, node, primitive);
 
-        if (material.doubleSided)
-        {
+        if (material.doubleSided) {
             WebGl.context.disable(WebGl.context.CULL_FACE);
-        }
-        else
-        {
+        } else {
             WebGl.context.enable(WebGl.context.CULL_FACE);
         }
 
-        if(material.alphaMode === 'BLEND')
-        {
+        if (material.alphaMode === 'BLEND') {
             WebGl.context.enable(WebGl.context.BLEND);
             WebGl.context.blendFuncSeparate(WebGl.context.SRC_ALPHA, WebGl.context.ONE_MINUS_SRC_ALPHA, WebGl.context.ONE, WebGl.context.ONE_MINUS_SRC_ALPHA);
             WebGl.context.blendEquation(WebGl.context.FUNC_ADD);
-        }
-        else
-        {
+        } else {
             WebGl.context.disable(WebGl.context.BLEND);
         }
 
         const drawIndexed = primitive.indices !== undefined;
-        if (drawIndexed)
-        {
-            if (!WebGl.setIndices(gltf, primitive.indices))
-            {
+        if (drawIndexed) {
+            if (!WebGl.setIndices(gltf, primitive.indices)) {
                 return;
             }
         }
 
         let vertexCount = 0;
-        for (const attribute of primitive.glAttributes)
-        {
+        for (const attribute of primitive.glAttributes) {
             const gltfAccessor = gltf.accessors[attribute.accessor];
             vertexCount = gltfAccessor.count;
 
             const location = this.shader.getAttributeLocation(attribute.name);
-            if (location < 0)
-            {
+            if (location < 0) {
                 continue; // only skip this attribute
             }
-            if (!WebGl.enableAttribute(gltf, location, gltfAccessor))
-            {
+            if (!WebGl.enableAttribute(gltf, location, gltfAccessor)) {
                 return; // skip this primitive
             }
         }
 
-        for(let [uniform, val] of material.getProperties().entries())
-        {
+        for (let [uniform, val] of material.getProperties().entries()) {
             this.shader.updateUniform(uniform, val);
         }
 
-        for(let i = 0; i < material.textures.length; ++i)
-        {
+        for (let i = 0; i < material.textures.length; ++i) {
             let info = material.textures[i];
             const location = this.shader.getUniformLocation(info.samplerName);
-            if (location < 0)
-            {
+            if (location < 0) {
                 continue; // only skip this texture
             }
             if (!WebGl.setTexture(location, gltf, info, i)) // binds texture and sampler
@@ -277,26 +237,20 @@ class gltfRenderer
             }
         }
 
-        if (this.parameters.useIBL)
-        {
+        if (this.parameters.useIBL) {
             this.applyEnvironmentMap(gltf, material.textures.length);
         }
 
-        if (drawIndexed)
-        {
+        if (drawIndexed) {
             const indexAccessor = gltf.accessors[primitive.indices];
             WebGl.context.drawElements(primitive.mode, indexAccessor.count, indexAccessor.componentType, 0);
-        }
-        else
-        {
+        } else {
             WebGl.context.drawArrays(primitive.mode, 0, vertexCount);
         }
 
-        for (const attribute of primitive.glAttributes)
-        {
+        for (const attribute of primitive.glAttributes) {
             const location = this.shader.getAttributeLocation(attribute.name);
-            if (location < 0)
-            {
+            if (location < 0) {
                 continue; // skip this attribute
             }
             WebGl.context.disableVertexAttribArray(location);
@@ -304,36 +258,29 @@ class gltfRenderer
     }
 
     // returns all lights that are relevant for rendering or the default light if there are none
-    getVisibleLights(gltf, scene)
-    {
+    getVisibleLights(gltf, scene) {
         let lights = [];
-        for (let light of gltf.lights)
-        {
-            if (light.node !== undefined)
-            {
-                if (scene.includesNode(gltf, light.node))
-                {
+        for (let light of gltf.lights) {
+            if (light.node !== undefined) {
+                if (scene.includesNode(gltf, light.node)) {
                     lights.push(light);
                 }
             }
         }
-        return lights.length > 0 ? lights : [ new gltfLight() ];
+        return lights.length > 0 ? lights : [new gltfLight()];
     }
 
-    updateSkin(gltf, node)
-    {
-        if(this.parameters.skinning && gltf.skins !== undefined) // && !this.parameters.animationTimer.paused
+    updateSkin(gltf, node) {
+        if (this.parameters.skinning && gltf.skins !== undefined) // && !this.parameters.animationTimer.paused
         {
             const skin = gltf.skins[node.skin];
             skin.computeJoints(gltf, node);
         }
     }
 
-    pushVertParameterDefines(vertDefines, gltf, node, primitive)
-    {
+    pushVertParameterDefines(vertDefines, gltf, node, primitive) {
         // skinning
-        if(this.parameters.skinning && node.skin !== undefined && primitive.hasWeights && primitive.hasJoints)
-        {
+        if (this.parameters.skinning && node.skin !== undefined && primitive.hasWeights && primitive.hasJoints) {
             const skin = gltf.skins[node.skin];
 
             vertDefines.push("USE_SKINNING 1");
@@ -341,84 +288,68 @@ class gltfRenderer
         }
 
         // morphing
-        if(this.parameters.morphing && node.mesh !== undefined && primitive.targets.length > 0)
-        {
+        if (this.parameters.morphing && node.mesh !== undefined && primitive.targets.length > 0) {
             const mesh = gltf.meshes[node.mesh];
-            if(mesh.weights !== undefined && mesh.weights.length > 0)
-            {
+            if (mesh.weights !== undefined && mesh.weights.length > 0) {
                 vertDefines.push("USE_MORPHING 1");
                 vertDefines.push("WEIGHT_COUNT " + Math.min(mesh.weights.length, 8));
             }
         }
     }
 
-    updateAnimationUniforms(gltf, node, primitive)
-    {
-        if(this.parameters.skinning && node.skin !== undefined && primitive.hasWeights && primitive.hasJoints)
-        {
+    updateAnimationUniforms(gltf, node, primitive) {
+        if (this.parameters.skinning && node.skin !== undefined && primitive.hasWeights && primitive.hasJoints) {
             const skin = gltf.skins[node.skin];
 
             this.shader.updateUniform("u_jointMatrix", skin.jointMatrices);
             this.shader.updateUniform("u_jointNormalMatrix", skin.jointNormalMatrices);
         }
 
-        if(this.parameters.morphing && node.mesh !== undefined && primitive.targets.length > 0)
-        {
+        if (this.parameters.morphing && node.mesh !== undefined && primitive.targets.length > 0) {
             const mesh = gltf.meshes[node.mesh];
-            if(mesh.weights !== undefined && mesh.weights.length > 0)
-            {
+            if (mesh.weights !== undefined && mesh.weights.length > 0) {
                 this.shader.updateUniformArray("u_morphWeights", mesh.weights);
             }
         }
     }
 
-    pushFragParameterDefines(fragDefines)
-    {
-        if (this.parameters.usePunctual)
-        {
+    pushFragParameterDefines(fragDefines) {
+        if (this.parameters.usePunctual) {
             fragDefines.push("USE_PUNCTUAL 1");
             fragDefines.push("LIGHT_COUNT " + this.visibleLights.length);
         }
 
-        if (this.parameters.useIBL)
-        {
+        if (this.parameters.useIBL) {
             fragDefines.push("USE_IBL 1");
         }
 
-        if(this.parameters.useShaderLoD)
-        {
+        if (this.parameters.useShaderLoD) {
             fragDefines.push("USE_TEX_LOD 1");
         }
 
-        if (Environments[this.parameters.environmentName].type === ImageMimeType.HDR)
-        {
+        if (Environments[this.parameters.environmentName].type === ImageMimeType.HDR) {
             fragDefines.push("USE_HDR 1");
         }
 
 
     }
 
-    applyLights(gltf)
-    {
+    applyLights(gltf) {
         let uniformLights = [];
-        for (let light of this.visibleLights)
-        {
+        for (let light of this.visibleLights) {
             uniformLights.push(light.toUniform(gltf));
         }
 
         this.shader.updateUniform("u_Lights", uniformLights);
     }
 
-    applyEnvironmentMap(gltf, texSlotOffset)
-    {
-        if (gltf.envData === undefined)
-        {
+    applyEnvironmentMap(gltf, texSlotOffset) {
+        if (gltf.envData === undefined) {
             let linear = true;
-            if (Environments[this.parameters.environmentName].type !== ImageMimeType.HDR)
-            {
+            if (Environments[this.parameters.environmentName].type !== ImageMimeType.HDR) {
                 linear = false;
             }
-            
+
             gltf.envData = {};
             gltf.envData.diffuseEnvMap = new gltfTextureInfo(gltf.textures.length - 3, 0, linear);
             gltf.envData.specularEnvMap = new gltfTextureInfo(gltf.textures.length - 2, 0, linear);
@@ -435,10 +366,9 @@ class gltfRenderer
         this.shader.updateUniform("u_MipCount", mipCount);
     }
 
-    destroy()
-    {
+    destroy() {
         this.shaderCache.destroy();
     }
 }
 
-export { gltfRenderer };
+export {gltfRenderer};

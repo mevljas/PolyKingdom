@@ -1,24 +1,25 @@
-import { gltfAccessor } from './gltf_loader/accessor.js';
-import { gltfBuffer } from './gltf_loader/buffer.js';
-import { gltfBufferView } from './gltf_loader/buffer_view.js';
-import { gltfCamera } from './gltf_loader/camera.js';
-import { gltfImage } from './gltf_loader/image.js';
-import { gltfLight } from './gltf_loader/light.js';
-import { gltfMaterial } from './gltf_loader/material.js';
-import { gltfMesh } from './gltf_loader/mesh.js';
-import { gltfNode } from './gltf_loader/node.js';
-import { gltfSampler } from './gltf_loader/sampler.js';
-import { gltfScene } from './gltf_loader/scene.js';
-import { gltfTexture } from './gltf_loader/texture.js';
-import { initGlForMembers, objectsFromJsons, objectFromJson } from './gltf_loader/utils';
-import { gltfAsset } from './gltf_loader/asset.js';
-import { GltfObject } from './gltf_loader/gltf_object.js';
-import { gltfAnimation } from './gltf_loader/animation.js';
-import { gltfSkin } from './gltf_loader/skin.js';
-import { vec3, mat4 } from 'gl-matrix';
+import {gltfAccessor} from './gltf_loader/accessor.js';
+import {gltfBuffer} from './gltf_loader/buffer.js';
+import {gltfBufferView} from './gltf_loader/buffer_view.js';
+import {gltfCamera} from './gltf_loader/camera.js';
+import {gltfImage} from './gltf_loader/image.js';
+import {gltfLight} from './gltf_loader/light.js';
+import {gltfMaterial} from './gltf_loader/material.js';
+import {gltfMesh} from './gltf_loader/mesh.js';
+import {gltfNode} from './gltf_loader/node.js';
+import {gltfSampler} from './gltf_loader/sampler.js';
+import {gltfScene} from './gltf_loader/scene.js';
+import {gltfTexture} from './gltf_loader/texture.js';
+import {initGlForMembers, objectsFromJsons, objectFromJson} from './gltf_loader/utils';
+import {gltfAsset} from './gltf_loader/asset.js';
+import {GltfObject} from './gltf_loader/gltf_object.js';
+import {gltfAnimation} from './gltf_loader/animation.js';
+import {gltfSkin} from './gltf_loader/skin.js';
+import {vec3, mat4} from 'gl-matrix';
 import {playerObject} from "./playerObject";
 import {enemyObject} from "./enemyObject";
 import {colliison} from "./collision";
+import {Input_AttackButton, keys} from "./publicVariables";
 
 
 class glTF extends GltfObject {
@@ -100,7 +101,7 @@ class glTF extends GltfObject {
     }
 
     initAABB() {
-        let weaponScalingFactor = 3.3;     //for weapon collsion
+        let weaponScalingFactor = 2.2;     //for weapon collsion
         let enemyRangeScalingFactor = 16;     //for enemy detection range
         this.nodes.forEach(function (node2) {
             // copy AABB
@@ -124,23 +125,19 @@ class glTF extends GltfObject {
     }
 
 
-
-
     updateEnemies() {
         for (var i = 0, len = this.enemies.length; i < len; i++) {
             let enemy = this.enemies[i];
             if (!enemy.playerDetection) {
                 colliison.resolveEnemyDetectionRange(this.player, enemy);
-            } else if (enemy.node.alive){
+            } else if (enemy.node.alive) {
                 enemy.update();
             }
 
 
         }
+        keys[Input_AttackButton] = false;
     }
-
-
-
 
 
     update() {
@@ -154,25 +151,17 @@ class glTF extends GltfObject {
     }
 
 
-
 }
 
-function getJsonLightsFromExtensions(extensions)
-{
-    if (extensions === undefined)
-    {
+function getJsonLightsFromExtensions(extensions) {
+    if (extensions === undefined) {
         return [];
     }
-    if (extensions.KHR_lights_punctual === undefined)
-    {
+    if (extensions.KHR_lights_punctual === undefined) {
         return [];
     }
     return extensions.KHR_lights_punctual.lights;
 }
 
 
-
-
-
-
-export { glTF };
+export {glTF};

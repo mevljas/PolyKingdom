@@ -1,16 +1,17 @@
-import { Input_RotateButton } from './publicVariables.js';
+import {Input_RotateButton} from './publicVariables.js';
 
 const ZoomThreshold = 1.0;
 
-class gltfMouseInput
-{
-    constructor(canvas)
-    {
+class gltfMouseInput {
+    constructor(canvas) {
         this.canvas = canvas;
 
-        this.onZoom = () => { };
-        this.onRotate = () => { };
-        this.onPan = () => { };
+        this.onZoom = () => {
+        };
+        this.onRotate = () => {
+        };
+        this.onPan = () => {
+        };
 
         this.mouseDown = false;
         this.pressedButton = undefined;
@@ -18,20 +19,17 @@ class gltfMouseInput
         this.lastMouseY = 0;
     }
 
-    setupGlobalInputBindings(document)
-    {
+    setupGlobalInputBindings(document) {
         document.onmouseup = this.mouseUpHandler.bind(this);
         document.onmousemove = this.mouseMoveHandler.bind(this);
     }
 
-    setupCanvasInputBindings(canvas)
-    {
+    setupCanvasInputBindings(canvas) {
         canvas.onmousedown = this.mouseDownHandler.bind(this);
         canvas.onwheel = this.mouseWheelHandler.bind(this);
     }
 
-    mouseDownHandler(event)
-    {
+    mouseDownHandler(event) {
         this.mouseDown = true;
         this.pressedButton = event.button;
         this.lastMouseX = event.clientX;
@@ -39,18 +37,15 @@ class gltfMouseInput
         this.canvas.style.cursor = "none";
     }
 
-    mouseUpHandler()
-    {
+    mouseUpHandler() {
         this.mouseDown = false;
         this.canvas.style.cursor = "grab";
     }
 
-    mouseMoveHandler(event)
-    {
+    mouseMoveHandler(event) {
         event.preventDefault();
 
-        if (!this.mouseDown)
-        {
+        if (!this.mouseDown) {
             this.canvas.style.cursor = "grab";
             return;
         }
@@ -61,20 +56,17 @@ class gltfMouseInput
         this.lastMouseX = event.clientX;
         this.lastMouseY = event.clientY;
 
-        switch (this.pressedButton)
-        {
+        switch (this.pressedButton) {
         case Input_RotateButton:
             this.onRotate(deltaX, deltaY);
             break;
         }
     }
 
-    mouseWheelHandler(event)
-    {
+    mouseWheelHandler(event) {
         event.preventDefault();
 
-        if (Math.abs(event.deltaY) < ZoomThreshold)
-        {
+        if (Math.abs(event.deltaY) < ZoomThreshold) {
             return;
         }
 
@@ -83,4 +75,4 @@ class gltfMouseInput
     }
 }
 
-export { gltfMouseInput };
+export {gltfMouseInput};

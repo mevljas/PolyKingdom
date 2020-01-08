@@ -105,10 +105,8 @@ class colliison {
             // console.log(b.name+" weaponHit");
             second.subLives();
             //prevents multiple hits.
-            keys['Space'] = false;
             zombieHurtAudio.play();
         }
-
 
 
     }
@@ -149,7 +147,6 @@ class colliison {
     }
 
 
-
     static checkIfEnemyCaughtPlayer(first, second) {
 
 
@@ -185,4 +182,4 @@ class colliison {
 }
 
 
-export { colliison };
+export {colliison};

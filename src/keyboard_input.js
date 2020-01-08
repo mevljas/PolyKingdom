@@ -1,37 +1,34 @@
-import { Input_ResetCamera, keys } from './publicVariables.js';
+import {Input_ResetCamera, keys} from './publicVariables.js';
 import {playerWeaponAudio} from "./audio";
 import {Input_AttackButton} from "./publicVariables";
 
-class gltfKeyboardInput
-{
-    constructor()
-    {
-        this.onResetCamera = () => { };
+class gltfKeyboardInput {
+    constructor() {
+        this.onResetCamera = () => {
+        };
     }
 
-    setupGlobalInputBindings(document)
-    {
+    setupGlobalInputBindings(document) {
         document.onkeydown = this.keyDownHandler.bind(this);
         document.onkeyup = this.keyUpHandler.bind(this);
     }
 
-    setupCanvasInputBindings() { }
+    setupCanvasInputBindings() {
+    }
 
-    keyDownHandler(event)
-    {
-        if (event.key === Input_ResetCamera)
-        {
+    keyDownHandler(event) {
+        if (event.key === Input_ResetCamera) {
             this.onResetCamera();
         }
         keys[event.code] = true;
-        if (event.code === Input_AttackButton){
+        if (event.code === Input_AttackButton) {
             playerWeaponAudio.play();
         }
     }
-    keyUpHandler(event)
-    {
+
+    keyUpHandler(event) {
         keys[event.code] = false;
     }
 }
 
-export { gltfKeyboardInput };
+export {gltfKeyboardInput};

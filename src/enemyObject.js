@@ -1,7 +1,6 @@
-
-import { keys } from './publicVariables.js';
-import { vec3, mat4 } from 'gl-matrix';
-import { enemyDeathAudio } from './audio.js';
+import {keys} from './publicVariables.js';
+import {vec3, mat4} from 'gl-matrix';
+import {enemyDeathAudio} from './audio.js';
 import {colliison} from "./collision";
 import {Input_AttackButton} from "./publicVariables";
 
@@ -18,24 +17,23 @@ class enemyObject {
 
     }
 
-    update(){
+    update() {
         this.rotate();
         this.move();
         colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
         //player attack
         if (keys[Input_AttackButton]) {
             colliison.resolveWeaponCollision(this.gltf.player, this);
-            keys[Input_AttackButton] = false;
+            // keys[Input_AttackButton] = false;
         }
         this.gltf.nodes.forEach(function (node2) {
-            if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive){
-                colliison.resolveCollision(this.node, node2)
+            if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive) {
+                colliison.resolveCollision(this.node, node2);
             }
 
 
         }.bind(this));
     }
-
 
 
     move() {
@@ -51,8 +49,7 @@ class enemyObject {
     }
 
 
-
-    rotate(){
+    rotate() {
         let enemyVector = this.node.translation;
         let playerVector = this.gltf.player.node.translation;
         let newAngle = getAngleBetweenVertices(enemyVector, playerVector);
@@ -60,28 +57,27 @@ class enemyObject {
 
     }
 
-    subLives(){
-        if (--this.lives <= 0){
+    subLives() {
+        if (--this.lives <= 0) {
             // console.log(this.node.name+" dead");
             this.node.alive = false;
             enemyDeathAudio.play();
-            if (++this.gltf.killedEnemies === this.gltf.enemies.length){
+            if (++this.gltf.killedEnemies === this.gltf.enemies.length) {
                 window.location.replace("Victory.html");
             }
         }
     }
 
 
-
 }
 
-function normalizeAngle(angle){
+function normalizeAngle(angle) {
     if (angle > 360) return angle - 360;
     if (angle < 0) return 360 + angle;
     else return angle;
 }
 
-function getAngleBetweenPoints(cx, cy, ex, ey){
+function getAngleBetweenPoints(cx, cy, ex, ey) {
     let dy = ey - cy;
     let dx = ex - cx;
     let theta = Math.atan2(dy, dx);
@@ -89,11 +85,9 @@ function getAngleBetweenPoints(cx, cy, ex, ey){
     return theta;
 }
 
-function getAngleBetweenVertices(vert1, vert2){
+function getAngleBetweenVertices(vert1, vert2) {
     return normalizeAngle(getAngleBetweenPoints(vert1[2], vert1[0], vert2[2], vert2[0])) * (Math.PI / 180);
 }
 
 
-
-
-export { enemyObject };
+export {enemyObject};
