@@ -1,4 +1,4 @@
-import { mat4, quat, quat2, vec3 } from 'gl-matrix';
+import { mat4, quat, vec3 } from 'gl-matrix';
 import { jsToGl } from './utils.js';
 import { GltfObject } from './gltf_object.js';
 
@@ -20,7 +20,6 @@ class gltfNode extends GltfObject
         this.name = undefined;
         this.mesh = undefined;
         this.skin = undefined;
-        this.moved = false;
 
         // non gltf
         this.worldTransform = mat4.create();
@@ -31,8 +30,7 @@ class gltfNode extends GltfObject
 
         //defines node type
         this.type = type;
-        //velocity for movement
-        this.velocity = [0, 0, 0];
+
         //bounding box
         this.aabbmin= undefined;
         this.aabbmax= undefined;

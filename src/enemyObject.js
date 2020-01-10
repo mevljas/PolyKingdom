@@ -11,7 +11,7 @@ class enemyObject {
         this.gltf = gltf;
         this.lives = 3;
         //enemy movement speed
-        this.movementSpeed = 0.5;
+        this.movementSpeed = 0.1;
         //if enemy detected player
         this.playerDetection = false;
 

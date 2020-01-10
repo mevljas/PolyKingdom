@@ -16,14 +16,13 @@ class playerObject {
         this.directionVector = 0;
         this.direction = "up";
         this.lives = 50;
-        this.speed = 5;
-        this.maxSpeed = 0.7;
-        this.friction   = 0.2;
+        this.speed = 18;
+
 
     }
 
 
-    checkMovement( dt) {
+    move( dt) {
         const right = vec3.set(vec3.create(),
             -Math.sin(this.node.initialRotation[1]), 0, -Math.cos(this.node.initialRotation[1]));
         const forward = vec3.set(vec3.create(),
@@ -36,94 +35,73 @@ class playerObject {
             vec3.sub(acc, acc, right);
             vec3.sub(acc, acc, forward);
             this.node.rotate(5.49779);  //315
+            playerWalkingSound.play();
 
 
         } else if (keys[Input_MoveUpButton] && keys[Input_MoveRightButton]) {
             vec3.sub(acc, acc, forward);
             vec3.add(acc, acc, right);
             this.node.rotate(-2.35619);  //-135
+            playerWalkingSound.play();
 
         } else if (keys[Input_MoveRightButton] && keys[Input_MoveDownButton]) {
             vec3.add(acc, acc, right);
             vec3.add(acc, acc, forward);
             this.node.rotate(2.35619);  //135
+            playerWalkingSound.play();
 
 
         } else if (keys[Input_MoveDownButton] && keys[Input_MoveLeftButton]) {
             vec3.add(acc, acc, forward);
             vec3.sub(acc, acc, right);
             this.node.rotate(0.785398);  //45
+            playerWalkingSound.play();
 
         } else if (keys[Input_MoveUpButton]) {
             vec3.sub(acc, acc, forward);
             this.node.rotate(-1.5708);  //-90
+            playerWalkingSound.play();
 
         } else if (keys[Input_MoveDownButton]) {
             vec3.add(acc, acc, forward);
             this.node.rotate(1.5708);  //90
+            playerWalkingSound.play();
+
         } else if (keys[Input_MoveRightButton]) {
             vec3.add(acc, acc, right);
             this.node.rotate(3.14159); //180
+            playerWalkingSound.play();
+
         } else if (keys[Input_MoveLeftButton]) {
             vec3.sub(acc, acc, right);
             this.node.rotate(6.28319);  //360
-        }
-
-        // 2: update velocity
-        vec3.scaleAndAdd(this.node.velocity, this.node.velocity, acc, dt * this.speed);
-
-        // 3: if no movement, apply friction
-        if (!keys[Input_MoveUpButton] &&
-            !keys[Input_MoveDownButton] &&
-            !keys[Input_MoveRightButton] &&
-            !keys[Input_MoveLeftButton])
-        {
-            vec3.scale(this.node.velocity, this.node.velocity, 1 - this.friction);
-        }
-
-        // 4: limit speed
-        const len = vec3.len(this.node.velocity);
-        if (len > this.maxSpeed) {
-            vec3.scale(this.node.velocity, this.node.velocity, this.maxSpeed / len);
-        }
-
-
-        // let tempVec = Array.from(this.node.translation);
-        // vec3.add(tempVec, tempVec, this.node.velocity,);
-        // this.node.applyTranslation(tempVec);
-        // if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
-        //     this.node.moved = true;
-        //     playerWalkingSound.play();
-        // }
-        // this.node.velocity = [0, 0, 0];
-
-        vec3.add(this.node.translation, this.node.translation,  this.node.velocity);
-        this.node.applyTranslation(this.node.translation);
-        if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
-            this.node.moved = true;
             playerWalkingSound.play();
         }
+
+        //move
+
+        vec3.scaleAndAdd(this.node.translation, this.node.translation,  acc, dt * this.speed);
+        this.node.applyTranslation(this.node.translation);
 
 
     }
 
+
+
     update ( dt) {
-        this.checkMovement( dt);
+        this.move( dt);
         this.checkCollision();
         this.setHealtBar();
     }
 
 
     checkCollision() {
-        if (this.node.moved || keys['Space']) {
-            for (var i = 0, len = this.gltf.nodes.length; i < len; i++) {
-                let node = this.gltf.nodes[i];
-                if (this.node !== node && !node.name.includes("_floor") && node.alive) {
-                    colliison.resolveCollision(this.node, node);
-                }
-
+        for (var i = 0, len = this.gltf.nodes.length; i < len; i++) {
+            let node = this.gltf.nodes[i];
+            if (this.node !== node && !node.name.includes("_floor") && node.alive) {
+                colliison.resolveCollision(this.node, node);
             }
-            this.node.moved = false;
+
         }
 
     }

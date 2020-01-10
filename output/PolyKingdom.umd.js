@@ -3496,7 +3496,6 @@
           this.name = undefined;
           this.mesh = undefined;
           this.skin = undefined;
-          this.moved = false;
 
           // non gltf
           this.worldTransform = create$3();
@@ -3507,8 +3506,7 @@
 
           //defines node type
           this.type = type;
-          //velocity for movement
-          this.velocity = [0, 0, 0];
+
           //bounding box
           this.aabbmin= undefined;
           this.aabbmax= undefined;
@@ -4242,14 +4240,13 @@
           this.directionVector = 0;
           this.direction = "up";
           this.lives = 50;
-          this.speed = 5;
-          this.maxSpeed = 0.7;
-          this.friction   = 0.2;
+          this.speed = 18;
+
 
       }
 
 
-      checkMovement( dt) {
+      move( dt) {
           const right = set$4(create$4(),
               -Math.sin(this.node.initialRotation[1]), 0, -Math.cos(this.node.initialRotation[1]));
           const forward = set$4(create$4(),
@@ -4262,94 +4259,73 @@
               sub$4(acc, acc, right);
               sub$4(acc, acc, forward);
               this.node.rotate(5.49779);  //315
+              playerWalkingSound.play();
 
 
           } else if (keys[Input_MoveUpButton] && keys[Input_MoveRightButton]) {
               sub$4(acc, acc, forward);
               add$4(acc, acc, right);
               this.node.rotate(-2.35619);  //-135
+              playerWalkingSound.play();
 
           } else if (keys[Input_MoveRightButton] && keys[Input_MoveDownButton]) {
               add$4(acc, acc, right);
               add$4(acc, acc, forward);
               this.node.rotate(2.35619);  //135
+              playerWalkingSound.play();
 
 
           } else if (keys[Input_MoveDownButton] && keys[Input_MoveLeftButton]) {
               add$4(acc, acc, forward);
               sub$4(acc, acc, right);
               this.node.rotate(0.785398);  //45
+              playerWalkingSound.play();
 
           } else if (keys[Input_MoveUpButton]) {
               sub$4(acc, acc, forward);
               this.node.rotate(-1.5708);  //-90
+              playerWalkingSound.play();
 
           } else if (keys[Input_MoveDownButton]) {
               add$4(acc, acc, forward);
               this.node.rotate(1.5708);  //90
+              playerWalkingSound.play();
+
           } else if (keys[Input_MoveRightButton]) {
               add$4(acc, acc, right);
               this.node.rotate(3.14159); //180
+              playerWalkingSound.play();
+
           } else if (keys[Input_MoveLeftButton]) {
               sub$4(acc, acc, right);
               this.node.rotate(6.28319);  //360
-          }
-
-          // 2: update velocity
-          scaleAndAdd(this.node.velocity, this.node.velocity, acc, dt * this.speed);
-
-          // 3: if no movement, apply friction
-          if (!keys[Input_MoveUpButton] &&
-              !keys[Input_MoveDownButton] &&
-              !keys[Input_MoveRightButton] &&
-              !keys[Input_MoveLeftButton])
-          {
-              scale$4(this.node.velocity, this.node.velocity, 1 - this.friction);
-          }
-
-          // 4: limit speed
-          const len$$1 = len(this.node.velocity);
-          if (len$$1 > this.maxSpeed) {
-              scale$4(this.node.velocity, this.node.velocity, this.maxSpeed / len$$1);
-          }
-
-
-          // let tempVec = Array.from(this.node.translation);
-          // vec3.add(tempVec, tempVec, this.node.velocity,);
-          // this.node.applyTranslation(tempVec);
-          // if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
-          //     this.node.moved = true;
-          //     playerWalkingSound.play();
-          // }
-          // this.node.velocity = [0, 0, 0];
-
-          add$4(this.node.translation, this.node.translation,  this.node.velocity);
-          this.node.applyTranslation(this.node.translation);
-          if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
-              this.node.moved = true;
               playerWalkingSound.play();
           }
+
+          //move
+
+          scaleAndAdd(this.node.translation, this.node.translation,  acc, dt * this.speed);
+          this.node.applyTranslation(this.node.translation);
 
 
       }
 
+
+
       update ( dt) {
-          this.checkMovement( dt);
+          this.move( dt);
           this.checkCollision();
           this.setHealtBar();
       }
 
 
       checkCollision() {
-          if (this.node.moved || keys['Space']) {
-              for (var i = 0, len$$1 = this.gltf.nodes.length; i < len$$1; i++) {
-                  let node = this.gltf.nodes[i];
-                  if (this.node !== node && !node.name.includes("_floor") && node.alive) {
-                      colliison.resolveCollision(this.node, node);
-                  }
-
+          for (var i = 0, len$$1 = this.gltf.nodes.length; i < len$$1; i++) {
+              let node = this.gltf.nodes[i];
+              if (this.node !== node && !node.name.includes("_floor") && node.alive) {
+                  colliison.resolveCollision(this.node, node);
               }
-              this.node.moved = false;
+
           }
 
       }
@@ -4375,7 +4351,7 @@
           this.gltf = gltf;
           this.lives = 3;
           //enemy movement speed
-          this.movementSpeed = 0.5;
+          this.movementSpeed = 0.1;
           //if enemy detected player
           this.playerDetection = false;
 
