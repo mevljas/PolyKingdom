@@ -16,7 +16,7 @@ class enemyObject {
         this.playerDetection = false;
         this.moveBackFactor = 50;
         this.detectionEscapeRange = 60;
-        this.detectionRange = 50;
+        this.detectionRange = 40;
 
     }
 

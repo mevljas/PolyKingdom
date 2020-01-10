@@ -16,7 +16,7 @@ class playerObject {
         this.directionVector = 0;
         this.direction = "up";
         this.lives = 50;
-        this.speed = 16;
+        this.speed = 15;
 
 
     }

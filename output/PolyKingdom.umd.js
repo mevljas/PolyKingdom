@@ -4251,7 +4251,7 @@
           this.directionVector = 0;
           this.direction = "up";
           this.lives = 50;
-          this.speed = 16;
+          this.speed = 15;
 
 
       }
@@ -4367,7 +4367,7 @@
           this.playerDetection = false;
           this.moveBackFactor = 50;
           this.detectionEscapeRange = 60;
-          this.detectionRange = 50;
+          this.detectionRange = 40;
 
       }
 
