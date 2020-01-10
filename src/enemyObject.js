@@ -11,17 +11,23 @@ class enemyObject {
         this.gltf = gltf;
         this.lives = 3;
         //enemy movement speed
-        this.movementSpeed = 0.3;
+        this.movementSpeed = 0.18;
         //if enemy detected player
         this.playerDetection = false;
         this.moveBackFactor = 50;
+        this.detectionEscapeRange = 60;
+        this.detectionRange = 50;
 
     }
 
     update( dt) {
-        this.rotate();
-        this.move( dt);
-        colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
+        if (this.playerDetection){
+            this.rotate();
+            this.move( dt);
+            colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
+            colliison.checkIfPlayerEscaped(this, this.gltf.player);
+        }
+
         //player attack
         if (keys[Input_AttackButton]) {
             colliison.resolveWeaponCollision(this.gltf.player, this, dt);

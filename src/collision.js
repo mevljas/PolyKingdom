@@ -112,40 +112,6 @@ class colliison {
 
     }
 
-    static resolveEnemyDetectionRange(first, second) {
-
-        let a = first.node;
-        let b = second.node;
-
-        //get current position
-        const posa = a.translation;
-        const posb = b.translation;
-
-        //get bounding box
-        //player boudning box should be bigger
-        const mina = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMin);
-        const maxa = vec3.add(vec3.create(), posa, a.aabbEnemyRangeMax);
-        //enemy bounding box shouldb be the same ( scalin with big models)
-        const minb = vec3.add(vec3.create(), posb, b.aabbmin);
-        const maxb = vec3.add(vec3.create(), posb, b.aabbmax);
-
-        // Check if there is collision.
-        const isColliding = this.aabbIntersection({
-            min: mina,
-            max: maxa
-        }, {
-            min: minb,
-            max: maxb
-        });
-
-        if (isColliding) {
-            // console.log(b.name+" detected player");
-            second.playerDetection = true;
-            enemyDetectionSounds.play();
-        }
-
-
-    }
 
 
     static checkIfEnemyCaughtPlayer(first, second) {
@@ -177,6 +143,25 @@ class colliison {
         }
         // console.log(b.name+" caught you!");
         second.takeAHit();
+
+
+    }
+    static checkIfPlayerEscaped(enemy, player) {
+        if (vec3.distance(enemy.node.translation, player.node.translation) >= enemy.detectionEscapeRange){
+            enemy.playerDetection = false;
+        }
+
+
+
+
+    }
+    static resolveEnemyDetectionRange(player, enemy) {
+        if (vec3.distance(enemy.node.translation, player.node.translation) <= enemy.detectionRange){
+            enemy.playerDetection = true;
+            enemyDetectionSounds.play();
+        }
+
+
 
 
     }

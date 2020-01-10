@@ -113,9 +113,6 @@ class glTF extends GltfObject {
                 //weapon has a range equal to boundingbox * weaponScalingFactor
                 vec3.scale(node2.aabbWeaponMin, this.accessors[accesorNumber].min, weaponScalingFactor);
                 vec3.scale(node2.aabbWeaponMax, this.accessors[accesorNumber].max, weaponScalingFactor);
-                //enemy has a detection range equal to boundingbox * enemyRangeScalingFactor
-                vec3.scale(node2.aabbEnemyRangeMin, this.accessors[accesorNumber].min, enemyRangeScalingFactor);
-                vec3.scale(node2.aabbEnemyRangeMax, this.accessors[accesorNumber].max, enemyRangeScalingFactor);
                 this.setUpAABB = false;
 
             }

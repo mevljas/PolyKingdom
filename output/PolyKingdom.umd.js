@@ -804,6 +804,20 @@
   }
 
   /**
+   * Calculates the euclidian distance between two vec3's
+   *
+   * @param {vec3} a the first operand
+   * @param {vec3} b the second operand
+   * @returns {Number} distance between a and b
+   */
+  function distance(a, b) {
+    var x = b[0] - a[0];
+    var y = b[1] - a[1];
+    var z = b[2] - a[2];
+    return Math.sqrt(x * x + y * y + z * z);
+  }
+
+  /**
    * Negates the components of a vec3
    *
    * @param {vec3} out the receiving vector
@@ -3527,9 +3541,6 @@
           //bounding box for weapons
           this.aabbWeaponMin= create$4();
           this.aabbWeaponMax= create$4();
-          //enemy detects player
-          this.aabbEnemyRangeMin= create$4();
-          this.aabbEnemyRangeMax= create$4();
           this.initialRotation = this.rotation;
           this.lastTranslation = this.translation;
           this.alive = true;
@@ -4178,40 +4189,6 @@
 
       }
 
-      static resolveEnemyDetectionRange(first, second) {
-
-          let a = first.node;
-          let b = second.node;
-
-          //get current position
-          const posa = a.translation;
-          const posb = b.translation;
-
-          //get bounding box
-          //player boudning box should be bigger
-          const mina = add$4(create$4(), posa, a.aabbEnemyRangeMin);
-          const maxa = add$4(create$4(), posa, a.aabbEnemyRangeMax);
-          //enemy bounding box shouldb be the same ( scalin with big models)
-          const minb = add$4(create$4(), posb, b.aabbmin);
-          const maxb = add$4(create$4(), posb, b.aabbmax);
-
-          // Check if there is collision.
-          const isColliding = this.aabbIntersection({
-              min: mina,
-              max: maxa
-          }, {
-              min: minb,
-              max: maxb
-          });
-
-          if (isColliding) {
-              // console.log(b.name+" detected player");
-              second.playerDetection = true;
-              enemyDetectionSounds.play();
-          }
-
-
-      }
 
 
       static checkIfEnemyCaughtPlayer(first, second) {
@@ -4246,6 +4223,25 @@
 
 
       }
+      static checkIfPlayerEscaped(enemy, player) {
+          if (distance(enemy.node.translation, player.node.translation) >= enemy.detectionEscapeRange){
+              enemy.playerDetection = false;
+          }
+
+
+
+
+      }
+      static resolveEnemyDetectionRange(player, enemy) {
+          if (distance(enemy.node.translation, player.node.translation) <= enemy.detectionRange){
+              enemy.playerDetection = true;
+              enemyDetectionSounds.play();
+          }
+
+
+
+
+      }
   }
 
   class playerObject {
@@ -4255,7 +4251,7 @@
           this.directionVector = 0;
           this.direction = "up";
           this.lives = 50;
-          this.speed = 14;
+          this.speed = 16;
 
 
       }
@@ -4366,17 +4362,23 @@
           this.gltf = gltf;
           this.lives = 3;
           //enemy movement speed
-          this.movementSpeed = 0.3;
+          this.movementSpeed = 0.18;
           //if enemy detected player
           this.playerDetection = false;
           this.moveBackFactor = 50;
+          this.detectionEscapeRange = 60;
+          this.detectionRange = 50;
 
       }
 
       update( dt) {
-          this.rotate();
-          this.move( dt);
-          colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
+          if (this.playerDetection){
+              this.rotate();
+              this.move( dt);
+              colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
+              colliison.checkIfPlayerEscaped(this, this.gltf.player);
+          }
+
           //player attack
           if (keys[Input_AttackButton]) {
               colliison.resolveWeaponCollision(this.gltf.player, this, dt);
@@ -4538,7 +4540,6 @@
 
       initAABB() {
           let weaponScalingFactor = 2.2;     //for weapon collsion
-          let enemyRangeScalingFactor = 18;     //for enemy detection range
           this.nodes.forEach(function (node2) {
               // copy AABB
               if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
@@ -4549,9 +4550,6 @@
                   //weapon has a range equal to boundingbox * weaponScalingFactor
                   scale$4(node2.aabbWeaponMin, this.accessors[accesorNumber].min, weaponScalingFactor);
                   scale$4(node2.aabbWeaponMax, this.accessors[accesorNumber].max, weaponScalingFactor);
-                  //enemy has a detection range equal to boundingbox * enemyRangeScalingFactor
-                  scale$4(node2.aabbEnemyRangeMin, this.accessors[accesorNumber].min, enemyRangeScalingFactor);
-                  scale$4(node2.aabbEnemyRangeMax, this.accessors[accesorNumber].max, enemyRangeScalingFactor);
                   this.setUpAABB = false;
 
               }
