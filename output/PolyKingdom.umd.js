@@ -4237,6 +4237,8 @@
       constructor(node, gtlf) {
           this.node = node;
           this.gltf = gtlf;
+          this.directionVector = 0;
+          this.direction = "up";
           this.lives = 50;
           this.speed = 18;
 

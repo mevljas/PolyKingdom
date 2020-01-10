@@ -11,11 +11,8 @@
     "dev:electron": "concurrently \"rollup -c -w\" \"npm start\""
   },
   "devDependencies": {
-    "acorn": "^6.0.4",
-    "concurrently": "^4.1.0",
     "electron": "^3.1.8",
     "electron-packager": "^12.2.0",
-    "eslint": "^5.10.0",
     "rollup": "^0.67.4",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-glslify": "^1.1.0",
