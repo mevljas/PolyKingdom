@@ -4078,6 +4078,7 @@
   const enemyDeathAudio = new Audio('assets/sounds/enemyDeath.mp3');
   const enemyDetectionSounds = new Audio('assets/sounds/enemyDetectionSound.mp3');
   const playerWalkingSound = new Audio('assets/sounds/playerWalkingSound.mp3');
+  const heartSound = new Audio('assets/sounds/heartSound.mp3');
 
   class colliison {
       static intervalIntersection(min1, max1, min2, max2) {
@@ -4161,6 +4162,7 @@
       static resolveHeartCollision(player, heart){
           heart.alive = false;
           player.lives = 50;
+          heartSound.play();
       }
 
       static resolveWeaponCollision(first, second, dt) {

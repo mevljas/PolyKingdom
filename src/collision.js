@@ -1,6 +1,6 @@
 import {vec3} from "gl-matrix";
 import {keys} from "./publicVariables";
-import {enemyDetectionSounds, zombieHurtAudio} from "./audio";
+import {enemyDetectionSounds, zombieHurtAudio, heartSound} from "./audio";
 
 class colliison {
     static intervalIntersection(min1, max1, min2, max2) {
@@ -84,6 +84,7 @@ class colliison {
     static resolveHeartCollision(player, heart){
         heart.alive = false;
         player.lives = 50;
+        heartSound.play();
     }
 
     static resolveWeaponCollision(first, second, dt) {

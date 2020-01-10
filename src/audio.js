@@ -6,9 +6,16 @@ const zombieHurtAudio = new Audio('assets/sounds/zombieHurt.mp3');
 const enemyDeathAudio = new Audio('assets/sounds/enemyDeath.mp3');
 const enemyDetectionSounds = new Audio('assets/sounds/enemyDetectionSound.mp3');
 const playerWalkingSound = new Audio('assets/sounds/playerWalkingSound.mp3');
+const heartSound = new Audio('assets/sounds/heartSound.mp3');
 
 
 export
 {
-    playerWeaponAudio,playerHurtAudio,zombieHurtAudio, enemyDeathAudio,enemyDetectionSounds, playerWalkingSound
+    playerWeaponAudio,
+    playerHurtAudio,
+    zombieHurtAudio,
+    enemyDeathAudio,
+    enemyDetectionSounds,
+    playerWalkingSound,
+    heartSound
 };
