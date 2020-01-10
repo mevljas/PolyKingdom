@@ -9,12 +9,20 @@ const combatMusic = new Audio('assets/sounds/combatMusic.mp3');
 const backgroundMusic = new Audio('assets/sounds/backgroundMusic.mp3');
 
 let music = false;
+let inCombat = false;
 
 
 function controlMusic() {
     music = !music;
     if (music) {
-        playBackgroundMusic();
+        if (inCombat){
+            playCombatMusic()
+        }
+        else{
+            playBackgroundMusic();
+        }
+
+
     } else {
         stopBackgroundMusic();
         stopCombatMusic();
@@ -24,6 +32,7 @@ function controlMusic() {
 
 
 function playBackgroundMusic() {
+    inCombat = false;
     if (music) {
         backgroundMusic.loop = true;
         stopCombatMusic();
@@ -41,6 +50,7 @@ function stopBackgroundMusic() {
 }
 
 function playCombatMusic() {
+    inCombat = true;
     if (music) {
         combatMusic.loop = true;
         stopBackgroundMusic();
