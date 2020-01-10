@@ -23,6 +23,8 @@ class gameObject
     {
         this.onRendererReady = undefined;
         this.initialModel = "map";
+        this.time = Date.now();
+        this.startTime = this.time;
 
         this.canvas = canvas;
         this.canvas.style.cursor = "grab";
@@ -274,7 +276,11 @@ class gameObject
     {
         const scene = gltf.scenes[this.renderingParameters.sceneIndex];
 
-        gltf.update();
+        this.time = Date.now();
+        const dt = (this.time - this.startTime) * 0.001;
+        this.startTime = this.time;
+
+        gltf.update(dt);
 
 
         scene.applyTransformHierarchy(gltf);

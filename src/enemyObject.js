@@ -11,15 +11,15 @@ class enemyObject {
         this.gltf = gltf;
         this.lives = 3;
         //enemy movement speed
-        this.movementSpeed = 0.005;
+        this.movementSpeed = 0.5;
         //if enemy detected player
         this.playerDetection = false;
 
     }
 
-    update() {
+    update( dt) {
         this.rotate();
-        this.move();
+        this.move( dt);
         colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
         //player attack
         if (keys[Input_AttackButton]) {
@@ -36,13 +36,13 @@ class enemyObject {
     }
 
 
-    move() {
+    move(dt) {
         // console.log("moving")
         let enemyVector = this.node.translation;
         let playerVector = this.gltf.player.node.translation;
         let vectorFromEnemyToPlayer = vec3.create();
         vec3.set(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
-        vec3.scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, this.movementSpeed);
+        vec3.scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, dt * this.movementSpeed);
         this.node.applyTranslation(this.node.translation);
 
 

@@ -12,6 +12,9 @@ import tonemappingShader from './shaders/tonemapping.glsl';
 import shaderFunctions from './shaders/functions.glsl';
 import animationShader from './shaders/animation.glsl';
 
+
+
+
 class gltfRenderer {
     constructor(canvas, defaultCamera, parameters) {
         this.canvas = canvas;

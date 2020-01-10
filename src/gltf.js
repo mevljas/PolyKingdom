@@ -125,13 +125,13 @@ class glTF extends GltfObject {
     }
 
 
-    updateEnemies() {
+    updateEnemies(dt) {
         for (var i = 0, len = this.enemies.length; i < len; i++) {
             let enemy = this.enemies[i];
             if (!enemy.playerDetection) {
                 colliison.resolveEnemyDetectionRange(this.player, enemy);
             } else if (enemy.node.alive) {
-                enemy.update();
+                enemy.update( dt);
             }
 
 
@@ -140,14 +140,14 @@ class glTF extends GltfObject {
     }
 
 
-    update() {
+    update(dt) {
 
         if (this.setUpAABB) {
             this.initAABB();
         }
 
-        this.player.update();
-        this.updateEnemies();
+        this.player.update(dt);
+        this.updateEnemies(dt);
     }
 
 

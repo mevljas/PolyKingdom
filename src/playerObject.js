@@ -16,11 +16,14 @@ class playerObject {
         this.directionVector = 0;
         this.direction = "up";
         this.lives = 50;
+        this.speed = 5;
+        this.maxSpeed = 0.7;
+        this.friction   = 0.2;
 
     }
 
 
-    checkMovement() {
+    checkMovement( dt) {
         const right = vec3.set(vec3.create(),
             -Math.sin(this.node.initialRotation[1]), 0, -Math.cos(this.node.initialRotation[1]));
         const forward = vec3.set(vec3.create(),
@@ -67,21 +70,45 @@ class playerObject {
         }
 
         // 2: update velocity
-        vec3.scaleAndAdd(this.node.velocity, this.node.velocity, acc, this.node.acceleration);
-        let tempVec = Array.from(this.node.translation);
-        vec3.add(tempVec, tempVec, this.node.velocity,);
-        this.node.applyTranslation(tempVec);
+        vec3.scaleAndAdd(this.node.velocity, this.node.velocity, acc, dt * this.speed);
+
+        // 3: if no movement, apply friction
+        if (!keys[Input_MoveUpButton] &&
+            !keys[Input_MoveDownButton] &&
+            !keys[Input_MoveRightButton] &&
+            !keys[Input_MoveLeftButton])
+        {
+            vec3.scale(this.node.velocity, this.node.velocity, 1 - this.friction);
+        }
+
+        // 4: limit speed
+        const len = vec3.len(this.node.velocity);
+        if (len > this.maxSpeed) {
+            vec3.scale(this.node.velocity, this.node.velocity, this.maxSpeed / len);
+        }
+
+
+        // let tempVec = Array.from(this.node.translation);
+        // vec3.add(tempVec, tempVec, this.node.velocity,);
+        // this.node.applyTranslation(tempVec);
+        // if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
+        //     this.node.moved = true;
+        //     playerWalkingSound.play();
+        // }
+        // this.node.velocity = [0, 0, 0];
+
+        vec3.add(this.node.translation, this.node.translation,  this.node.velocity);
+        this.node.applyTranslation(this.node.translation);
         if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
             this.node.moved = true;
             playerWalkingSound.play();
         }
-        this.node.velocity = [0, 0, 0];
 
 
     }
 
-    update() {
-        this.checkMovement();
+    update ( dt) {
+        this.checkMovement( dt);
         this.checkCollision();
         this.setHealtBar();
     }

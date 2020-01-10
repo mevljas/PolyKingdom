@@ -3509,7 +3509,6 @@
           this.type = type;
           //velocity for movement
           this.velocity = [0, 0, 0];
-          this.acceleration = 0.25;
           //bounding box
           this.aabbmin= undefined;
           this.aabbmax= undefined;
@@ -4243,11 +4242,14 @@
           this.directionVector = 0;
           this.direction = "up";
           this.lives = 50;
+          this.speed = 5;
+          this.maxSpeed = 0.7;
+          this.friction   = 0.2;
 
       }
 
 
-      checkMovement() {
+      checkMovement( dt) {
           const right = set$4(create$4(),
               -Math.sin(this.node.initialRotation[1]), 0, -Math.cos(this.node.initialRotation[1]));
           const forward = set$4(create$4(),
@@ -4294,21 +4296,45 @@
           }
 
           // 2: update velocity
-          scaleAndAdd(this.node.velocity, this.node.velocity, acc, this.node.acceleration);
-          let tempVec = Array.from(this.node.translation);
-          add$4(tempVec, tempVec, this.node.velocity,);
-          this.node.applyTranslation(tempVec);
+          scaleAndAdd(this.node.velocity, this.node.velocity, acc, dt * this.speed);
+
+          // 3: if no movement, apply friction
+          if (!keys[Input_MoveUpButton] &&
+              !keys[Input_MoveDownButton] &&
+              !keys[Input_MoveRightButton] &&
+              !keys[Input_MoveLeftButton])
+          {
+              scale$4(this.node.velocity, this.node.velocity, 1 - this.friction);
+          }
+
+          // 4: limit speed
+          const len$$1 = len(this.node.velocity);
+          if (len$$1 > this.maxSpeed) {
+              scale$4(this.node.velocity, this.node.velocity, this.maxSpeed / len$$1);
+          }
+
+
+          // let tempVec = Array.from(this.node.translation);
+          // vec3.add(tempVec, tempVec, this.node.velocity,);
+          // this.node.applyTranslation(tempVec);
+          // if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
+          //     this.node.moved = true;
+          //     playerWalkingSound.play();
+          // }
+          // this.node.velocity = [0, 0, 0];
+
+          add$4(this.node.translation, this.node.translation,  this.node.velocity);
+          this.node.applyTranslation(this.node.translation);
           if (JSON.stringify(this.node.velocity) !== "[0,0,0]") {
               this.node.moved = true;
               playerWalkingSound.play();
           }
-          this.node.velocity = [0, 0, 0];
 
 
       }
 
-      update() {
-          this.checkMovement();
+      update ( dt) {
+          this.checkMovement( dt);
           this.checkCollision();
           this.setHealtBar();
       }
@@ -4349,15 +4375,15 @@
           this.gltf = gltf;
           this.lives = 3;
           //enemy movement speed
-          this.movementSpeed = 0.005;
+          this.movementSpeed = 0.5;
           //if enemy detected player
           this.playerDetection = false;
 
       }
 
-      update() {
+      update( dt) {
           this.rotate();
-          this.move();
+          this.move( dt);
           colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
           //player attack
           if (keys[Input_AttackButton]) {
@@ -4374,13 +4400,13 @@
       }
 
 
-      move() {
+      move(dt) {
           // console.log("moving")
           let enemyVector = this.node.translation;
           let playerVector = this.gltf.player.node.translation;
           let vectorFromEnemyToPlayer = create$4();
           set$4(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
-          scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, this.movementSpeed);
+          scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, dt * this.movementSpeed);
           this.node.applyTranslation(this.node.translation);
 
 
@@ -4530,13 +4556,13 @@
       }
 
 
-      updateEnemies() {
+      updateEnemies(dt) {
           for (var i = 0, len$$1 = this.enemies.length; i < len$$1; i++) {
               let enemy = this.enemies[i];
               if (!enemy.playerDetection) {
                   colliison.resolveEnemyDetectionRange(this.player, enemy);
               } else if (enemy.node.alive) {
-                  enemy.update();
+                  enemy.update( dt);
               }
 
 
@@ -4545,14 +4571,14 @@
       }
 
 
-      update() {
+      update(dt) {
 
           if (this.setUpAABB) {
               this.initAABB();
           }
 
-          this.player.update();
-          this.updateEnemies();
+          this.player.update(dt);
+          this.updateEnemies(dt);
       }
 
 
@@ -5832,6 +5858,8 @@
       {
           this.onRendererReady = undefined;
           this.initialModel = "map";
+          this.time = Date.now();
+          this.startTime = this.time;
 
           this.canvas = canvas;
           this.canvas.style.cursor = "grab";
@@ -6083,7 +6111,11 @@
       {
           const scene = gltf.scenes[this.renderingParameters.sceneIndex];
 
-          gltf.update();
+          this.time = Date.now();
+          const dt = (this.time - this.startTime) * 0.001;
+          this.startTime = this.time;
+
+          gltf.update(dt);
 
 
           scene.applyTransformHierarchy(gltf);
