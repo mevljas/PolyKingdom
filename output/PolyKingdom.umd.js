@@ -4418,9 +4418,7 @@
       showNormalMaterial() {
           if (--this.numberOfHits === 0) {
               this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
-          } else {
-              setTimeout(this.showNormalMaterial.bind(this), 2000);
-          }
+          } 
 
       }
 
@@ -4524,8 +4522,6 @@
       showNormalMaterial() {
           if (--this.numberOfHits === 0) {
               this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
-          } else {
-              setTimeout(this.showNormalMaterial.bind(this), 2000);
           }
 
       }
