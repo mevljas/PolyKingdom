@@ -327,7 +327,7 @@ class gameObject
 
     showSpinner()
     {
-        let spinner = document.getElementById("gltf-rv-model-spinner");
+        let spinner = document.getElementById("loadSpinner");
         if (spinner !== undefined)
         {
             spinner.style.display = "block";
@@ -336,7 +336,7 @@ class gameObject
 
     hideSpinner()
     {
-        let spinner = document.getElementById("gltf-rv-model-spinner");
+        let spinner = document.getElementById("loadSpinner");
         if (spinner !== undefined)
         {
             spinner.style.display = "none";

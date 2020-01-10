@@ -4237,8 +4237,6 @@
       constructor(node, gtlf) {
           this.node = node;
           this.gltf = gtlf;
-          this.directionVector = 0;
-          this.direction = "up";
           this.lives = 50;
           this.speed = 18;
 
@@ -6138,7 +6136,7 @@
 
       showSpinner()
       {
-          let spinner = document.getElementById("gltf-rv-model-spinner");
+          let spinner = document.getElementById("loadSpinner");
           if (spinner !== undefined)
           {
               spinner.style.display = "block";
@@ -6147,7 +6145,7 @@
 
       hideSpinner()
       {
-          let spinner = document.getElementById("gltf-rv-model-spinner");
+          let spinner = document.getElementById("loadSpinner");
           if (spinner !== undefined)
           {
               spinner.style.display = "none";
