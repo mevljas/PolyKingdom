@@ -347,7 +347,7 @@ class gameObject
 
     showLoadingBar()
     {
-        let bar = document.getElementsByClassName("health_bar");
+        let bar = document.getElementById("health_bar");
         if (bar !== undefined)
         {
             bar.style.display = "block";

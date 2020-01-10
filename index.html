@@ -16,6 +16,7 @@
             width:20%;
             height:100px;
             top:10px;
+            display: none;
         }
         .meter {
             height: 20px;  /* Can be anything */
@@ -106,7 +107,7 @@
 </head>
 
 <body onload="PolyKingdom.main();">
-    <div class="health_bar">
+    <div class="health_bar" id="health_bar">
         <div class="meter red">
             <span  id="healtBar" style="width: 100%"></span>
         </div>
