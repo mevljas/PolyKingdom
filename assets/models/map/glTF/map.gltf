@@ -3,28 +3,6 @@
         "generator" : "Khronos glTF Blender I/O v0.9.36",
         "version" : "2.0"
     },
-    "extensionsUsed" : [
-        "KHR_lights_punctual"
-    ],
-    "extensionsRequired" : [
-        "KHR_lights_punctual"
-    ],
-    "extensions" : {
-        "KHR_lights_punctual" : {
-            "lights" : [
-                {
-                    "color" : [
-                        1,
-                        1,
-                        1
-                    ],
-                    "intensity" : 4.760000228881836,
-                    "type" : "directional",
-                    "name" : "Sun"
-                }
-            ]
-        }
-    },
     "scene" : 0,
     "scenes" : [
         {
@@ -192,7 +170,9 @@
                 159,
                 160,
                 161,
-                163
+                162,
+                163,
+                164
             ]
         }
     ],
@@ -2451,23 +2431,6 @@
             ]
         },
         {
-            "extensions" : {
-                "KHR_lights_punctual" : {
-                    "light" : 0
-                }
-            },
-            "name" : "Sun_floor_Orientation",
-            "rotation" : [
-                -0.7071067690849304,
-                0,
-                0,
-                0.7071067690849304
-            ]
-        },
-        {
-            "children" : [
-                162
-            ],
             "name" : "Sun_floor",
             "rotation" : [
                 0.006775029003620148,
@@ -2479,6 +2442,35 @@
                 70.00286865234375,
                 165.76438903808594,
                 -24.46505355834961
+            ]
+        },
+        {
+            "mesh" : 162,
+            "name" : "player_hurt_floor",
+            "rotation" : [
+                0,
+                0.7071067690849304,
+                0,
+                -0.7071067690849304
+            ],
+            "scale" : [
+                0.7070735096931458,
+                0.7070742249488831,
+                0.7070735096931458
+            ],
+            "translation" : [
+                -7.7150373458862305,
+                4.466477870941162,
+                -161.41294860839844
+            ]
+        },
+        {
+            "mesh" : 163,
+            "name" : "Goblin_hurt_floor",
+            "translation" : [
+                -136.1027069091797,
+                3.6862330436706543,
+                -159.34243774414062
             ]
         }
     ],
@@ -2591,6 +2583,30 @@
                 },
                 "metallicFactor" : 0,
                 "roughnessFactor" : 0.5527864098548889
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Material.002",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 8,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Material.003",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 9,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
             }
         }
     ],
@@ -4885,6 +4901,34 @@
                     "material" : 0
                 }
             ]
+        },
+        {
+            "name" : "Cube.033",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 570,
+                        "NORMAL" : 571,
+                        "TEXCOORD_0" : 572
+                    },
+                    "indices" : 325,
+                    "material" : 9
+                }
+            ]
+        },
+        {
+            "name" : "Cube.034",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 573,
+                        "NORMAL" : 574,
+                        "TEXCOORD_0" : 575
+                    },
+                    "indices" : 246,
+                    "material" : 10
+                }
+            ]
         }
     ],
     "textures" : [
@@ -4911,6 +4955,12 @@
         },
         {
             "source" : 0
+        },
+        {
+            "source" : 4
+        },
+        {
+            "source" : 5
         }
     ],
     "images" : [
@@ -4933,6 +4983,16 @@
             "mimeType" : "image/png",
             "name" : "KnightTexture",
             "uri" : "KnightTexture.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "Hurt_player",
+            "uri" : "Hurt_player.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "Goblin_hurt",
+            "uri" : "Goblin_hurt.png"
         }
     ],
     "accessors" : [
@@ -9985,6 +10045,62 @@
             "componentType" : 5126,
             "count" : 2521,
             "type" : "VEC4"
+        },
+        {
+            "bufferView" : 570,
+            "componentType" : 5126,
+            "count" : 432,
+            "max" : [
+                2.314554214477539,
+                2.0627670288085938,
+                1.5363454818725586
+            ],
+            "min" : [
+                -2.4401347637176514,
+                -6.557309627532959,
+                -1.0427002906799316
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 571,
+            "componentType" : 5126,
+            "count" : 432,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 572,
+            "componentType" : 5126,
+            "count" : 432,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 573,
+            "componentType" : 5126,
+            "count" : 576,
+            "max" : [
+                1.6115264892578125,
+                2.418705940246582,
+                1.0642280578613281
+            ],
+            "min" : [
+                -1.569244384765625,
+                -3.621863842010498,
+                -0.7082939147949219
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 574,
+            "componentType" : 5126,
+            "count" : 576,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 575,
+            "componentType" : 5126,
+            "count" : 576,
+            "type" : "VEC2"
         }
     ],
     "bufferViews" : [
@@ -12837,11 +12953,41 @@
             "buffer" : 0,
             "byteLength" : 40336,
             "byteOffset" : 5807864
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 5184,
+            "byteOffset" : 5848200
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 5184,
+            "byteOffset" : 5853384
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 3456,
+            "byteOffset" : 5858568
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 6912,
+            "byteOffset" : 5862024
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 6912,
+            "byteOffset" : 5868936
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 4608,
+            "byteOffset" : 5875848
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 5848200,
+            "byteLength" : 5880456,
             "uri" : "map.bin"
         }
     ]

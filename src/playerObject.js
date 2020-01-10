@@ -10,13 +10,14 @@ import {playerHurtAudio, playerWalkingSound} from "./audio";
 import {colliison} from "./collision";
 
 class playerObject {
-    constructor(node, gtlf) {
+    constructor(node, gtlf, normalMaterialIndex) {
         this.node = node;
         this.gltf = gtlf;
-        this.directionVector = 0;
-        this.direction = "up";
         this.lives = 50;
         this.speed = 15;
+        this.normalMaterialIndex = normalMaterialIndex;
+        this.hurtMaterialIndex = undefined;
+        this.numberOfHits = 0;
 
 
     }
@@ -112,11 +113,28 @@ class playerObject {
         if (--this.lives <= 0) {
             window.location.replace("Game_Over.html");
         }
+        this.showHurtMaterial()
 
     }
 
     setHealtBar() {
         document.getElementById("healtBar").style.width = this.lives * 2 + "%";
+    }
+
+    showNormalMaterial(){
+        if (--this.numberOfHits === 0){
+            this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
+        }
+        else {
+            setTimeout(this.showNormalMaterial.bind(this), 2000);
+        }
+
+    }
+
+    showHurtMaterial(){
+        this.gltf.meshes[this.node.mesh].primitives[0].material = this.hurtMaterialIndex;
+        this.numberOfHits++;
+        setTimeout(this.showNormalMaterial.bind(this), 2000);
     }
 
 }

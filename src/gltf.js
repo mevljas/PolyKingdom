@@ -88,16 +88,42 @@ class glTF extends GltfObject {
     }
 
     initPlayerAndEnemies() {
+        let tempHurtPlayerNode;
+        let tempHurtEnemyNode;
         this.nodes.forEach(function (node) {
             //save player
             if (node.name === "player") {
-                this.player = new playerObject(node, this);
+                let primitive = this.meshes[node.mesh].primitives[0];
+                let material = primitive.material;
+                this.player = new playerObject(node, this, material);
 
             } else if (node.name.includes("enemy")) {
-                this.enemies.push(new enemyObject(node, this));
+                let primitive = this.meshes[node.mesh].primitives[0];
+                let material = primitive.material;
+                this.enemies.push(new enemyObject(node, this, material));
+            }
+            else if (node.name === "player_hurt_floor"){
+                tempHurtPlayerNode = node;
+                node.alive = false;
+            }
+            else if (node.name === "Goblin_hurt_floor"){
+                tempHurtEnemyNode = node;
+                node.alive = false;
             }
 
         }.bind(this));
+
+        //save red player
+        let primitive = this.meshes[tempHurtPlayerNode.mesh].primitives[0];
+        this.player.hurtMaterialIndex = primitive.material;
+
+        //save red enemy
+        primitive = this.meshes[tempHurtEnemyNode.mesh].primitives[0];
+        this.enemies.forEach(function (enemy) {
+            enemy.hurtMaterialIndex = primitive.material;
+        }.bind(this));
+
+
     }
 
     initAABB() {

@@ -4245,13 +4245,14 @@
   }
 
   class playerObject {
-      constructor(node, gtlf) {
+      constructor(node, gtlf, normalMaterialIndex) {
           this.node = node;
           this.gltf = gtlf;
-          this.directionVector = 0;
-          this.direction = "up";
           this.lives = 50;
           this.speed = 15;
+          this.normalMaterialIndex = normalMaterialIndex;
+          this.hurtMaterialIndex = undefined;
+          this.numberOfHits = 0;
 
 
       }
@@ -4347,6 +4348,7 @@
           if (--this.lives <= 0) {
               window.location.replace("Game_Over.html");
           }
+          this.showHurtMaterial();
 
       }
 
@@ -4354,10 +4356,26 @@
           document.getElementById("healtBar").style.width = this.lives * 2 + "%";
       }
 
+      showNormalMaterial(){
+          if (--this.numberOfHits === 0){
+              this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
+          }
+          else {
+              setTimeout(this.showNormalMaterial.bind(this), 2000);
+          }
+
+      }
+
+      showHurtMaterial(){
+          this.gltf.meshes[this.node.mesh].primitives[0].material = this.hurtMaterialIndex;
+          this.numberOfHits++;
+          setTimeout(this.showNormalMaterial.bind(this), 2000);
+      }
+
   }
 
   class enemyObject {
-      constructor(node, gltf) {
+      constructor(node, gltf, normalMaterialIndex) {
           this.node = node;
           this.gltf = gltf;
           this.lives = 3;
@@ -4368,6 +4386,9 @@
           this.moveBackFactor = 50;
           this.detectionEscapeRange = 60;
           this.detectionRange = 40;
+          this.normalMaterialIndex = normalMaterialIndex;
+          this.hurtMaterialIndex = undefined;
+          this.numberOfHits = 0;
 
       }
 
@@ -4437,6 +4458,23 @@
                   window.location.replace("Victory.html");
               }
           }
+          this.showHurtMaterial();
+      }
+
+      showNormalMaterial(){
+          if (--this.numberOfHits === 0){
+              this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
+          }
+          else {
+              setTimeout(this.showNormalMaterial.bind(this), 2000);
+          }
+
+      }
+
+      showHurtMaterial(){
+          this.gltf.meshes[this.node.mesh].primitives[0].material = this.hurtMaterialIndex;
+          this.numberOfHits++;
+          setTimeout(this.showNormalMaterial.bind(this), 2000);
       }
 
 
@@ -4526,16 +4564,42 @@
       }
 
       initPlayerAndEnemies() {
+          let tempHurtPlayerNode;
+          let tempHurtEnemyNode;
           this.nodes.forEach(function (node) {
               //save player
               if (node.name === "player") {
-                  this.player = new playerObject(node, this);
+                  let primitive = this.meshes[node.mesh].primitives[0];
+                  let material = primitive.material;
+                  this.player = new playerObject(node, this, material);
 
               } else if (node.name.includes("enemy")) {
-                  this.enemies.push(new enemyObject(node, this));
+                  let primitive = this.meshes[node.mesh].primitives[0];
+                  let material = primitive.material;
+                  this.enemies.push(new enemyObject(node, this, material));
+              }
+              else if (node.name === "player_hurt_floor"){
+                  tempHurtPlayerNode = node;
+                  node.alive = false;
+              }
+              else if (node.name === "Goblin_hurt_floor"){
+                  tempHurtEnemyNode = node;
+                  node.alive = false;
               }
 
           }.bind(this));
+
+          //save red player
+          let primitive = this.meshes[tempHurtPlayerNode.mesh].primitives[0];
+          this.player.hurtMaterialIndex = primitive.material;
+
+          //save red enemy
+          primitive = this.meshes[tempHurtEnemyNode.mesh].primitives[0];
+          this.enemies.forEach(function (enemy) {
+              enemy.hurtMaterialIndex = primitive.material;
+          }.bind(this));
+
+
       }
 
       initAABB() {

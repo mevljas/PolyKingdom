@@ -6,7 +6,7 @@ import {Input_AttackButton} from "./publicVariables";
 
 
 class enemyObject {
-    constructor(node, gltf) {
+    constructor(node, gltf, normalMaterialIndex) {
         this.node = node;
         this.gltf = gltf;
         this.lives = 3;
@@ -17,6 +17,9 @@ class enemyObject {
         this.moveBackFactor = 50;
         this.detectionEscapeRange = 60;
         this.detectionRange = 40;
+        this.normalMaterialIndex = normalMaterialIndex;
+        this.hurtMaterialIndex = undefined;
+        this.numberOfHits = 0;
 
     }
 
@@ -86,6 +89,23 @@ class enemyObject {
                 window.location.replace("Victory.html");
             }
         }
+        this.showHurtMaterial();
+    }
+
+    showNormalMaterial(){
+        if (--this.numberOfHits === 0){
+            this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
+        }
+        else {
+            setTimeout(this.showNormalMaterial.bind(this), 2000);
+        }
+
+    }
+
+    showHurtMaterial(){
+        this.gltf.meshes[this.node.mesh].primitives[0].material = this.hurtMaterialIndex;
+        this.numberOfHits++;
+        setTimeout(this.showNormalMaterial.bind(this), 2000);
     }
 
 
@@ -108,6 +128,8 @@ function getAngleBetweenPoints(cx, cy, ex, ey) {
 function getAngleBetweenVertices(vert1, vert2) {
     return normalizeAngle(getAngleBetweenPoints(vert1[2], vert1[0], vert2[2], vert2[0])) * (Math.PI / 180);
 }
+
+
 
 
 export {enemyObject};
