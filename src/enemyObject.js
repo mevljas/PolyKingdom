@@ -23,12 +23,19 @@ class enemyObject {
 
     }
 
-    update( dt) {
-        if (this.playerDetection){
+    update(dt) {
+        if (this.playerDetection) {
             this.rotate();
-            this.move( dt);
+            this.move(dt);
             colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
-            colliison.checkIfPlayerEscaped(this, this.gltf.player);
+            colliison.checkIfPlayerEscaped(this, this.gltf.player, this.gltf);
+            this.gltf.nodes.forEach(function (node2) {
+                if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive) {
+                    colliison.resolveCollision(this.node, node2);
+                }
+
+
+            }.bind(this));
         }
 
         //player attack
@@ -36,13 +43,7 @@ class enemyObject {
             colliison.resolveWeaponCollision(this.gltf.player, this, dt);
 
         }
-        this.gltf.nodes.forEach(function (node2) {
-            if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive) {
-                colliison.resolveCollision(this.node, node2);
-            }
 
-
-        }.bind(this));
     }
 
 
@@ -64,7 +65,7 @@ class enemyObject {
         let playerVector = this.gltf.player.node.translation;
         let vectorFromEnemyToPlayer = vec3.create();
         vec3.set(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
-        vec3.negate(vectorFromEnemyToPlayer,vectorFromEnemyToPlayer);
+        vec3.negate(vectorFromEnemyToPlayer, vectorFromEnemyToPlayer);
         vec3.scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, dt * this.movementSpeed * this.moveBackFactor);
         this.node.applyTranslation(this.node.translation);
 
@@ -84,6 +85,7 @@ class enemyObject {
         if (--this.lives <= 0) {
             // console.log(this.node.name+" dead");
             this.node.alive = false;
+            this.gltf.subEnemies();
             enemyDeathAudio.play();
             if (++this.gltf.killedEnemies === this.gltf.enemies.length) {
                 window.location.replace("Victory.html");
@@ -92,17 +94,16 @@ class enemyObject {
         this.showHurtMaterial();
     }
 
-    showNormalMaterial(){
-        if (--this.numberOfHits === 0){
+    showNormalMaterial() {
+        if (--this.numberOfHits === 0) {
             this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
-        }
-        else {
+        } else {
             setTimeout(this.showNormalMaterial.bind(this), 2000);
         }
 
     }
 
-    showHurtMaterial(){
+    showHurtMaterial() {
         this.gltf.meshes[this.node.mesh].primitives[0].material = this.hurtMaterialIndex;
         this.numberOfHits++;
         setTimeout(this.showNormalMaterial.bind(this), 2000);
@@ -128,8 +129,6 @@ function getAngleBetweenPoints(cx, cy, ex, ey) {
 function getAngleBetweenVertices(vert1, vert2) {
     return normalizeAngle(getAngleBetweenPoints(vert1[2], vert1[0], vert2[2], vert2[0])) * (Math.PI / 180);
 }
-
-
 
 
 export {enemyObject};

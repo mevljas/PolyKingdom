@@ -3510,10 +3510,8 @@
   // transform
   // child indices (reference to scene array of nodes)
 
-  class gltfNode extends GltfObject
-  {
-      constructor(type)
-      {
+  class gltfNode extends GltfObject {
+      constructor(type) {
           super();
           this.camera = undefined;
           this.children = [];
@@ -3536,98 +3534,83 @@
           this.type = type;
 
           //bounding box
-          this.aabbmin= undefined;
-          this.aabbmax= undefined;
+          this.aabbmin = undefined;
+          this.aabbmax = undefined;
           //bounding box for weapons
-          this.aabbWeaponMin= create$4();
-          this.aabbWeaponMax= create$4();
+          this.aabbWeaponMin = create$4();
+          this.aabbWeaponMax = create$4();
           this.initialRotation = this.rotation;
           this.lastTranslation = this.translation;
           this.alive = true;
 
       }
 
-      initGl()
-      {
-          if (this.matrix !== undefined)
-          {
+      initGl() {
+          if (this.matrix !== undefined) {
               this.applyMatrix(this.matrix);
-          }
-          else
-          {
-              if (this.scale !== undefined)
-              {
+          } else {
+              if (this.scale !== undefined) {
                   this.scale = jsToGl(this.scale);
               }
 
-              if (this.rotation !== undefined)
-              {
+              if (this.rotation !== undefined) {
                   this.rotation = jsToGl(this.rotation);
               }
 
-              if (this.translation !== undefined)
-              {
+              if (this.translation !== undefined) {
                   this.translation = jsToGl(this.translation);
               }
           }
           this.changed = true;
       }
 
-      applyMatrix(matrixData)
-      {
+      applyMatrix(matrixData) {
           this.matrix = jsToGl(matrixData);
 
           getScaling(this.scale, this.matrix);
-          
+
           // To extract a correct rotation, the scaling component must be eliminated.
           const mn = create$3();
-          for(const col of [0, 1, 2])
-          {
+          for (const col of [0, 1, 2]) {
               mn[col] = this.matrix[col] / this.scale[0];
               mn[col + 4] = this.matrix[col + 4] / this.scale[1];
               mn[col + 8] = this.matrix[col + 8] / this.scale[2];
           }
           getRotation(this.rotation, mn);
           normalize$2(this.rotation, this.rotation);
-          
+
           getTranslation(this.translation, this.matrix);
-          
+
           this.changed = true;
       }
 
       // vec3
-      applyTranslation(translation)
-      {
+      applyTranslation(translation) {
           this.translation = translation;
           this.changed = true;
       }
 
       // quat
-      applyRotation(rotation)
-      {
+      applyRotation(rotation) {
           this.rotation = rotation;
           this.changed = true;
       }
 
       // vec3
-      applyScale(scale$$1)
-      {
+      applyScale(scale$$1) {
           this.scale = scale$$1;
           this.changed = true;
       }
 
-      resetTransform()
-      {
+      resetTransform() {
           this.rotation = jsToGl([0, 0, 0, 1]);
           this.scale = jsToGl([1, 1, 1]);
           this.translation = jsToGl([0, 0, 0]);
           this.changed = true;
       }
 
-      getLocalTransform()
-      {
-          if(this.transform === undefined || this.changed)
-          {
+      getLocalTransform() {
+          if (this.transform === undefined || this.changed) {
               this.transform = create$3();
               fromRotationTranslationScale(this.transform, this.rotation, this.translation, this.scale);
               this.changed = false;
@@ -3635,12 +3618,14 @@
 
           return clone$3(this.transform);
       }
+
       //calulates new rotation array
       rotate(angle$$1) {
 
-      angle$$1 *= 0.5;
+          angle$$1 *= 0.5;
 
-          let qax = this.initialRotation[0], qay = this.initialRotation[1], qaz = this.initialRotation[2], qaw = this.initialRotation[3],
+          let qax = this.initialRotation[0], qay = this.initialRotation[1], qaz = this.initialRotation[2],
+              qaw = this.initialRotation[3],
               qbx = Math.sin(angle$$1), qbw = Math.cos(angle$$1);
 
           this.rotation[0] = qax * qbw + qaz * qbx;
@@ -3648,7 +3633,7 @@
           this.rotation[2] = qaz * qbw - qax * qbx;
           this.rotation[3] = qaw * qbw - qay * qbx;
 
-      this.applyRotation(this.rotation);
+          this.applyRotation(this.rotation);
       };
 
 
@@ -4070,6 +4055,7 @@
   const Input_MoveLeftButton = 'KeyA';
   const Input_MoveRightButton = 'KeyD';
   const Input_AttackButton = 'Space';
+  const Input_MusicButton = 'KeyM';
   let keys = [];
 
   const playerWeaponAudio = new Audio('assets/sounds/playerWeaponAttack.mp3');
@@ -4079,6 +4065,57 @@
   const enemyDetectionSounds = new Audio('assets/sounds/enemyDetectionSound.mp3');
   const playerWalkingSound = new Audio('assets/sounds/playerWalkingSound.mp3');
   const heartSound = new Audio('assets/sounds/heartSound.mp3');
+  const combatMusic = new Audio('assets/sounds/combatMusic.mp3');
+  const backgroundMusic = new Audio('assets/sounds/backgroundMusic.mp3');
+
+  let music = false;
+
+
+  function controlMusic() {
+      music = !music;
+      if (music) {
+          playBackgroundMusic();
+      } else {
+          stopBackgroundMusic();
+          stopCombatMusic();
+      }
+
+  }
+
+
+  function playBackgroundMusic() {
+      if (music) {
+          backgroundMusic.loop = true;
+          stopCombatMusic();
+          backgroundMusic.volume = 0.2;
+          backgroundMusic.play();
+      }
+
+
+  }
+
+  function stopBackgroundMusic() {
+      backgroundMusic.pause();
+      backgroundMusic.currentTime = 0;
+
+  }
+
+  function playCombatMusic() {
+      if (music) {
+          combatMusic.loop = true;
+          stopBackgroundMusic();
+          combatMusic.volume = 0.05;
+          combatMusic.play();
+      }
+
+
+  }
+
+  function stopCombatMusic() {
+      combatMusic.pause();
+      combatMusic.currentTime = 0;
+
+  }
 
   class colliison {
       static intervalIntersection(min1, max1, min2, max2) {
@@ -4154,12 +4191,12 @@
           a.applyTranslation(a.translation);
 
           //pickup heart
-          if (a.name === "player" && b.name.includes("Heart")){
+          if (a.name === "player" && b.name.includes("Heart")) {
               this.resolveHeartCollision(player, b);
           }
       }
 
-      static resolveHeartCollision(player, heart){
+      static resolveHeartCollision(player, heart) {
           heart.alive = false;
           player.lives = 50;
           heartSound.play();
@@ -4202,7 +4239,6 @@
       }
 
 
-
       static checkIfEnemyCaughtPlayer(first, second) {
 
 
@@ -4235,22 +4271,24 @@
 
 
       }
-      static checkIfPlayerEscaped(enemy, player) {
-          if (distance(enemy.node.translation, player.node.translation) >= enemy.detectionEscapeRange){
+
+      static checkIfPlayerEscaped(enemy, player, gltf) {
+          if (distance(enemy.node.translation, player.node.translation) >= enemy.detectionEscapeRange) {
               enemy.playerDetection = false;
+              gltf.subEnemies();
           }
-
-
 
 
       }
-      static resolveEnemyDetectionRange(player, enemy) {
-          if (distance(enemy.node.translation, player.node.translation) <= enemy.detectionRange){
+
+      static resolveEnemyDetectionRange(player, enemy, gltf) {
+          if (distance(enemy.node.translation, player.node.translation) <= enemy.detectionRange) {
               enemy.playerDetection = true;
               enemyDetectionSounds.play();
+              if (gltf.awakeEnemies++ === 0) {
+                  playCombatMusic();
+              }
           }
-
-
 
 
       }
@@ -4270,7 +4308,7 @@
       }
 
 
-      move( dt) {
+      move(dt) {
           const right = set$4(create$4(),
               -Math.sin(this.node.initialRotation[1]), 0, -Math.cos(this.node.initialRotation[1]));
           const forward = set$4(create$4(),
@@ -4328,16 +4366,15 @@
 
           //move
 
-          scaleAndAdd(this.node.translation, this.node.translation,  acc, dt * this.speed);
+          scaleAndAdd(this.node.translation, this.node.translation, acc, dt * this.speed);
           this.node.applyTranslation(this.node.translation);
 
 
       }
 
 
-
-      update ( dt) {
-          this.move( dt);
+      update(dt) {
+          this.move(dt);
           this.checkCollision();
           this.setHealtBar();
       }
@@ -4368,17 +4405,16 @@
           document.getElementById("healtBar").style.width = this.lives * 2 + "%";
       }
 
-      showNormalMaterial(){
-          if (--this.numberOfHits === 0){
+      showNormalMaterial() {
+          if (--this.numberOfHits === 0) {
               this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
-          }
-          else {
+          } else {
               setTimeout(this.showNormalMaterial.bind(this), 2000);
           }
 
       }
 
-      showHurtMaterial(){
+      showHurtMaterial() {
           this.gltf.meshes[this.node.mesh].primitives[0].material = this.hurtMaterialIndex;
           this.numberOfHits++;
           setTimeout(this.showNormalMaterial.bind(this), 2000);
@@ -4404,12 +4440,19 @@
 
       }
 
-      update( dt) {
-          if (this.playerDetection){
+      update(dt) {
+          if (this.playerDetection) {
               this.rotate();
-              this.move( dt);
+              this.move(dt);
               colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
-              colliison.checkIfPlayerEscaped(this, this.gltf.player);
+              colliison.checkIfPlayerEscaped(this, this.gltf.player, this.gltf);
+              this.gltf.nodes.forEach(function (node2) {
+                  if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive) {
+                      colliison.resolveCollision(this.node, node2);
+                  }
+
+
+              }.bind(this));
           }
 
           //player attack
@@ -4417,13 +4460,7 @@
               colliison.resolveWeaponCollision(this.gltf.player, this, dt);
 
           }
-          this.gltf.nodes.forEach(function (node2) {
-              if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive) {
-                  colliison.resolveCollision(this.node, node2);
-              }
 
-
-          }.bind(this));
       }
 
 
@@ -4445,7 +4482,7 @@
           let playerVector = this.gltf.player.node.translation;
           let vectorFromEnemyToPlayer = create$4();
           set$4(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
-          negate(vectorFromEnemyToPlayer,vectorFromEnemyToPlayer);
+          negate(vectorFromEnemyToPlayer, vectorFromEnemyToPlayer);
           scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, dt * this.movementSpeed * this.moveBackFactor);
           this.node.applyTranslation(this.node.translation);
 
@@ -4465,6 +4502,7 @@
           if (--this.lives <= 0) {
               // console.log(this.node.name+" dead");
               this.node.alive = false;
+              this.gltf.subEnemies();
               enemyDeathAudio.play();
               if (++this.gltf.killedEnemies === this.gltf.enemies.length) {
                   window.location.replace("Victory.html");
@@ -4473,17 +4511,16 @@
           this.showHurtMaterial();
       }
 
-      showNormalMaterial(){
-          if (--this.numberOfHits === 0){
+      showNormalMaterial() {
+          if (--this.numberOfHits === 0) {
               this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
-          }
-          else {
+          } else {
               setTimeout(this.showNormalMaterial.bind(this), 2000);
           }
 
       }
 
-      showHurtMaterial(){
+      showHurtMaterial() {
           this.gltf.meshes[this.node.mesh].primitives[0].material = this.hurtMaterialIndex;
           this.numberOfHits++;
           setTimeout(this.showNormalMaterial.bind(this), 2000);
@@ -4537,6 +4574,7 @@
           this.setUpAABB = true;
           this.enemies = [];
           this.killedEnemies = 0;
+          this.awakeEnemies = 0;
       }
 
       initGl() {
@@ -4639,7 +4677,7 @@
           for (var i = 0, len$$1 = this.enemies.length; i < len$$1; i++) {
               let enemy = this.enemies[i];
               if (!enemy.playerDetection) {
-                  colliison.resolveEnemyDetectionRange(this.player, enemy);
+                  colliison.resolveEnemyDetectionRange(this.player, enemy, this);
               } else if (enemy.node.alive) {
                   enemy.update( dt);
               }
@@ -4659,6 +4697,14 @@
           this.player.update(dt);
           this.updateEnemies(dt);
       }
+
+      subEnemies(){
+          if (--this.awakeEnemies === 0){
+              playBackgroundMusic();
+          }
+      }
+
+
 
 
   }
@@ -6237,6 +6283,8 @@
       {
 
           this.hideSpinner();
+          this.showLoadingBar();
+
       }
 
       showSpinner()
@@ -6254,6 +6302,15 @@
           if (spinner !== undefined)
           {
               spinner.style.display = "none";
+          }
+      }
+
+      showLoadingBar()
+      {
+          let bar = document.getElementsByClassName("health_bar");
+          if (bar !== undefined)
+          {
+              bar.style.display = "block";
           }
       }
 
@@ -6356,6 +6413,8 @@
           keys[event.code] = true;
           if (event.code === Input_AttackButton) {
               playerWeaponAudio.play();
+          } else if (event.code === Input_MusicButton) {
+              controlMusic();
           }
       }
 

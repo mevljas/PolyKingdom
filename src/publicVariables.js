@@ -1,10 +1,11 @@
 const Input_ResetCamera = "r";
 const Input_RotateButton = 0;
-const Input_MoveUpButton = 'KeyW'
+const Input_MoveUpButton = 'KeyW';
 const Input_MoveDownButton = 'KeyS';
 const Input_MoveLeftButton = 'KeyA';
 const Input_MoveRightButton = 'KeyD';
 const Input_AttackButton = 'Space';
+const Input_MusicButton = 'KeyM';
 let keys = [];
 
 export
@@ -16,5 +17,6 @@ export
     Input_MoveLeftButton,
     Input_MoveDownButton,
     Input_AttackButton,
-    keys
+    keys,
+    Input_MusicButton
 };

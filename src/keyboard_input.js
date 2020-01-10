@@ -1,6 +1,6 @@
 import {Input_ResetCamera, keys} from './publicVariables.js';
-import {playerWeaponAudio} from "./audio";
-import {Input_AttackButton} from "./publicVariables";
+import {controlMusic, playerWeaponAudio} from "./audio";
+import {Input_AttackButton, Input_MusicButton} from "./publicVariables";
 
 class gltfKeyboardInput {
     constructor() {
@@ -23,6 +23,8 @@ class gltfKeyboardInput {
         keys[event.code] = true;
         if (event.code === Input_AttackButton) {
             playerWeaponAudio.play();
+        } else if (event.code === Input_MusicButton) {
+            controlMusic();
         }
     }
 

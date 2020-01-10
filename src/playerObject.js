@@ -23,7 +23,7 @@ class playerObject {
     }
 
 
-    move( dt) {
+    move(dt) {
         const right = vec3.set(vec3.create(),
             -Math.sin(this.node.initialRotation[1]), 0, -Math.cos(this.node.initialRotation[1]));
         const forward = vec3.set(vec3.create(),
@@ -81,16 +81,15 @@ class playerObject {
 
         //move
 
-        vec3.scaleAndAdd(this.node.translation, this.node.translation,  acc, dt * this.speed);
+        vec3.scaleAndAdd(this.node.translation, this.node.translation, acc, dt * this.speed);
         this.node.applyTranslation(this.node.translation);
 
 
     }
 
 
-
-    update ( dt) {
-        this.move( dt);
+    update(dt) {
+        this.move(dt);
         this.checkCollision();
         this.setHealtBar();
     }
@@ -113,7 +112,7 @@ class playerObject {
         if (--this.lives <= 0) {
             window.location.replace("Game_Over.html");
         }
-        this.showHurtMaterial()
+        this.showHurtMaterial();
 
     }
 
@@ -121,17 +120,16 @@ class playerObject {
         document.getElementById("healtBar").style.width = this.lives * 2 + "%";
     }
 
-    showNormalMaterial(){
-        if (--this.numberOfHits === 0){
+    showNormalMaterial() {
+        if (--this.numberOfHits === 0) {
             this.gltf.meshes[this.node.mesh].primitives[0].material = this.normalMaterialIndex;
-        }
-        else {
+        } else {
             setTimeout(this.showNormalMaterial.bind(this), 2000);
         }
 
     }
 
-    showHurtMaterial(){
+    showHurtMaterial() {
         this.gltf.meshes[this.node.mesh].primitives[0].material = this.hurtMaterialIndex;
         this.numberOfHits++;
         setTimeout(this.showNormalMaterial.bind(this), 2000);

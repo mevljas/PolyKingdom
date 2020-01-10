@@ -1,6 +1,13 @@
 import {vec3} from "gl-matrix";
 import {keys} from "./publicVariables";
-import {enemyDetectionSounds, zombieHurtAudio, heartSound} from "./audio";
+import {
+    enemyDetectionSounds,
+    zombieHurtAudio,
+    heartSound,
+    combatMusic,
+    playCombatMusic,
+    stopCombatMusic
+} from "./audio";
 
 class colliison {
     static intervalIntersection(min1, max1, min2, max2) {
@@ -76,12 +83,12 @@ class colliison {
         a.applyTranslation(a.translation);
 
         //pickup heart
-        if (a.name === "player" && b.name.includes("Heart")){
+        if (a.name === "player" && b.name.includes("Heart")) {
             this.resolveHeartCollision(player, b);
         }
     }
 
-    static resolveHeartCollision(player, heart){
+    static resolveHeartCollision(player, heart) {
         heart.alive = false;
         player.lives = 50;
         heartSound.play();
@@ -124,7 +131,6 @@ class colliison {
     }
 
 
-
     static checkIfEnemyCaughtPlayer(first, second) {
 
 
@@ -157,22 +163,24 @@ class colliison {
 
 
     }
-    static checkIfPlayerEscaped(enemy, player) {
-        if (vec3.distance(enemy.node.translation, player.node.translation) >= enemy.detectionEscapeRange){
+
+    static checkIfPlayerEscaped(enemy, player, gltf) {
+        if (vec3.distance(enemy.node.translation, player.node.translation) >= enemy.detectionEscapeRange) {
             enemy.playerDetection = false;
+            gltf.subEnemies();
         }
-
-
 
 
     }
-    static resolveEnemyDetectionRange(player, enemy) {
-        if (vec3.distance(enemy.node.translation, player.node.translation) <= enemy.detectionRange){
+
+    static resolveEnemyDetectionRange(player, enemy, gltf) {
+        if (vec3.distance(enemy.node.translation, player.node.translation) <= enemy.detectionRange) {
             enemy.playerDetection = true;
             enemyDetectionSounds.play();
+            if (gltf.awakeEnemies++ === 0) {
+                playCombatMusic();
+            }
         }
-
-
 
 
     }

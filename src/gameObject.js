@@ -323,6 +323,8 @@ class gameObject
     {
 
         this.hideSpinner();
+        this.showLoadingBar();
+
     }
 
     showSpinner()
@@ -340,6 +342,15 @@ class gameObject
         if (spinner !== undefined)
         {
             spinner.style.display = "none";
+        }
+    }
+
+    showLoadingBar()
+    {
+        let bar = document.getElementsByClassName("health_bar");
+        if (bar !== undefined)
+        {
+            bar.style.display = "block";
         }
     }
 

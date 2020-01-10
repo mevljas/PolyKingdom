@@ -20,6 +20,7 @@ import {playerObject} from "./playerObject";
 import {enemyObject} from "./enemyObject";
 import {colliison} from "./collision";
 import {Input_AttackButton, keys} from "./publicVariables";
+import {backgroundMusic, playBackgroundMusic, stopCombatMusic} from "./audio";
 
 
 class glTF extends GltfObject {
@@ -49,6 +50,7 @@ class glTF extends GltfObject {
         this.setUpAABB = true;
         this.enemies = [];
         this.killedEnemies = 0;
+        this.awakeEnemies = 0;
     }
 
     initGl() {
@@ -151,7 +153,7 @@ class glTF extends GltfObject {
         for (var i = 0, len = this.enemies.length; i < len; i++) {
             let enemy = this.enemies[i];
             if (!enemy.playerDetection) {
-                colliison.resolveEnemyDetectionRange(this.player, enemy);
+                colliison.resolveEnemyDetectionRange(this.player, enemy, this);
             } else if (enemy.node.alive) {
                 enemy.update( dt);
             }
@@ -171,6 +173,14 @@ class glTF extends GltfObject {
         this.player.update(dt);
         this.updateEnemies(dt);
     }
+
+    subEnemies(){
+        if (--this.awakeEnemies === 0){
+            playBackgroundMusic();
+        }
+    }
+
+
 
 
 }
