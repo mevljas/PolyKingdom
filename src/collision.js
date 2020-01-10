@@ -14,7 +14,7 @@ class colliison {
             && this.intervalIntersection(aabb1.min[2], aabb1.max[2], aabb2.min[2], aabb2.max[2]);
     }
 
-    static resolveCollision(a, b) {
+    static resolveCollision(a, b, player) {
         //get current position
         const posa = a.translation;
         const posb = b.translation;
@@ -74,6 +74,16 @@ class colliison {
 
         vec3.add(a.translation, a.translation, minDirection);
         a.applyTranslation(a.translation);
+
+        //pickup heart
+        if (a.name === "player" && b.name.includes("Heart")){
+            this.resolveHeartCollision(player, b);
+        }
+    }
+
+    static resolveHeartCollision(player, heart){
+        heart.alive = false;
+        player.lives = 50;
     }
 
     static resolveWeaponCollision(first, second, dt) {

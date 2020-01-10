@@ -172,7 +172,10 @@
                 161,
                 162,
                 163,
-                164
+                164,
+                165,
+                166,
+                167
             ]
         }
     ],
@@ -2467,10 +2470,76 @@
         {
             "mesh" : 163,
             "name" : "Goblin_hurt_floor",
+            "rotation" : [
+                0,
+                0.9999164938926697,
+                0,
+                0.0129249831661582
+            ],
             "translation" : [
                 -136.1027069091797,
                 3.6862330436706543,
                 -159.34243774414062
+            ]
+        },
+        {
+            "mesh" : 164,
+            "name" : "Heart_02",
+            "rotation" : [
+                -0.03404966741800308,
+                0.1094144806265831,
+                -0.041516657918691635,
+                0.992544949054718
+            ],
+            "scale" : [
+                0.7340186238288879,
+                0.6031501889228821,
+                0.9705744981765747
+            ],
+            "translation" : [
+                35.22246551513672,
+                2.359290599822998,
+                -30.868640899658203
+            ]
+        },
+        {
+            "mesh" : 165,
+            "name" : "Heart_04",
+            "rotation" : [
+                -0.011622526682913303,
+                0.5451582670211792,
+                -0.013930588029325008,
+                0.8381368517875671
+            ],
+            "scale" : [
+                0.7340186238288879,
+                0.6031501889228821,
+                0.9705744981765747
+            ],
+            "translation" : [
+                34.20354461669922,
+                3.1418797969818115,
+                83.65821838378906
+            ]
+        },
+        {
+            "mesh" : 166,
+            "name" : "Heart_05",
+            "rotation" : [
+                0.002797254826873541,
+                -0.26999592781066895,
+                -0.01792539283633232,
+                0.962690532207489
+            ],
+            "scale" : [
+                0.7340186238288879,
+                0.6031501889228821,
+                0.9705744981765747
+            ],
+            "translation" : [
+                -305.9036865234375,
+                3.1418797969818115,
+                -107.6617660522461
             ]
         }
     ],
@@ -2607,6 +2676,18 @@
                 },
                 "metallicFactor" : 0,
                 "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Material.006",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 10,
+                    "texCoord" : 0
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.4000000059604645
             }
         }
     ],
@@ -4929,6 +5010,48 @@
                     "material" : 10
                 }
             ]
+        },
+        {
+            "name" : "Cube.038",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 576,
+                        "NORMAL" : 577,
+                        "TEXCOORD_0" : 578
+                    },
+                    "indices" : 579,
+                    "material" : 11
+                }
+            ]
+        },
+        {
+            "name" : "Cube.041",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 580,
+                        "NORMAL" : 581,
+                        "TEXCOORD_0" : 582
+                    },
+                    "indices" : 579,
+                    "material" : 11
+                }
+            ]
+        },
+        {
+            "name" : "Cube.042",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 583,
+                        "NORMAL" : 584,
+                        "TEXCOORD_0" : 585
+                    },
+                    "indices" : 579,
+                    "material" : 11
+                }
+            ]
         }
     ],
     "textures" : [
@@ -4961,6 +5084,9 @@
         },
         {
             "source" : 5
+        },
+        {
+            "source" : 6
         }
     ],
     "images" : [
@@ -4993,6 +5119,11 @@
             "mimeType" : "image/png",
             "name" : "Goblin_hurt",
             "uri" : "Goblin_hurt.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "Heart",
+            "uri" : "Heart.png"
         }
     ],
     "accessors" : [
@@ -10101,6 +10232,96 @@
             "componentType" : 5126,
             "count" : 576,
             "type" : "VEC2"
+        },
+        {
+            "bufferView" : 576,
+            "componentType" : 5126,
+            "count" : 168,
+            "max" : [
+                1,
+                1.737938404083252,
+                1
+            ],
+            "min" : [
+                -1,
+                -2.015725612640381,
+                -1
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 577,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 578,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 579,
+            "componentType" : 5123,
+            "count" : 252,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 580,
+            "componentType" : 5126,
+            "count" : 168,
+            "max" : [
+                1,
+                1.737938404083252,
+                1
+            ],
+            "min" : [
+                -1,
+                -2.015725612640381,
+                -1
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 581,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 582,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 583,
+            "componentType" : 5126,
+            "count" : 168,
+            "max" : [
+                1,
+                1.737938404083252,
+                1
+            ],
+            "min" : [
+                -1,
+                -2.015725612640381,
+                -1
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 584,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 585,
+            "componentType" : 5126,
+            "count" : 168,
+            "type" : "VEC2"
         }
     ],
     "bufferViews" : [
@@ -12983,11 +13204,61 @@
             "buffer" : 0,
             "byteLength" : 4608,
             "byteOffset" : 5875848
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2016,
+            "byteOffset" : 5880456
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2016,
+            "byteOffset" : 5882472
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1344,
+            "byteOffset" : 5884488
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 504,
+            "byteOffset" : 5885832
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2016,
+            "byteOffset" : 5886336
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2016,
+            "byteOffset" : 5888352
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1344,
+            "byteOffset" : 5890368
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2016,
+            "byteOffset" : 5891712
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2016,
+            "byteOffset" : 5893728
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1344,
+            "byteOffset" : 5895744
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 5880456,
+            "byteLength" : 5897088,
             "uri" : "map.bin"
         }
     ]

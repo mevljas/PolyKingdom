@@ -100,7 +100,7 @@ class playerObject {
         for (var i = 0, len = this.gltf.nodes.length; i < len; i++) {
             let node = this.gltf.nodes[i];
             if (this.node !== node && !node.name.includes("_floor") && node.alive) {
-                colliison.resolveCollision(this.node, node);
+                colliison.resolveCollision(this.node, node, this);
             }
 
         }

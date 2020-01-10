@@ -4091,7 +4091,7 @@
               && this.intervalIntersection(aabb1.min[2], aabb1.max[2], aabb2.min[2], aabb2.max[2]);
       }
 
-      static resolveCollision(a, b) {
+      static resolveCollision(a, b, player) {
           //get current position
           const posa = a.translation;
           const posb = b.translation;
@@ -4151,6 +4151,16 @@
 
           add$4(a.translation, a.translation, minDirection);
           a.applyTranslation(a.translation);
+
+          //pickup heart
+          if (a.name === "player" && b.name.includes("Heart")){
+              this.resolveHeartCollision(player, b);
+          }
+      }
+
+      static resolveHeartCollision(player, heart){
+          heart.alive = false;
+          player.lives = 50;
       }
 
       static resolveWeaponCollision(first, second, dt) {
@@ -4335,7 +4345,7 @@
           for (var i = 0, len$$1 = this.gltf.nodes.length; i < len$$1; i++) {
               let node = this.gltf.nodes[i];
               if (this.node !== node && !node.name.includes("_floor") && node.alive) {
-                  colliison.resolveCollision(this.node, node);
+                  colliison.resolveCollision(this.node, node, this);
               }
 
           }
