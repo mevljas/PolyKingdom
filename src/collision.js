@@ -76,7 +76,7 @@ class colliison {
         a.applyTranslation(a.translation);
     }
 
-    static resolveWeaponCollision(first, second) {
+    static resolveWeaponCollision(first, second, dt) {
 
         let a = first.node;
         let b = second.node;
@@ -106,6 +106,7 @@ class colliison {
             second.subLives();
             //prevents multiple hits.
             zombieHurtAudio.play();
+            second.moveBack(dt);
         }
 
 

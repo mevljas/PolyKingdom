@@ -11,9 +11,10 @@ class enemyObject {
         this.gltf = gltf;
         this.lives = 3;
         //enemy movement speed
-        this.movementSpeed = 0.1;
+        this.movementSpeed = 0.3;
         //if enemy detected player
         this.playerDetection = false;
+        this.moveBackFactor = 50;
 
     }
 
@@ -23,8 +24,8 @@ class enemyObject {
         colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
         //player attack
         if (keys[Input_AttackButton]) {
-            colliison.resolveWeaponCollision(this.gltf.player, this);
-            // keys[Input_AttackButton] = false;
+            colliison.resolveWeaponCollision(this.gltf.player, this, dt);
+
         }
         this.gltf.nodes.forEach(function (node2) {
             if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive) {
@@ -43,6 +44,19 @@ class enemyObject {
         let vectorFromEnemyToPlayer = vec3.create();
         vec3.set(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
         vec3.scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, dt * this.movementSpeed);
+        this.node.applyTranslation(this.node.translation);
+
+
+    }
+
+    moveBack(dt) {
+        // console.log("moving")
+        let enemyVector = this.node.translation;
+        let playerVector = this.gltf.player.node.translation;
+        let vectorFromEnemyToPlayer = vec3.create();
+        vec3.set(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
+        vec3.negate(vectorFromEnemyToPlayer,vectorFromEnemyToPlayer);
+        vec3.scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, dt * this.movementSpeed * this.moveBackFactor);
         this.node.applyTranslation(this.node.translation);
 
 

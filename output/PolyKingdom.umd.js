@@ -804,6 +804,20 @@
   }
 
   /**
+   * Negates the components of a vec3
+   *
+   * @param {vec3} out the receiving vector
+   * @param {vec3} a vector to negate
+   * @returns {vec3} out
+   */
+  function negate(out, a) {
+    out[0] = -a[0];
+    out[1] = -a[1];
+    out[2] = -a[2];
+    return out;
+  }
+
+  /**
    * Normalize a vec3
    *
    * @param {vec3} out the receiving vector
@@ -4128,7 +4142,7 @@
           a.applyTranslation(a.translation);
       }
 
-      static resolveWeaponCollision(first, second) {
+      static resolveWeaponCollision(first, second, dt) {
 
           let a = first.node;
           let b = second.node;
@@ -4158,6 +4172,7 @@
               second.subLives();
               //prevents multiple hits.
               zombieHurtAudio.play();
+              second.moveBack(dt);
           }
 
 
@@ -4240,7 +4255,7 @@
           this.directionVector = 0;
           this.direction = "up";
           this.lives = 50;
-          this.speed = 18;
+          this.speed = 14;
 
 
       }
@@ -4351,9 +4366,10 @@
           this.gltf = gltf;
           this.lives = 3;
           //enemy movement speed
-          this.movementSpeed = 0.1;
+          this.movementSpeed = 0.3;
           //if enemy detected player
           this.playerDetection = false;
+          this.moveBackFactor = 50;
 
       }
 
@@ -4363,8 +4379,8 @@
           colliison.checkIfEnemyCaughtPlayer(this, this.gltf.player);
           //player attack
           if (keys[Input_AttackButton]) {
-              colliison.resolveWeaponCollision(this.gltf.player, this);
-              // keys[Input_AttackButton] = false;
+              colliison.resolveWeaponCollision(this.gltf.player, this, dt);
+
           }
           this.gltf.nodes.forEach(function (node2) {
               if (this.node !== node2 && !node2.name.includes("_floor") && node2.alive) {
@@ -4383,6 +4399,19 @@
           let vectorFromEnemyToPlayer = create$4();
           set$4(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
           scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, dt * this.movementSpeed);
+          this.node.applyTranslation(this.node.translation);
+
+
+      }
+
+      moveBack(dt) {
+          // console.log("moving")
+          let enemyVector = this.node.translation;
+          let playerVector = this.gltf.player.node.translation;
+          let vectorFromEnemyToPlayer = create$4();
+          set$4(vectorFromEnemyToPlayer, playerVector[0] - enemyVector[0], 0, playerVector[2] - enemyVector[2]);
+          negate(vectorFromEnemyToPlayer,vectorFromEnemyToPlayer);
+          scaleAndAdd(this.node.translation, this.node.translation, vectorFromEnemyToPlayer, dt * this.movementSpeed * this.moveBackFactor);
           this.node.applyTranslation(this.node.translation);
 
 
@@ -4509,7 +4538,7 @@
 
       initAABB() {
           let weaponScalingFactor = 2.2;     //for weapon collsion
-          let enemyRangeScalingFactor = 16;     //for enemy detection range
+          let enemyRangeScalingFactor = 18;     //for enemy detection range
           this.nodes.forEach(function (node2) {
               // copy AABB
               if (typeof this.meshes[node2.mesh] !== 'undefined' && this.meshes[node2.mesh].primitives !== 'undefined') {
