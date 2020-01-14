@@ -4308,7 +4308,7 @@
       constructor(node, gtlf, normalMaterialIndex) {
           this.node = node;
           this.gltf = gtlf;
-          this.lives = 50;
+          this.lives = 100;
           this.speed = 15;
           this.normalMaterialIndex = normalMaterialIndex;
           this.hurtMaterialIndex = undefined;
@@ -4412,7 +4412,7 @@
       }
 
       setHealtBar() {
-          document.getElementById("healtBar").style.width = this.lives * 2 + "%";
+          document.getElementById("healtBar").style.width = this.lives + "%";
       }
 
       showNormalMaterial() {
