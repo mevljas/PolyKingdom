@@ -4208,7 +4208,7 @@
 
       static resolveHeartCollision(player, heart) {
           heart.alive = false;
-          player.lives = 50;
+          player.lives = 100;
           heartSound.play();
       }
 
