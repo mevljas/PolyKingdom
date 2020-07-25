@@ -4,10 +4,8 @@
 
 PolyKingdom is a third person adventure game.
 
-The main purpose of the game is to liberate all the territory that has been
+The main purpose of the game is to liberate the territory that has been
 occupied by barbarians. The player starts in the city of allies, seeks out barbarian settlements and occupies them. 
-Settlements differ in size and
-population. 
 The game is made using JavaScript programming language and
 uses the WebGL library. 
 
