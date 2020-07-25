@@ -40,3 +40,7 @@ If you just wanna build the project, run `npm run build` or run build.ps1.
 When making changes, the project is automatically rebuilt and the `dist/` folder
 is updated. Files in the `dist/` folder should not be included in pull
 requests — they will be updated by project maintainers with each new release.
+
+
+## Play
+You can try the game out [here](https://mevljas.github.io/PolyKingdom/).
