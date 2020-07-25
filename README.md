@@ -1,17 +1,24 @@
-PolyKingdom
-======================
+# PolyKingdom
+
+## Abstract
+
+PolyKingdom is a third person adventure game.
+
+The main purpose of the game is to liberate all the territory that has been
+occupied by barbarians. The player starts in the city of allies, seeks out barbarian settlements and occupies them. 
+Settlements differ in size and
+population. 
+The game is made using JavaScript programming language and
+uses the WebGL library. 
 
 
-Usage
------
+## Usage
 
 **Controls**
 
-`click + drag` : Rotate model
+`click + drag` : Rotate player
 
 `scroll` : Zoom camera
-
-`GUI` : Use to change models and settings
 
 `A,W,S,D` : Use to move the player.
 
@@ -20,8 +27,7 @@ Usage
 `R` : Reset camera.
 
 
-Setup
------
+## Setup
 
 For local usage and debugging, please follow these instructions:
 
