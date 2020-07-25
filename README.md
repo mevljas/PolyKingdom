@@ -10,9 +10,11 @@ The game is made using JavaScript programming language and
 uses the WebGL library. 
 
 
-## Usage
+<img src="https://github.com/mevljas/PolyKingdom/blob/master/startmenu.png" />    
+<img src="https://github.com/mevljas/PolyKingdom/blob/master/camera.JPG"/>  
 
-**Controls**
+
+## Controls
 
 `click + drag` : Rotate player
 
