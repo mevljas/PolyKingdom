@@ -1,6 +1,6 @@
 # PolyKingdom
 
-## Abstract
+## Summary
 
 PolyKingdom is a third person adventure game.
 
