@@ -51,5 +51,5 @@ You can try the game out [here](https://mevljas.github.io/PolyKingdom/).
 ## Contributors
 People who have contributed to this project:
 
-@mevljas 
-@betipp 
+- [mevljas](https://github.com/mevljas) 
+- [betipp](https://github.com/betipp) 
