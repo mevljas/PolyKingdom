@@ -46,3 +46,10 @@ requests — they will be updated by project maintainers with each new release.
 
 ## Play
 You can try the game out [here](https://mevljas.github.io/PolyKingdom/).
+
+
+## Contributors
+People who have contributed to this project:
+
+@mevljas 
+@betipp 
