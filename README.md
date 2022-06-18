@@ -45,7 +45,7 @@ requests — they will be updated by project maintainers with each new release.
 
 
 ## Play
-You can try the game out [here](https://mevljas.github.io/PolyKingdom/).
+You can try the game out [here](https://mevljas.github.io/PolyKingdom/Start_menu.html).
 
 
 ## Contributors
