@@ -12,11 +12,15 @@
   },
   "devDependencies": {
     "electron": "^15.5.5",
-    "electron-packager": "^12.2.0",
+    "electron-packager": "^15.5.1",
     "rollup": "^0.67.4",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-glslify": "^1.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "serve": "^10.1.1"
+    "serve": "^13.0.2"
+  },
+  "dependencies": {
+    "concurrently": "^7.2.2",
+    "gl-matrix": "^3.4.3"
   }
 }

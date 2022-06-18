@@ -8,12 +8,20 @@
    * Common utilities
    * @module glMatrix
    */
-
   // Configuration Constants
   var EPSILON = 0.000001;
   var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
-
   var degree = Math.PI / 180;
+  if (!Math.hypot) Math.hypot = function () {
+    var y = 0,
+        i = arguments.length;
+
+    while (i--) {
+      y += arguments[i] * arguments[i];
+    }
+
+    return Math.sqrt(y);
+  };
 
   /**
    * 3x3 Matrix
@@ -25,8 +33,10 @@
    *
    * @returns {mat3} a new 3x3 matrix
    */
+
   function create$2() {
     var out = new ARRAY_TYPE(9);
+
     if (ARRAY_TYPE != Float32Array) {
       out[1] = 0;
       out[2] = 0;
@@ -35,20 +45,21 @@
       out[6] = 0;
       out[7] = 0;
     }
+
     out[0] = 1;
     out[4] = 1;
     out[8] = 1;
     return out;
   }
-
   /**
    * Multiplies two mat3's
    *
    * @param {mat3} out the receiving matrix
-   * @param {mat3} a the first operand
-   * @param {mat3} b the second operand
+   * @param {ReadonlyMat3} a the first operand
+   * @param {ReadonlyMat3} b the second operand
    * @returns {mat3} out
    */
+
   function multiply$2(out, a, b) {
     var a00 = a[0],
         a01 = a[1],
@@ -59,7 +70,6 @@
     var a20 = a[6],
         a21 = a[7],
         a22 = a[8];
-
     var b00 = b[0],
         b01 = b[1],
         b02 = b[2];
@@ -69,15 +79,12 @@
     var b20 = b[6],
         b21 = b[7],
         b22 = b[8];
-
     out[0] = b00 * a00 + b01 * a10 + b02 * a20;
     out[1] = b00 * a01 + b01 * a11 + b02 * a21;
     out[2] = b00 * a02 + b01 * a12 + b02 * a22;
-
     out[3] = b10 * a00 + b11 * a10 + b12 * a20;
     out[4] = b10 * a01 + b11 * a11 + b12 * a21;
     out[5] = b10 * a02 + b11 * a12 + b12 * a22;
-
     out[6] = b20 * a00 + b21 * a10 + b22 * a20;
     out[7] = b20 * a01 + b21 * a11 + b22 * a21;
     out[8] = b20 * a02 + b21 * a12 + b22 * a22;
@@ -94,8 +101,10 @@
    *
    * @returns {mat4} a new 4x4 matrix
    */
+
   function create$3() {
     var out = new ARRAY_TYPE(16);
+
     if (ARRAY_TYPE != Float32Array) {
       out[1] = 0;
       out[2] = 0;
@@ -110,19 +119,20 @@
       out[13] = 0;
       out[14] = 0;
     }
+
     out[0] = 1;
     out[5] = 1;
     out[10] = 1;
     out[15] = 1;
     return out;
   }
-
   /**
    * Creates a new mat4 initialized with values from an existing matrix
    *
-   * @param {mat4} a matrix to clone
+   * @param {ReadonlyMat4} a matrix to clone
    * @returns {mat4} a new 4x4 matrix
    */
+
   function clone$3(a) {
     var out = new ARRAY_TYPE(16);
     out[0] = a[0];
@@ -143,13 +153,13 @@
     out[15] = a[15];
     return out;
   }
-
   /**
    * Set a mat4 to the identity matrix
    *
    * @param {mat4} out the receiving matrix
    * @returns {mat4} out
    */
+
   function identity$3(out) {
     out[0] = 1;
     out[1] = 0;
@@ -169,14 +179,14 @@
     out[15] = 1;
     return out;
   }
-
   /**
    * Transpose the values of a mat4
    *
    * @param {mat4} out the receiving matrix
-   * @param {mat4} a the source matrix
+   * @param {ReadonlyMat4} a the source matrix
    * @returns {mat4} out
    */
+
   function transpose$2(out, a) {
     // If we are transposing ourselves we can skip a few steps but have to cache some values
     if (out === a) {
@@ -186,7 +196,6 @@
       var a12 = a[6],
           a13 = a[7];
       var a23 = a[11];
-
       out[1] = a[4];
       out[2] = a[8];
       out[3] = a[12];
@@ -220,14 +229,14 @@
 
     return out;
   }
-
   /**
    * Inverts a mat4
    *
    * @param {mat4} out the receiving matrix
-   * @param {mat4} a the source matrix
+   * @param {ReadonlyMat4} a the source matrix
    * @returns {mat4} out
    */
+
   function invert$3(out, a) {
     var a00 = a[0],
         a01 = a[1],
@@ -245,7 +254,6 @@
         a31 = a[13],
         a32 = a[14],
         a33 = a[15];
-
     var b00 = a00 * a11 - a01 * a10;
     var b01 = a00 * a12 - a02 * a10;
     var b02 = a00 * a13 - a03 * a10;
@@ -257,16 +265,15 @@
     var b08 = a20 * a33 - a23 * a30;
     var b09 = a21 * a32 - a22 * a31;
     var b10 = a21 * a33 - a23 * a31;
-    var b11 = a22 * a33 - a23 * a32;
+    var b11 = a22 * a33 - a23 * a32; // Calculate the determinant
 
-    // Calculate the determinant
     var det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
     if (!det) {
       return null;
     }
-    det = 1.0 / det;
 
+    det = 1.0 / det;
     out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
     out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
     out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
@@ -283,18 +290,17 @@
     out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
     out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
     out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
-
     return out;
   }
-
   /**
    * Multiplies two mat4s
    *
    * @param {mat4} out the receiving matrix
-   * @param {mat4} a the first operand
-   * @param {mat4} b the second operand
+   * @param {ReadonlyMat4} a the first operand
+   * @param {ReadonlyMat4} b the second operand
    * @returns {mat4} out
    */
+
   function multiply$3(out, a, b) {
     var a00 = a[0],
         a01 = a[1],
@@ -311,9 +317,8 @@
     var a30 = a[12],
         a31 = a[13],
         a32 = a[14],
-        a33 = a[15];
+        a33 = a[15]; // Cache only the current line of the second matrix
 
-    // Cache only the current line of the second matrix
     var b0 = b[0],
         b1 = b[1],
         b2 = b[2],
@@ -322,40 +327,45 @@
     out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-    b0 = b[4];b1 = b[5];b2 = b[6];b3 = b[7];
+    b0 = b[4];
+    b1 = b[5];
+    b2 = b[6];
+    b3 = b[7];
     out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
     out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-    b0 = b[8];b1 = b[9];b2 = b[10];b3 = b[11];
+    b0 = b[8];
+    b1 = b[9];
+    b2 = b[10];
+    b3 = b[11];
     out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
     out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-    b0 = b[12];b1 = b[13];b2 = b[14];b3 = b[15];
+    b0 = b[12];
+    b1 = b[13];
+    b2 = b[14];
+    b3 = b[15];
     out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
     out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
     return out;
   }
-
   /**
    * Scales the mat4 by the dimensions in the given vec3 not using vectorization
    *
    * @param {mat4} out the receiving matrix
-   * @param {mat4} a the matrix to scale
-   * @param {vec3} v the vec3 to scale the matrix by
+   * @param {ReadonlyMat4} a the matrix to scale
+   * @param {ReadonlyVec3} v the vec3 to scale the matrix by
    * @returns {mat4} out
    **/
+
   function scale$3(out, a, v) {
     var x = v[0],
         y = v[1],
         z = v[2];
-
     out[0] = a[0] * x;
     out[1] = a[1] * x;
     out[2] = a[2] * x;
@@ -374,24 +384,22 @@
     out[15] = a[15];
     return out;
   }
-
   /**
    * Returns the translation vector component of a transformation
    *  matrix. If a matrix is built with fromRotationTranslation,
    *  the returned vector will be the same as the translation vector
    *  originally supplied.
    * @param  {vec3} out Vector to receive translation component
-   * @param  {mat4} mat Matrix to be decomposed (input)
+   * @param  {ReadonlyMat4} mat Matrix to be decomposed (input)
    * @return {vec3} out
    */
+
   function getTranslation(out, mat) {
     out[0] = mat[12];
     out[1] = mat[13];
     out[2] = mat[14];
-
     return out;
   }
-
   /**
    * Returns the scaling factor component of a transformation
    *  matrix. If a matrix is built with fromRotationTranslationScale
@@ -399,9 +407,10 @@
    *  the same as the scaling vector
    *  originally supplied.
    * @param  {vec3} out Vector to receive scaling factor component
-   * @param  {mat4} mat Matrix to be decomposed (input)
+   * @param  {ReadonlyMat4} mat Matrix to be decomposed (input)
    * @return {vec3} out
    */
+
   function getScaling(out, mat) {
     var m11 = mat[0];
     var m12 = mat[1];
@@ -412,57 +421,67 @@
     var m31 = mat[8];
     var m32 = mat[9];
     var m33 = mat[10];
-
-    out[0] = Math.sqrt(m11 * m11 + m12 * m12 + m13 * m13);
-    out[1] = Math.sqrt(m21 * m21 + m22 * m22 + m23 * m23);
-    out[2] = Math.sqrt(m31 * m31 + m32 * m32 + m33 * m33);
-
+    out[0] = Math.hypot(m11, m12, m13);
+    out[1] = Math.hypot(m21, m22, m23);
+    out[2] = Math.hypot(m31, m32, m33);
     return out;
   }
-
   /**
    * Returns a quaternion representing the rotational component
    *  of a transformation matrix. If a matrix is built with
    *  fromRotationTranslation, the returned quaternion will be the
    *  same as the quaternion originally supplied.
    * @param {quat} out Quaternion to receive the rotation component
-   * @param {mat4} mat Matrix to be decomposed (input)
+   * @param {ReadonlyMat4} mat Matrix to be decomposed (input)
    * @return {quat} out
    */
+
   function getRotation(out, mat) {
-    // Algorithm taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-    var trace = mat[0] + mat[5] + mat[10];
+    var scaling = new ARRAY_TYPE(3);
+    getScaling(scaling, mat);
+    var is1 = 1 / scaling[0];
+    var is2 = 1 / scaling[1];
+    var is3 = 1 / scaling[2];
+    var sm11 = mat[0] * is1;
+    var sm12 = mat[1] * is2;
+    var sm13 = mat[2] * is3;
+    var sm21 = mat[4] * is1;
+    var sm22 = mat[5] * is2;
+    var sm23 = mat[6] * is3;
+    var sm31 = mat[8] * is1;
+    var sm32 = mat[9] * is2;
+    var sm33 = mat[10] * is3;
+    var trace = sm11 + sm22 + sm33;
     var S = 0;
 
     if (trace > 0) {
       S = Math.sqrt(trace + 1.0) * 2;
       out[3] = 0.25 * S;
-      out[0] = (mat[6] - mat[9]) / S;
-      out[1] = (mat[8] - mat[2]) / S;
-      out[2] = (mat[1] - mat[4]) / S;
-    } else if (mat[0] > mat[5] && mat[0] > mat[10]) {
-      S = Math.sqrt(1.0 + mat[0] - mat[5] - mat[10]) * 2;
-      out[3] = (mat[6] - mat[9]) / S;
+      out[0] = (sm23 - sm32) / S;
+      out[1] = (sm31 - sm13) / S;
+      out[2] = (sm12 - sm21) / S;
+    } else if (sm11 > sm22 && sm11 > sm33) {
+      S = Math.sqrt(1.0 + sm11 - sm22 - sm33) * 2;
+      out[3] = (sm23 - sm32) / S;
       out[0] = 0.25 * S;
-      out[1] = (mat[1] + mat[4]) / S;
-      out[2] = (mat[8] + mat[2]) / S;
-    } else if (mat[5] > mat[10]) {
-      S = Math.sqrt(1.0 + mat[5] - mat[0] - mat[10]) * 2;
-      out[3] = (mat[8] - mat[2]) / S;
-      out[0] = (mat[1] + mat[4]) / S;
+      out[1] = (sm12 + sm21) / S;
+      out[2] = (sm31 + sm13) / S;
+    } else if (sm22 > sm33) {
+      S = Math.sqrt(1.0 + sm22 - sm11 - sm33) * 2;
+      out[3] = (sm31 - sm13) / S;
+      out[0] = (sm12 + sm21) / S;
       out[1] = 0.25 * S;
-      out[2] = (mat[6] + mat[9]) / S;
+      out[2] = (sm23 + sm32) / S;
     } else {
-      S = Math.sqrt(1.0 + mat[10] - mat[0] - mat[5]) * 2;
-      out[3] = (mat[1] - mat[4]) / S;
-      out[0] = (mat[8] + mat[2]) / S;
-      out[1] = (mat[6] + mat[9]) / S;
+      S = Math.sqrt(1.0 + sm33 - sm11 - sm22) * 2;
+      out[3] = (sm12 - sm21) / S;
+      out[0] = (sm31 + sm13) / S;
+      out[1] = (sm23 + sm32) / S;
       out[2] = 0.25 * S;
     }
 
     return out;
   }
-
   /**
    * Creates a matrix from a quaternion rotation, vector translation and vector scale
    * This is equivalent to (but much faster than):
@@ -476,10 +495,11 @@
    *
    * @param {mat4} out mat4 receiving operation result
    * @param {quat4} q Rotation quaternion
-   * @param {vec3} v Translation vector
-   * @param {vec3} s Scaling vector
+   * @param {ReadonlyVec3} v Translation vector
+   * @param {ReadonlyVec3} s Scaling vector
    * @returns {mat4} out
    */
+
   function fromRotationTranslationScale(out, q, v, s) {
     // Quaternion math
     var x = q[0],
@@ -489,7 +509,6 @@
     var x2 = x + x;
     var y2 = y + y;
     var z2 = z + z;
-
     var xx = x * x2;
     var xy = x * y2;
     var xz = x * z2;
@@ -502,7 +521,6 @@
     var sx = s[0];
     var sy = s[1];
     var sz = s[2];
-
     out[0] = (1 - (yy + zz)) * sx;
     out[1] = (xy + wz) * sx;
     out[2] = (xz - wy) * sx;
@@ -519,12 +537,12 @@
     out[13] = v[1];
     out[14] = v[2];
     out[15] = 1;
-
     return out;
   }
-
   /**
    * Generates a perspective projection matrix with the given bounds.
+   * The near/far clip planes correspond to a normalized device coordinate Z range of [-1, 1],
+   * which matches WebGL/OpenGL's clip volume.
    * Passing null/undefined/no value for far will generate infinite projection matrix.
    *
    * @param {mat4} out mat4 frustum matrix will be written into
@@ -534,9 +552,10 @@
    * @param {number} far Far bound of the frustum, can be null or Infinity
    * @returns {mat4} out
    */
-  function perspective(out, fovy, aspect, near, far) {
+
+  function perspectiveNO(out, fovy, aspect, near, far) {
     var f = 1.0 / Math.tan(fovy / 2),
-        nf = void 0;
+        nf;
     out[0] = f / aspect;
     out[1] = 0;
     out[2] = 0;
@@ -551,6 +570,7 @@
     out[12] = 0;
     out[13] = 0;
     out[15] = 0;
+
     if (far != null && far !== Infinity) {
       nf = 1 / (near - far);
       out[10] = (far + near) * nf;
@@ -559,30 +579,28 @@
       out[10] = -1;
       out[14] = -2 * near;
     }
+
     return out;
   }
+  /**
+   * Alias for {@link mat4.perspectiveNO}
+   * @function
+   */
 
+  var perspective = perspectiveNO;
   /**
    * Generates a look-at matrix with the given eye position, focal point, and up axis.
    * If you want a matrix that actually makes an object look at another object, you should use targetTo instead.
    *
    * @param {mat4} out mat4 frustum matrix will be written into
-   * @param {vec3} eye Position of the viewer
-   * @param {vec3} center Point the viewer is looking at
-   * @param {vec3} up vec3 pointing up
+   * @param {ReadonlyVec3} eye Position of the viewer
+   * @param {ReadonlyVec3} center Point the viewer is looking at
+   * @param {ReadonlyVec3} up vec3 pointing up
    * @returns {mat4} out
    */
+
   function lookAt(out, eye, center, up) {
-    var x0 = void 0,
-        x1 = void 0,
-        x2 = void 0,
-        y0 = void 0,
-        y1 = void 0,
-        y2 = void 0,
-        z0 = void 0,
-        z1 = void 0,
-        z2 = void 0,
-        len = void 0;
+    var x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
     var eyex = eye[0];
     var eyey = eye[1];
     var eyez = eye[2];
@@ -600,16 +618,15 @@
     z0 = eyex - centerx;
     z1 = eyey - centery;
     z2 = eyez - centerz;
-
-    len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+    len = 1 / Math.hypot(z0, z1, z2);
     z0 *= len;
     z1 *= len;
     z2 *= len;
-
     x0 = upy * z2 - upz * z1;
     x1 = upz * z0 - upx * z2;
     x2 = upx * z1 - upy * z0;
-    len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+    len = Math.hypot(x0, x1, x2);
+
     if (!len) {
       x0 = 0;
       x1 = 0;
@@ -624,8 +641,8 @@
     y0 = z1 * x2 - z2 * x1;
     y1 = z2 * x0 - z0 * x2;
     y2 = z0 * x1 - z1 * x0;
+    len = Math.hypot(y0, y1, y2);
 
-    len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
     if (!len) {
       y0 = 0;
       y1 = 0;
@@ -653,14 +670,13 @@
     out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
     out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
     out[15] = 1;
-
     return out;
   }
-
   /**
    * Alias for {@link mat4.multiply}
    * @function
    */
+
   var mul$3 = multiply$3;
 
   /**
@@ -673,22 +689,25 @@
    *
    * @returns {vec3} a new 3D vector
    */
+
   function create$4() {
     var out = new ARRAY_TYPE(3);
+
     if (ARRAY_TYPE != Float32Array) {
       out[0] = 0;
       out[1] = 0;
       out[2] = 0;
     }
+
     return out;
   }
-
   /**
    * Creates a new vec3 initialized with values from an existing vector
    *
-   * @param {vec3} a vector to clone
+   * @param {ReadonlyVec3} a vector to clone
    * @returns {vec3} a new 3D vector
    */
+
   function clone$4(a) {
     var out = new ARRAY_TYPE(3);
     out[0] = a[0];
@@ -696,20 +715,19 @@
     out[2] = a[2];
     return out;
   }
-
   /**
    * Calculates the length of a vec3
    *
-   * @param {vec3} a vector to calculate length of
+   * @param {ReadonlyVec3} a vector to calculate length of
    * @returns {Number} length of a
    */
+
   function length(a) {
     var x = a[0];
     var y = a[1];
     var z = a[2];
-    return Math.sqrt(x * x + y * y + z * z);
+    return Math.hypot(x, y, z);
   }
-
   /**
    * Creates a new vec3 initialized with the given values
    *
@@ -718,6 +736,7 @@
    * @param {Number} z Z component
    * @returns {vec3} a new 3D vector
    */
+
   function fromValues$4(x, y, z) {
     var out = new ARRAY_TYPE(3);
     out[0] = x;
@@ -725,7 +744,6 @@
     out[2] = z;
     return out;
   }
-
   /**
    * Set the components of a vec3 to the given values
    *
@@ -735,143 +753,146 @@
    * @param {Number} z Z component
    * @returns {vec3} out
    */
+
   function set$4(out, x, y, z) {
     out[0] = x;
     out[1] = y;
     out[2] = z;
     return out;
   }
-
   /**
    * Adds two vec3's
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
+   * @param {ReadonlyVec3} a the first operand
+   * @param {ReadonlyVec3} b the second operand
    * @returns {vec3} out
    */
+
   function add$4(out, a, b) {
     out[0] = a[0] + b[0];
     out[1] = a[1] + b[1];
     out[2] = a[2] + b[2];
     return out;
   }
-
   /**
    * Subtracts vector b from vector a
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
+   * @param {ReadonlyVec3} a the first operand
+   * @param {ReadonlyVec3} b the second operand
    * @returns {vec3} out
    */
+
   function subtract$4(out, a, b) {
     out[0] = a[0] - b[0];
     out[1] = a[1] - b[1];
     out[2] = a[2] - b[2];
     return out;
   }
-
   /**
    * Scales a vec3 by a scalar number
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a the vector to scale
+   * @param {ReadonlyVec3} a the vector to scale
    * @param {Number} b amount to scale the vector by
    * @returns {vec3} out
    */
+
   function scale$4(out, a, b) {
     out[0] = a[0] * b;
     out[1] = a[1] * b;
     out[2] = a[2] * b;
     return out;
   }
-
   /**
    * Adds two vec3's after scaling the second operand by a scalar value
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
+   * @param {ReadonlyVec3} a the first operand
+   * @param {ReadonlyVec3} b the second operand
    * @param {Number} scale the amount to scale b by before adding
    * @returns {vec3} out
    */
+
   function scaleAndAdd(out, a, b, scale) {
     out[0] = a[0] + b[0] * scale;
     out[1] = a[1] + b[1] * scale;
     out[2] = a[2] + b[2] * scale;
     return out;
   }
-
   /**
    * Calculates the euclidian distance between two vec3's
    *
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
+   * @param {ReadonlyVec3} a the first operand
+   * @param {ReadonlyVec3} b the second operand
    * @returns {Number} distance between a and b
    */
+
   function distance(a, b) {
     var x = b[0] - a[0];
     var y = b[1] - a[1];
     var z = b[2] - a[2];
-    return Math.sqrt(x * x + y * y + z * z);
+    return Math.hypot(x, y, z);
   }
-
   /**
    * Negates the components of a vec3
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a vector to negate
+   * @param {ReadonlyVec3} a vector to negate
    * @returns {vec3} out
    */
+
   function negate(out, a) {
     out[0] = -a[0];
     out[1] = -a[1];
     out[2] = -a[2];
     return out;
   }
-
   /**
    * Normalize a vec3
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a vector to normalize
+   * @param {ReadonlyVec3} a vector to normalize
    * @returns {vec3} out
    */
+
   function normalize(out, a) {
     var x = a[0];
     var y = a[1];
     var z = a[2];
     var len = x * x + y * y + z * z;
+
     if (len > 0) {
       //TODO: evaluate use of glm_invsqrt here?
       len = 1 / Math.sqrt(len);
-      out[0] = a[0] * len;
-      out[1] = a[1] * len;
-      out[2] = a[2] * len;
     }
+
+    out[0] = a[0] * len;
+    out[1] = a[1] * len;
+    out[2] = a[2] * len;
     return out;
   }
-
   /**
    * Calculates the dot product of two vec3's
    *
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
+   * @param {ReadonlyVec3} a the first operand
+   * @param {ReadonlyVec3} b the second operand
    * @returns {Number} dot product of a and b
    */
+
   function dot(a, b) {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
-
   /**
    * Computes the cross product of two vec3's
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a the first operand
-   * @param {vec3} b the second operand
+   * @param {ReadonlyVec3} a the first operand
+   * @param {ReadonlyVec3} b the second operand
    * @returns {vec3} out
    */
+
   function cross(out, a, b) {
     var ax = a[0],
         ay = a[1],
@@ -879,22 +900,21 @@
     var bx = b[0],
         by = b[1],
         bz = b[2];
-
     out[0] = ay * bz - az * by;
     out[1] = az * bx - ax * bz;
     out[2] = ax * by - ay * bx;
     return out;
   }
-
   /**
    * Transforms the vec3 with a mat4.
    * 4th vector component is implicitly '1'
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a the vector to transform
-   * @param {mat4} m matrix to transform with
+   * @param {ReadonlyVec3} a the vector to transform
+   * @param {ReadonlyMat4} m matrix to transform with
    * @returns {vec3} out
    */
+
   function transformMat4(out, a, m) {
     var x = a[0],
         y = a[1],
@@ -906,16 +926,16 @@
     out[2] = (m[2] * x + m[6] * y + m[10] * z + m[14]) / w;
     return out;
   }
-
   /**
    * Transforms the vec3 with a quat
    * Can also be used for dual quaternions. (Multiply it with the real part)
    *
    * @param {vec3} out the receiving vector
-   * @param {vec3} a the vector to transform
-   * @param {quat} q quaternion to transform with
+   * @param {ReadonlyVec3} a the vector to transform
+   * @param {ReadonlyQuat} q quaternion to transform with
    * @returns {vec3} out
    */
+
   function transformQuat(out, a, q) {
     // benchmarks: https://jsperf.com/quaternion-transform-vec3-implementations-fixed
     var qx = q[0],
@@ -924,102 +944,95 @@
         qw = q[3];
     var x = a[0],
         y = a[1],
-        z = a[2];
-    // var qvec = [qx, qy, qz];
+        z = a[2]; // var qvec = [qx, qy, qz];
     // var uv = vec3.cross([], qvec, a);
+
     var uvx = qy * z - qz * y,
         uvy = qz * x - qx * z,
-        uvz = qx * y - qy * x;
-    // var uuv = vec3.cross([], qvec, uv);
+        uvz = qx * y - qy * x; // var uuv = vec3.cross([], qvec, uv);
+
     var uuvx = qy * uvz - qz * uvy,
         uuvy = qz * uvx - qx * uvz,
-        uuvz = qx * uvy - qy * uvx;
-    // vec3.scale(uv, uv, 2 * w);
+        uuvz = qx * uvy - qy * uvx; // vec3.scale(uv, uv, 2 * w);
+
     var w2 = qw * 2;
     uvx *= w2;
     uvy *= w2;
-    uvz *= w2;
-    // vec3.scale(uuv, uuv, 2);
+    uvz *= w2; // vec3.scale(uuv, uuv, 2);
+
     uuvx *= 2;
     uuvy *= 2;
-    uuvz *= 2;
-    // return vec3.add(out, a, vec3.add(out, uv, uuv));
+    uuvz *= 2; // return vec3.add(out, a, vec3.add(out, uv, uuv));
+
     out[0] = x + uvx + uuvx;
     out[1] = y + uvy + uuvy;
     out[2] = z + uvz + uuvz;
     return out;
   }
-
   /**
    * Rotate a 3D vector around the x-axis
    * @param {vec3} out The receiving vec3
-   * @param {vec3} a The vec3 point to rotate
-   * @param {vec3} b The origin of the rotation
-   * @param {Number} c The angle of rotation
+   * @param {ReadonlyVec3} a The vec3 point to rotate
+   * @param {ReadonlyVec3} b The origin of the rotation
+   * @param {Number} rad The angle of rotation in radians
    * @returns {vec3} out
    */
-  function rotateX$1(out, a, b, c) {
+
+  function rotateX$1(out, a, b, rad) {
     var p = [],
-        r = [];
-    //Translate point to the origin
+        r = []; //Translate point to the origin
+
     p[0] = a[0] - b[0];
     p[1] = a[1] - b[1];
-    p[2] = a[2] - b[2];
+    p[2] = a[2] - b[2]; //perform rotation
 
-    //perform rotation
     r[0] = p[0];
-    r[1] = p[1] * Math.cos(c) - p[2] * Math.sin(c);
-    r[2] = p[1] * Math.sin(c) + p[2] * Math.cos(c);
+    r[1] = p[1] * Math.cos(rad) - p[2] * Math.sin(rad);
+    r[2] = p[1] * Math.sin(rad) + p[2] * Math.cos(rad); //translate to correct position
 
-    //translate to correct position
     out[0] = r[0] + b[0];
     out[1] = r[1] + b[1];
     out[2] = r[2] + b[2];
-
     return out;
   }
-
   /**
    * Rotate a 3D vector around the y-axis
    * @param {vec3} out The receiving vec3
-   * @param {vec3} a The vec3 point to rotate
-   * @param {vec3} b The origin of the rotation
-   * @param {Number} c The angle of rotation
+   * @param {ReadonlyVec3} a The vec3 point to rotate
+   * @param {ReadonlyVec3} b The origin of the rotation
+   * @param {Number} rad The angle of rotation in radians
    * @returns {vec3} out
    */
-  function rotateY$1(out, a, b, c) {
+
+  function rotateY$1(out, a, b, rad) {
     var p = [],
-        r = [];
-    //Translate point to the origin
+        r = []; //Translate point to the origin
+
     p[0] = a[0] - b[0];
     p[1] = a[1] - b[1];
-    p[2] = a[2] - b[2];
+    p[2] = a[2] - b[2]; //perform rotation
 
-    //perform rotation
-    r[0] = p[2] * Math.sin(c) + p[0] * Math.cos(c);
+    r[0] = p[2] * Math.sin(rad) + p[0] * Math.cos(rad);
     r[1] = p[1];
-    r[2] = p[2] * Math.cos(c) - p[0] * Math.sin(c);
+    r[2] = p[2] * Math.cos(rad) - p[0] * Math.sin(rad); //translate to correct position
 
-    //translate to correct position
     out[0] = r[0] + b[0];
     out[1] = r[1] + b[1];
     out[2] = r[2] + b[2];
-
     return out;
   }
-
   /**
    * Alias for {@link vec3.subtract}
    * @function
    */
-  var sub$4 = subtract$4;
 
+  var sub$4 = subtract$4;
   /**
    * Alias for {@link vec3.length}
    * @function
    */
-  var len = length;
 
+  var len = length;
   /**
    * Perform some operation over an array of vec3s.
    *
@@ -1032,12 +1045,12 @@
    * @returns {Array} a
    * @function
    */
+
   var forEach = function () {
     var vec = create$4();
-
     return function (a, stride, offset, count, fn, arg) {
-      var i = void 0,
-          l = void 0;
+      var i, l;
+
       if (!stride) {
         stride = 3;
       }
@@ -1053,9 +1066,13 @@
       }
 
       for (i = offset; i < l; i += stride) {
-        vec[0] = a[i];vec[1] = a[i + 1];vec[2] = a[i + 2];
+        vec[0] = a[i];
+        vec[1] = a[i + 1];
+        vec[2] = a[i + 2];
         fn(vec, vec, arg);
-        a[i] = vec[0];a[i + 1] = vec[1];a[i + 2] = vec[2];
+        a[i] = vec[0];
+        a[i + 1] = vec[1];
+        a[i + 2] = vec[2];
       }
 
       return a;
@@ -1072,17 +1089,19 @@
    *
    * @returns {vec4} a new 4D vector
    */
+
   function create$5() {
     var out = new ARRAY_TYPE(4);
+
     if (ARRAY_TYPE != Float32Array) {
       out[0] = 0;
       out[1] = 0;
       out[2] = 0;
       out[3] = 0;
     }
+
     return out;
   }
-
   /**
    * Creates a new vec4 initialized with the given values
    *
@@ -1092,6 +1111,7 @@
    * @param {Number} w W component
    * @returns {vec4} a new 4D vector
    */
+
   function fromValues$5(x, y, z, w) {
     var out = new ARRAY_TYPE(4);
     out[0] = x;
@@ -1100,30 +1120,31 @@
     out[3] = w;
     return out;
   }
-
   /**
    * Normalize a vec4
    *
    * @param {vec4} out the receiving vector
-   * @param {vec4} a vector to normalize
+   * @param {ReadonlyVec4} a vector to normalize
    * @returns {vec4} out
    */
+
   function normalize$1(out, a) {
     var x = a[0];
     var y = a[1];
     var z = a[2];
     var w = a[3];
     var len = x * x + y * y + z * z + w * w;
+
     if (len > 0) {
       len = 1 / Math.sqrt(len);
-      out[0] = x * len;
-      out[1] = y * len;
-      out[2] = z * len;
-      out[3] = w * len;
     }
+
+    out[0] = x * len;
+    out[1] = y * len;
+    out[2] = z * len;
+    out[3] = w * len;
     return out;
   }
-
   /**
    * Perform some operation over an array of vec4s.
    *
@@ -1136,12 +1157,12 @@
    * @returns {Array} a
    * @function
    */
+
   var forEach$1 = function () {
     var vec = create$5();
-
     return function (a, stride, offset, count, fn, arg) {
-      var i = void 0,
-          l = void 0;
+      var i, l;
+
       if (!stride) {
         stride = 4;
       }
@@ -1157,9 +1178,15 @@
       }
 
       for (i = offset; i < l; i += stride) {
-        vec[0] = a[i];vec[1] = a[i + 1];vec[2] = a[i + 2];vec[3] = a[i + 3];
+        vec[0] = a[i];
+        vec[1] = a[i + 1];
+        vec[2] = a[i + 2];
+        vec[3] = a[i + 3];
         fn(vec, vec, arg);
-        a[i] = vec[0];a[i + 1] = vec[1];a[i + 2] = vec[2];a[i + 3] = vec[3];
+        a[i] = vec[0];
+        a[i + 1] = vec[1];
+        a[i + 2] = vec[2];
+        a[i + 3] = vec[3];
       }
 
       return a;
@@ -1176,26 +1203,29 @@
    *
    * @returns {quat} a new quaternion
    */
+
   function create$6() {
     var out = new ARRAY_TYPE(4);
+
     if (ARRAY_TYPE != Float32Array) {
       out[0] = 0;
       out[1] = 0;
       out[2] = 0;
     }
+
     out[3] = 1;
     return out;
   }
-
   /**
    * Sets a quat from the given angle and rotation axis,
    * then returns it.
    *
    * @param {quat} out the receiving quaternion
-   * @param {vec3} axis the axis around which to rotate
+   * @param {ReadonlyVec3} axis the axis around which to rotate
    * @param {Number} rad the angle in radians
    * @returns {quat} out
    **/
+
   function setAxisAngle(out, axis, rad) {
     rad = rad * 0.5;
     var s = Math.sin(rad);
@@ -1205,16 +1235,16 @@
     out[3] = Math.cos(rad);
     return out;
   }
-
   /**
    * Performs a spherical linear interpolation between two quat
    *
    * @param {quat} out the receiving quaternion
-   * @param {quat} a the first operand
-   * @param {quat} b the second operand
+   * @param {ReadonlyQuat} a the first operand
+   * @param {ReadonlyQuat} b the second operand
    * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
    * @returns {quat} out
    */
+
   function slerp(out, a, b, t) {
     // benchmarks:
     //    http://jsperf.com/quaternion-slerp-implementations
@@ -1226,24 +1256,19 @@
         by = b[1],
         bz = b[2],
         bw = b[3];
+    var omega, cosom, sinom, scale0, scale1; // calc cosine
 
-    var omega = void 0,
-        cosom = void 0,
-        sinom = void 0,
-        scale0 = void 0,
-        scale1 = void 0;
+    cosom = ax * bx + ay * by + az * bz + aw * bw; // adjust signs (if necessary)
 
-    // calc cosine
-    cosom = ax * bx + ay * by + az * bz + aw * bw;
-    // adjust signs (if necessary)
     if (cosom < 0.0) {
       cosom = -cosom;
       bx = -bx;
       by = -by;
       bz = -bz;
       bw = -bw;
-    }
-    // calculate coefficients
+    } // calculate coefficients
+
+
     if (1.0 - cosom > EPSILON) {
       // standard case (slerp)
       omega = Math.acos(cosom);
@@ -1255,16 +1280,15 @@
       //  ... so we can do a linear interpolation
       scale0 = 1.0 - t;
       scale1 = t;
-    }
-    // calculate final values
+    } // calculate final values
+
+
     out[0] = scale0 * ax + scale1 * bx;
     out[1] = scale0 * ay + scale1 * by;
     out[2] = scale0 * az + scale1 * bz;
     out[3] = scale0 * aw + scale1 * bw;
-
     return out;
   }
-
   /**
    * Creates a quaternion from the given 3x3 rotation matrix.
    *
@@ -1272,21 +1296,24 @@
    * to renormalize the quaternion yourself where necessary.
    *
    * @param {quat} out the receiving quaternion
-   * @param {mat3} m rotation matrix
+   * @param {ReadonlyMat3} m rotation matrix
    * @returns {quat} out
    * @function
    */
+
   function fromMat3(out, m) {
     // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
     // article "Quaternion Calculus and Fast Animation".
     var fTrace = m[0] + m[4] + m[8];
-    var fRoot = void 0;
+    var fRoot;
 
     if (fTrace > 0.0) {
       // |w| > 1/2, may as well choose w > 1/2
       fRoot = Math.sqrt(fTrace + 1.0); // 2w
+
       out[3] = 0.5 * fRoot;
       fRoot = 0.5 / fRoot; // 1/(4w)
+
       out[0] = (m[5] - m[7]) * fRoot;
       out[1] = (m[6] - m[2]) * fRoot;
       out[2] = (m[1] - m[3]) * fRoot;
@@ -1297,7 +1324,6 @@
       if (m[8] > m[i * 3 + i]) i = 2;
       var j = (i + 1) % 3;
       var k = (i + 2) % 3;
-
       fRoot = Math.sqrt(m[i * 3 + i] - m[j * 3 + j] - m[k * 3 + k] + 1.0);
       out[i] = 0.5 * fRoot;
       fRoot = 0.5 / fRoot;
@@ -1308,7 +1334,6 @@
 
     return out;
   }
-
   /**
    * Creates a new quat initialized with the given values
    *
@@ -1319,18 +1344,18 @@
    * @returns {quat} a new quaternion
    * @function
    */
-  var fromValues$6 = fromValues$5;
 
+  var fromValues$6 = fromValues$5;
   /**
    * Normalize a quat
    *
    * @param {quat} out the receiving quaternion
-   * @param {quat} a quaternion to normalize
+   * @param {ReadonlyQuat} a quaternion to normalize
    * @returns {quat} out
    * @function
    */
-  var normalize$2 = normalize$1;
 
+  var normalize$2 = normalize$1;
   /**
    * Sets a quaternion to represent the shortest rotation from one
    * vector to another.
@@ -1338,17 +1363,18 @@
    * Both vectors are assumed to be unit length.
    *
    * @param {quat} out the receiving quaternion.
-   * @param {vec3} a the initial vector
-   * @param {vec3} b the destination vector
+   * @param {ReadonlyVec3} a the initial vector
+   * @param {ReadonlyVec3} b the destination vector
    * @returns {quat} out
    */
+
   var rotationTo = function () {
     var tmpvec3 = create$4();
     var xUnitVec3 = fromValues$4(1, 0, 0);
     var yUnitVec3 = fromValues$4(0, 1, 0);
-
     return function (out, a, b) {
       var dot$$1 = dot(a, b);
+
       if (dot$$1 < -0.999999) {
         cross(tmpvec3, xUnitVec3, a);
         if (len(tmpvec3) < 0.000001) cross(tmpvec3, yUnitVec3, a);
@@ -1371,57 +1397,51 @@
       }
     };
   }();
-
   /**
    * Performs a spherical linear interpolation with two control points
    *
    * @param {quat} out the receiving quaternion
-   * @param {quat} a the first operand
-   * @param {quat} b the second operand
-   * @param {quat} c the third operand
-   * @param {quat} d the fourth operand
+   * @param {ReadonlyQuat} a the first operand
+   * @param {ReadonlyQuat} b the second operand
+   * @param {ReadonlyQuat} c the third operand
+   * @param {ReadonlyQuat} d the fourth operand
    * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
    * @returns {quat} out
    */
+
   var sqlerp = function () {
     var temp1 = create$6();
     var temp2 = create$6();
-
     return function (out, a, b, c, d, t) {
       slerp(temp1, a, d, t);
       slerp(temp2, b, c, t);
       slerp(out, temp1, temp2, 2 * t * (1 - t));
-
       return out;
     };
   }();
-
   /**
    * Sets the specified quaternion with values corresponding to the given
    * axes. Each axis is a vec3 and is expected to be unit length and
    * perpendicular to all other specified axes.
    *
-   * @param {vec3} view  the vector representing the viewing direction
-   * @param {vec3} right the vector representing the local "right" direction
-   * @param {vec3} up    the vector representing the local "up" direction
+   * @param {ReadonlyVec3} view  the vector representing the viewing direction
+   * @param {ReadonlyVec3} right the vector representing the local "right" direction
+   * @param {ReadonlyVec3} up    the vector representing the local "up" direction
    * @returns {quat} out
    */
+
   var setAxes = function () {
     var matr = create$2();
-
     return function (out, view, right, up) {
       matr[0] = right[0];
       matr[3] = right[1];
       matr[6] = right[2];
-
       matr[1] = up[0];
       matr[4] = up[1];
       matr[7] = up[2];
-
       matr[2] = -view[0];
       matr[5] = -view[1];
       matr[8] = -view[2];
-
       return normalize$2(out, fromMat3(out, matr));
     };
   }();
@@ -1436,15 +1456,17 @@
    *
    * @returns {vec2} a new 2D vector
    */
+
   function create$8() {
     var out = new ARRAY_TYPE(2);
+
     if (ARRAY_TYPE != Float32Array) {
       out[0] = 0;
       out[1] = 0;
     }
+
     return out;
   }
-
   /**
    * Perform some operation over an array of vec2s.
    *
@@ -1457,12 +1479,12 @@
    * @returns {Array} a
    * @function
    */
+
   var forEach$2 = function () {
     var vec = create$8();
-
     return function (a, stride, offset, count, fn, arg) {
-      var i = void 0,
-          l = void 0;
+      var i, l;
+
       if (!stride) {
         stride = 2;
       }
@@ -1478,9 +1500,11 @@
       }
 
       for (i = offset; i < l; i += stride) {
-        vec[0] = a[i];vec[1] = a[i + 1];
+        vec[0] = a[i];
+        vec[1] = a[i + 1];
         fn(vec, vec, arg);
-        a[i] = vec[0];a[i + 1] = vec[1];
+        a[i] = vec[0];
+        a[i + 1] = vec[1];
       }
 
       return a;
@@ -5283,17 +5307,17 @@
       "Courtyard of the Doge's palace": { folder: "doge2", mipLevel: 11, type: ImageMimeType.HDR }
   };
 
-  var metallicRoughnessShader = "//\n// This fragment shader defines a reference implementation for Physically Based Shading of\n// a microfacet surface material defined by a glTF model.\n//\n// References:\n// [1] Real Shading in Unreal Engine 4\n//     http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf\n// [2] Physically Based Shading at Disney\n//     http://blog.selfshadow.com/publications/s2012-shading-course/burley/s2012_pbs_disney_brdf_notes_v3.pdf\n// [3] README.md - Environment Maps\n//     https://github.com/KhronosGroup/glTF-WebGL-PBR/#environment-maps\n// [4] \"An Inexpensive BRDF Model for Physically based Rendering\" by Christophe Schlick\n//     https://www.cs.virginia.edu/~jdl/bib/appearance/analytic%20models/schlick94b.pdf\n\n#ifdef USE_TEX_LOD\n#extension GL_EXT_shader_texture_lod: enable\n#endif\n\n#extension GL_OES_standard_derivatives : enable\n\n#ifdef USE_HDR\n#extension GL_OES_texture_float : enable\n#extension GL_OES_texture_float_linear : enable\n#endif\n\nprecision highp float;\n#define GLSLIFY 1\n\n#include <tonemapping.glsl>\n#include <textures.glsl>\n#include <functions.glsl>\n\n// KHR_lights_punctual extension.\n// see https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_lights_punctual\n\nstruct Light\n{\n    vec3 direction;\n    float range;\n\n    vec3 color;\n    float intensity;\n\n    vec3 position;\n    float innerConeCos;\n\n    float outerConeCos;\n    int type;\n\n    vec2 padding;\n};\n\nconst int LightType_Directional = 0;\nconst int LightType_Point = 1;\nconst int LightType_Spot = 2;\n\n#ifdef USE_PUNCTUAL\nuniform Light u_Lights[LIGHT_COUNT];\n#endif\n\n#if defined(MATERIAL_SPECULARGLOSSINESS) || defined(MATERIAL_METALLICROUGHNESS)\nuniform float u_MetallicFactor;\nuniform float u_RoughnessFactor;\nuniform vec4 u_BaseColorFactor;\n#endif\n\n#ifdef MATERIAL_SPECULARGLOSSINESS\nuniform vec3 u_SpecularFactor;\nuniform vec4 u_DiffuseFactor;\nuniform float u_GlossinessFactor;\n#endif\n\n#ifdef ALPHAMODE_MASK\nuniform float u_AlphaCutoff;\n#endif\n\nuniform vec3 u_Camera;\n\nuniform int u_MipCount;\n\nstruct MaterialInfo\n{\n    float perceptualRoughness;    // roughness value, as authored by the model creator (input to shader)\n    vec3 reflectance0;            // full reflectance color (normal incidence angle)\n\n    float alphaRoughness;         // roughness mapped to a more linear change in the roughness (proposed by [2])\n    vec3 diffuseColor;            // color contribution from diffuse lighting\n\n    vec3 reflectance90;           // reflectance color at grazing angle\n    vec3 specularColor;           // color contribution from specular lighting\n};\n\n// Calculation of the lighting contribution from an optional Image Based Light source.\n// Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].\n// See our README.md on Environment Maps [3] for additional discussion.\n#ifdef USE_IBL\nvec3 getIBLContribution(MaterialInfo materialInfo, vec3 n, vec3 v)\n{\n    float NdotV = clamp(dot(n, v), 0.0, 1.0);\n\n    float lod = clamp(materialInfo.perceptualRoughness * float(u_MipCount), 0.0, float(u_MipCount));\n    vec3 reflection = normalize(reflect(-v, n));\n\n    vec2 brdfSamplePoint = clamp(vec2(NdotV, materialInfo.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));\n    // retrieve a scale and bias to F0. See [1], Figure 3\n    vec2 brdf = texture2D(u_brdfLUT, brdfSamplePoint).rg;\n\n    vec4 diffuseSample = textureCube(u_DiffuseEnvSampler, n);\n\n#ifdef USE_TEX_LOD\n    vec4 specularSample = textureCubeLodEXT(u_SpecularEnvSampler, reflection, lod);\n#else\n    vec4 specularSample = textureCube(u_SpecularEnvSampler, reflection);\n#endif\n\n#ifdef USE_HDR\n    // Already linear.\n    vec3 diffuseLight = diffuseSample.rgb;\n    vec3 specularLight = specularSample.rgb;\n#else\n    vec3 diffuseLight = SRGBtoLINEAR(diffuseSample).rgb;\n    vec3 specularLight = SRGBtoLINEAR(specularSample).rgb;\n#endif\n\n    vec3 diffuse = diffuseLight * materialInfo.diffuseColor;\n    vec3 specular = specularLight * (materialInfo.specularColor * brdf.x + brdf.y);\n\n    return diffuse + specular;\n}\n#endif\n\n// Lambert lighting\n// see https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/\nvec3 diffuse(MaterialInfo materialInfo)\n{\n    return materialInfo.diffuseColor / M_PI;\n}\n\n// The following equation models the Fresnel reflectance term of the spec equation (aka F())\n// Implementation of fresnel from [4], Equation 15\nvec3 specularReflection(MaterialInfo materialInfo, AngularInfo angularInfo)\n{\n    return materialInfo.reflectance0 + (materialInfo.reflectance90 - materialInfo.reflectance0) * pow(clamp(1.0 - angularInfo.VdotH, 0.0, 1.0), 5.0);\n}\n\n// Smith Joint GGX\n// Note: Vis = G / (4 * NdotL * NdotV)\n// see Eric Heitz. 2014. Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs. Journal of Computer Graphics Techniques, 3\n// see Real-Time Rendering. Page 331 to 336.\n// see https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg)\nfloat visibilityOcclusion(MaterialInfo materialInfo, AngularInfo angularInfo)\n{\n    float NdotL = angularInfo.NdotL;\n    float NdotV = angularInfo.NdotV;\n    float alphaRoughnessSq = materialInfo.alphaRoughness * materialInfo.alphaRoughness;\n\n    float GGXV = NdotL * sqrt(NdotV * NdotV * (1.0 - alphaRoughnessSq) + alphaRoughnessSq);\n    float GGXL = NdotV * sqrt(NdotL * NdotL * (1.0 - alphaRoughnessSq) + alphaRoughnessSq);\n\n    float GGX = GGXV + GGXL;\n    if (GGX > 0.0)\n    {\n        return 0.5 / GGX;\n    }\n    return 0.0;\n}\n\n// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())\n// Implementation from \"Average Irregularity Representation of a Roughened Surface for Ray Reflection\" by T. S. Trowbridge, and K. P. Reitz\n// Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.\nfloat microfacetDistribution(MaterialInfo materialInfo, AngularInfo angularInfo)\n{\n    float alphaRoughnessSq = materialInfo.alphaRoughness * materialInfo.alphaRoughness;\n    float f = (angularInfo.NdotH * alphaRoughnessSq - angularInfo.NdotH) * angularInfo.NdotH + 1.0;\n    return alphaRoughnessSq / (M_PI * f * f);\n}\n\nvec3 getPointShade(vec3 pointToLight, MaterialInfo materialInfo, vec3 normal, vec3 view)\n{\n    AngularInfo angularInfo = getAngularInfo(pointToLight, normal, view);\n\n    if (angularInfo.NdotL > 0.0 || angularInfo.NdotV > 0.0)\n    {\n        // Calculate the shading terms for the microfacet specular shading model\n        vec3 F = specularReflection(materialInfo, angularInfo);\n        float Vis = visibilityOcclusion(materialInfo, angularInfo);\n        float D = microfacetDistribution(materialInfo, angularInfo);\n\n        // Calculation of analytical lighting contribution\n        vec3 diffuseContrib = (1.0 - F) * diffuse(materialInfo);\n        vec3 specContrib = F * Vis * D;\n\n        // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)\n        return angularInfo.NdotL * (diffuseContrib + specContrib);\n    }\n\n    return vec3(0.0, 0.0, 0.0);\n}\n\n// https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#range-property\nfloat getRangeAttenuation(float range, float distance)\n{\n    if (range <= 0.0)\n    {\n        // negative range means unlimited\n        return 1.0;\n    }\n    return max(min(1.0 - pow(distance / range, 4.0), 1.0), 0.0) / pow(distance, 2.0);\n}\n\n// https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles\nfloat getSpotAttenuation(vec3 pointToLight, vec3 spotDirection, float outerConeCos, float innerConeCos)\n{\n    float actualCos = dot(normalize(spotDirection), normalize(-pointToLight));\n    if (actualCos > outerConeCos)\n    {\n        if (actualCos < innerConeCos)\n        {\n            return smoothstep(outerConeCos, innerConeCos, actualCos);\n        }\n        return 1.0;\n    }\n    return 0.0;\n}\n\nvec3 applyDirectionalLight(Light light, MaterialInfo materialInfo, vec3 normal, vec3 view)\n{\n    vec3 pointToLight = -light.direction;\n    vec3 shade = getPointShade(pointToLight, materialInfo, normal, view);\n    return light.intensity * light.color * shade;\n}\n\nvec3 applyPointLight(Light light, MaterialInfo materialInfo, vec3 normal, vec3 view)\n{\n    vec3 pointToLight = light.position - v_Position;\n    float distance = length(pointToLight);\n    float attenuation = getRangeAttenuation(light.range, distance);\n    vec3 shade = getPointShade(pointToLight, materialInfo, normal, view);\n    return attenuation * light.intensity * light.color * shade;\n}\n\nvec3 applySpotLight(Light light, MaterialInfo materialInfo, vec3 normal, vec3 view)\n{\n    vec3 pointToLight = light.position - v_Position;\n    float distance = length(pointToLight);\n    float rangeAttenuation = getRangeAttenuation(light.range, distance);\n    float spotAttenuation = getSpotAttenuation(pointToLight, light.direction, light.outerConeCos, light.innerConeCos);\n    vec3 shade = getPointShade(pointToLight, materialInfo, normal, view);\n    return rangeAttenuation * spotAttenuation * light.intensity * light.color * shade;\n}\n\nvoid main()\n{\n    // Metallic and Roughness material properties are packed together\n    // In glTF, these factors can be specified by fixed scalar values\n    // or from a metallic-roughness map\n    float perceptualRoughness = 0.0;\n    float metallic = 0.0;\n    vec4 baseColor = vec4(0.0, 0.0, 0.0, 1.0);\n    vec3 diffuseColor = vec3(0.0);\n    vec3 specularColor= vec3(0.0);\n    vec3 f0 = vec3(0.04);\n\n#ifdef MATERIAL_SPECULARGLOSSINESS\n\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\n    vec4 sgSample = SRGBtoLINEAR(texture2D(u_SpecularGlossinessSampler, getSpecularGlossinessUV()));\n    perceptualRoughness = (1.0 - sgSample.a * u_GlossinessFactor); // glossiness to roughness\n    f0 = sgSample.rgb * u_SpecularFactor; // specular\n#else\n    f0 = u_SpecularFactor;\n    perceptualRoughness = 1.0 - u_GlossinessFactor;\n#endif // ! HAS_SPECULAR_GLOSSINESS_MAP\n\n#ifdef HAS_DIFFUSE_MAP\n    baseColor = SRGBtoLINEAR(texture2D(u_DiffuseSampler, getDiffuseUV())) * u_DiffuseFactor;\n#else\n    baseColor = u_DiffuseFactor;\n#endif // !HAS_DIFFUSE_MAP\n\n    baseColor *= getVertexColor();\n\n    // f0 = specular\n    specularColor = f0;\n    float oneMinusSpecularStrength = 1.0 - max(max(f0.r, f0.g), f0.b);\n    diffuseColor = baseColor.rgb * oneMinusSpecularStrength;\n\n#ifdef DEBUG_METALLIC\n    // do conversion between metallic M-R and S-G metallic\n    metallic = solveMetallic(baseColor.rgb, specularColor, oneMinusSpecularStrength);\n#endif // ! DEBUG_METALLIC\n\n#endif // ! MATERIAL_SPECULARGLOSSINESS\n\n#ifdef MATERIAL_METALLICROUGHNESS\n\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\n    // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.\n    // This layout intentionally reserves the 'r' channel for (optional) occlusion map data\n    vec4 mrSample = texture2D(u_MetallicRoughnessSampler, getMetallicRoughnessUV());\n    perceptualRoughness = mrSample.g * u_RoughnessFactor;\n    metallic = mrSample.b * u_MetallicFactor;\n#else\n    metallic = u_MetallicFactor;\n    perceptualRoughness = u_RoughnessFactor;\n#endif\n\n    // The albedo may be defined from a base texture or a flat color\n#ifdef HAS_BASE_COLOR_MAP\n    baseColor = SRGBtoLINEAR(texture2D(u_BaseColorSampler, getBaseColorUV())) * u_BaseColorFactor;\n#else\n    baseColor = u_BaseColorFactor;\n#endif\n\n    baseColor *= getVertexColor();\n\n    diffuseColor = baseColor.rgb * (vec3(1.0) - f0) * (1.0 - metallic);\n\n    specularColor = mix(f0, baseColor.rgb, metallic);\n\n#endif // ! MATERIAL_METALLICROUGHNESS\n\n#ifdef ALPHAMODE_MASK\n    if(baseColor.a < u_AlphaCutoff)\n    {\n        discard;\n    }\n    baseColor.a = 1.0;\n#endif\n\n#ifdef ALPHAMODE_OPAQUE\n    baseColor.a = 1.0;\n#endif\n\n#ifdef MATERIAL_UNLIT\n    gl_FragColor = vec4(LINEARtoSRGB(baseColor.rgb), baseColor.a);\n    return;\n#endif\n\n    perceptualRoughness = clamp(perceptualRoughness, 0.0, 1.0);\n    metallic = clamp(metallic, 0.0, 1.0);\n\n    // Roughness is authored as perceptual roughness; as is convention,\n    // convert to material roughness by squaring the perceptual roughness [2].\n    float alphaRoughness = perceptualRoughness * perceptualRoughness;\n\n    // Compute reflectance.\n    float reflectance = max(max(specularColor.r, specularColor.g), specularColor.b);\n\n    vec3 specularEnvironmentR0 = specularColor.rgb;\n    // Anything less than 2% is physically impossible and is instead considered to be shadowing. Compare to \"Real-Time-Rendering\" 4th editon on page 325.\n    vec3 specularEnvironmentR90 = vec3(clamp(reflectance * 50.0, 0.0, 1.0));\n\n    MaterialInfo materialInfo = MaterialInfo(\n        perceptualRoughness,\n        specularEnvironmentR0,\n        alphaRoughness,\n        diffuseColor,\n        specularEnvironmentR90,\n        specularColor\n    );\n\n    // LIGHTING\n\n    vec3 color = vec3(0.0, 0.0, 0.0);\n    vec3 normal = getNormal();\n    vec3 view = normalize(u_Camera - v_Position);\n\n#ifdef USE_PUNCTUAL\n    for (int i = 0; i < LIGHT_COUNT; ++i)\n    {\n        Light light = u_Lights[i];\n        if (light.type == LightType_Directional)\n        {\n            color += applyDirectionalLight(light, materialInfo, normal, view);\n        }\n        else if (light.type == LightType_Point)\n        {\n            color += applyPointLight(light, materialInfo, normal, view);\n        }\n        else if (light.type == LightType_Spot)\n        {\n            color += applySpotLight(light, materialInfo, normal, view);\n        }\n    }\n#endif\n\n    // Calculate lighting contribution from image based lighting source (IBL)\n#ifdef USE_IBL\n    color += getIBLContribution(materialInfo, normal, view);\n#endif\n\n    float ao = 1.0;\n    // Apply optional PBR terms for additional (optional) shading\n#ifdef HAS_OCCLUSION_MAP\n    ao = texture2D(u_OcclusionSampler,  getOcclusionUV()).r;\n    color = mix(color, color * ao, u_OcclusionStrength);\n#endif\n\n    vec3 emissive = vec3(0);\n#ifdef HAS_EMISSIVE_MAP\n    emissive = SRGBtoLINEAR(texture2D(u_EmissiveSampler, getEmissiveUV())).rgb * u_EmissiveFactor;\n    color += emissive;\n#endif\n\n#ifndef DEBUG_OUTPUT // no debug\n\n   // regular shading\n    gl_FragColor = vec4(toneMap(color), baseColor.a);\n\n#else // debug output\n\n    #ifdef DEBUG_METALLIC\n        gl_FragColor.rgb = vec3(metallic);\n    #endif\n\n    #ifdef DEBUG_ROUGHNESS\n        gl_FragColor.rgb = vec3(perceptualRoughness);\n    #endif\n\n    #ifdef DEBUG_NORMAL\n        #ifdef HAS_NORMAL_MAP\n            gl_FragColor.rgb = texture2D(u_NormalSampler, getNormalUV()).rgb;\n        #else\n            gl_FragColor.rgb = vec3(0.5, 0.5, 1.0);\n        #endif\n    #endif\n\n    #ifdef DEBUG_BASECOLOR\n        gl_FragColor.rgb = LINEARtoSRGB(baseColor.rgb);\n    #endif\n\n    #ifdef DEBUG_OCCLUSION\n        gl_FragColor.rgb = vec3(ao);\n    #endif\n\n    #ifdef DEBUG_EMISSIVE\n        gl_FragColor.rgb = LINEARtoSRGB(emissive);\n    #endif\n\n    #ifdef DEBUG_F0\n        gl_FragColor.rgb = vec3(f0);\n    #endif\n\n    #ifdef DEBUG_ALPHA\n        gl_FragColor.rgb = vec3(baseColor.a);\n    #endif\n\n    gl_FragColor.a = 1.0;\n\n#endif // !DEBUG_OUTPUT\n}\n"; // eslint-disable-line
+  var metallicRoughnessShader = "\n#ifdef USE_TEX_LOD\n#extension GL_EXT_shader_texture_lod: enable\n#endif\n#extension GL_OES_standard_derivatives : enable\n#ifdef USE_HDR\n#extension GL_OES_texture_float : enable\n#extension GL_OES_texture_float_linear : enable\n#endif\nprecision highp float;\n#define GLSLIFY 1\n#include <tonemapping.glsl>\n#include <textures.glsl>\n#include <functions.glsl>\nstruct Light{vec3 direction;float range;vec3 color;float intensity;vec3 position;float innerConeCos;float outerConeCos;int type;vec2 padding;};const int LightType_Directional=0;const int LightType_Point=1;const int LightType_Spot=2;\n#ifdef USE_PUNCTUAL\nuniform Light u_Lights[LIGHT_COUNT];\n#endif\n#if defined(MATERIAL_SPECULARGLOSSINESS) || defined(MATERIAL_METALLICROUGHNESS)\nuniform float u_MetallicFactor;uniform float u_RoughnessFactor;uniform vec4 u_BaseColorFactor;\n#endif\n#ifdef MATERIAL_SPECULARGLOSSINESS\nuniform vec3 u_SpecularFactor;uniform vec4 u_DiffuseFactor;uniform float u_GlossinessFactor;\n#endif\n#ifdef ALPHAMODE_MASK\nuniform float u_AlphaCutoff;\n#endif\nuniform vec3 u_Camera;uniform int u_MipCount;struct MaterialInfo{float perceptualRoughness;vec3 reflectance0;float alphaRoughness;vec3 diffuseColor;vec3 reflectance90;vec3 specularColor;};\n#ifdef USE_IBL\nvec3 getIBLContribution(MaterialInfo materialInfo,vec3 n,vec3 v){float NdotV=clamp(dot(n,v),0.0,1.0);float lod=clamp(materialInfo.perceptualRoughness*float(u_MipCount),0.0,float(u_MipCount));vec3 reflection=normalize(reflect(-v,n));vec2 brdfSamplePoint=clamp(vec2(NdotV,materialInfo.perceptualRoughness),vec2(0.0,0.0),vec2(1.0,1.0));vec2 brdf=texture2D(u_brdfLUT,brdfSamplePoint).rg;vec4 diffuseSample=textureCube(u_DiffuseEnvSampler,n);\n#ifdef USE_TEX_LOD\nvec4 specularSample=textureCubeLodEXT(u_SpecularEnvSampler,reflection,lod);\n#else\nvec4 specularSample=textureCube(u_SpecularEnvSampler,reflection);\n#endif\n#ifdef USE_HDR\nvec3 diffuseLight=diffuseSample.rgb;vec3 specularLight=specularSample.rgb;\n#else\nvec3 diffuseLight=SRGBtoLINEAR(diffuseSample).rgb;vec3 specularLight=SRGBtoLINEAR(specularSample).rgb;\n#endif\nvec3 diffuse=diffuseLight*materialInfo.diffuseColor;vec3 specular=specularLight*(materialInfo.specularColor*brdf.x+brdf.y);return diffuse+specular;}\n#endif\nvec3 diffuse(MaterialInfo materialInfo){return materialInfo.diffuseColor/M_PI;}vec3 specularReflection(MaterialInfo materialInfo,AngularInfo angularInfo){return materialInfo.reflectance0+(materialInfo.reflectance90-materialInfo.reflectance0)*pow(clamp(1.0-angularInfo.VdotH,0.0,1.0),5.0);}float visibilityOcclusion(MaterialInfo materialInfo,AngularInfo angularInfo){float NdotL=angularInfo.NdotL;float NdotV=angularInfo.NdotV;float alphaRoughnessSq=materialInfo.alphaRoughness*materialInfo.alphaRoughness;float GGXV=NdotL*sqrt(NdotV*NdotV*(1.0-alphaRoughnessSq)+alphaRoughnessSq);float GGXL=NdotV*sqrt(NdotL*NdotL*(1.0-alphaRoughnessSq)+alphaRoughnessSq);float GGX=GGXV+GGXL;if(GGX>0.0){return 0.5/GGX;}return 0.0;}float microfacetDistribution(MaterialInfo materialInfo,AngularInfo angularInfo){float alphaRoughnessSq=materialInfo.alphaRoughness*materialInfo.alphaRoughness;float f=(angularInfo.NdotH*alphaRoughnessSq-angularInfo.NdotH)*angularInfo.NdotH+1.0;return alphaRoughnessSq/(M_PI*f*f);}vec3 getPointShade(vec3 pointToLight,MaterialInfo materialInfo,vec3 normal,vec3 view){AngularInfo angularInfo=getAngularInfo(pointToLight,normal,view);if(angularInfo.NdotL>0.0||angularInfo.NdotV>0.0){vec3 F=specularReflection(materialInfo,angularInfo);float Vis=visibilityOcclusion(materialInfo,angularInfo);float D=microfacetDistribution(materialInfo,angularInfo);vec3 diffuseContrib=(1.0-F)*diffuse(materialInfo);vec3 specContrib=F*Vis*D;return angularInfo.NdotL*(diffuseContrib+specContrib);}return vec3(0.0,0.0,0.0);}float getRangeAttenuation(float range,float distance){if(range<=0.0){return 1.0;}return max(min(1.0-pow(distance/range,4.0),1.0),0.0)/pow(distance,2.0);}float getSpotAttenuation(vec3 pointToLight,vec3 spotDirection,float outerConeCos,float innerConeCos){float actualCos=dot(normalize(spotDirection),normalize(-pointToLight));if(actualCos>outerConeCos){if(actualCos<innerConeCos){return smoothstep(outerConeCos,innerConeCos,actualCos);}return 1.0;}return 0.0;}vec3 applyDirectionalLight(Light light,MaterialInfo materialInfo,vec3 normal,vec3 view){vec3 pointToLight=-light.direction;vec3 shade=getPointShade(pointToLight,materialInfo,normal,view);return light.intensity*light.color*shade;}vec3 applyPointLight(Light light,MaterialInfo materialInfo,vec3 normal,vec3 view){vec3 pointToLight=light.position-v_Position;float distance=length(pointToLight);float attenuation=getRangeAttenuation(light.range,distance);vec3 shade=getPointShade(pointToLight,materialInfo,normal,view);return attenuation*light.intensity*light.color*shade;}vec3 applySpotLight(Light light,MaterialInfo materialInfo,vec3 normal,vec3 view){vec3 pointToLight=light.position-v_Position;float distance=length(pointToLight);float rangeAttenuation=getRangeAttenuation(light.range,distance);float spotAttenuation=getSpotAttenuation(pointToLight,light.direction,light.outerConeCos,light.innerConeCos);vec3 shade=getPointShade(pointToLight,materialInfo,normal,view);return rangeAttenuation*spotAttenuation*light.intensity*light.color*shade;}void main(){float perceptualRoughness=0.0;float metallic=0.0;vec4 baseColor=vec4(0.0,0.0,0.0,1.0);vec3 diffuseColor=vec3(0.0);vec3 specularColor=vec3(0.0);vec3 f0=vec3(0.04);\n#ifdef MATERIAL_SPECULARGLOSSINESS\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\nvec4 sgSample=SRGBtoLINEAR(texture2D(u_SpecularGlossinessSampler,getSpecularGlossinessUV()));perceptualRoughness=(1.0-sgSample.a*u_GlossinessFactor);f0=sgSample.rgb*u_SpecularFactor;\n#else\nf0=u_SpecularFactor;perceptualRoughness=1.0-u_GlossinessFactor;\n#endif\n#ifdef HAS_DIFFUSE_MAP\nbaseColor=SRGBtoLINEAR(texture2D(u_DiffuseSampler,getDiffuseUV()))*u_DiffuseFactor;\n#else\nbaseColor=u_DiffuseFactor;\n#endif\nbaseColor*=getVertexColor();specularColor=f0;float oneMinusSpecularStrength=1.0-max(max(f0.r,f0.g),f0.b);diffuseColor=baseColor.rgb*oneMinusSpecularStrength;\n#ifdef DEBUG_METALLIC\nmetallic=solveMetallic(baseColor.rgb,specularColor,oneMinusSpecularStrength);\n#endif\n#endif\n#ifdef MATERIAL_METALLICROUGHNESS\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\nvec4 mrSample=texture2D(u_MetallicRoughnessSampler,getMetallicRoughnessUV());perceptualRoughness=mrSample.g*u_RoughnessFactor;metallic=mrSample.b*u_MetallicFactor;\n#else\nmetallic=u_MetallicFactor;perceptualRoughness=u_RoughnessFactor;\n#endif\n#ifdef HAS_BASE_COLOR_MAP\nbaseColor=SRGBtoLINEAR(texture2D(u_BaseColorSampler,getBaseColorUV()))*u_BaseColorFactor;\n#else\nbaseColor=u_BaseColorFactor;\n#endif\nbaseColor*=getVertexColor();diffuseColor=baseColor.rgb*(vec3(1.0)-f0)*(1.0-metallic);specularColor=mix(f0,baseColor.rgb,metallic);\n#endif\n#ifdef ALPHAMODE_MASK\nif(baseColor.a<u_AlphaCutoff){discard;}baseColor.a=1.0;\n#endif\n#ifdef ALPHAMODE_OPAQUE\nbaseColor.a=1.0;\n#endif\n#ifdef MATERIAL_UNLIT\ngl_FragColor=vec4(LINEARtoSRGB(baseColor.rgb),baseColor.a);return;\n#endif\nperceptualRoughness=clamp(perceptualRoughness,0.0,1.0);metallic=clamp(metallic,0.0,1.0);float alphaRoughness=perceptualRoughness*perceptualRoughness;float reflectance=max(max(specularColor.r,specularColor.g),specularColor.b);vec3 specularEnvironmentR0=specularColor.rgb;vec3 specularEnvironmentR90=vec3(clamp(reflectance*50.0,0.0,1.0));MaterialInfo materialInfo=MaterialInfo(perceptualRoughness,specularEnvironmentR0,alphaRoughness,diffuseColor,specularEnvironmentR90,specularColor);vec3 color=vec3(0.0,0.0,0.0);vec3 normal=getNormal();vec3 view=normalize(u_Camera-v_Position);\n#ifdef USE_PUNCTUAL\nfor(int i=0;i<LIGHT_COUNT;++i){Light light=u_Lights[i];if(light.type==LightType_Directional){color+=applyDirectionalLight(light,materialInfo,normal,view);}else if(light.type==LightType_Point){color+=applyPointLight(light,materialInfo,normal,view);}else if(light.type==LightType_Spot){color+=applySpotLight(light,materialInfo,normal,view);}}\n#endif\n#ifdef USE_IBL\ncolor+=getIBLContribution(materialInfo,normal,view);\n#endif\nfloat ao=1.0;\n#ifdef HAS_OCCLUSION_MAP\nao=texture2D(u_OcclusionSampler,getOcclusionUV()).r;color=mix(color,color*ao,u_OcclusionStrength);\n#endif\nvec3 emissive=vec3(0);\n#ifdef HAS_EMISSIVE_MAP\nemissive=SRGBtoLINEAR(texture2D(u_EmissiveSampler,getEmissiveUV())).rgb*u_EmissiveFactor;color+=emissive;\n#endif\n#ifndef DEBUG_OUTPUT\ngl_FragColor=vec4(toneMap(color),baseColor.a);\n#else\n#ifdef DEBUG_METALLIC\ngl_FragColor.rgb=vec3(metallic);\n#endif\n#ifdef DEBUG_ROUGHNESS\ngl_FragColor.rgb=vec3(perceptualRoughness);\n#endif\n#ifdef DEBUG_NORMAL\n#ifdef HAS_NORMAL_MAP\ngl_FragColor.rgb=texture2D(u_NormalSampler,getNormalUV()).rgb;\n#else\ngl_FragColor.rgb=vec3(0.5,0.5,1.0);\n#endif\n#endif\n#ifdef DEBUG_BASECOLOR\ngl_FragColor.rgb=LINEARtoSRGB(baseColor.rgb);\n#endif\n#ifdef DEBUG_OCCLUSION\ngl_FragColor.rgb=vec3(ao);\n#endif\n#ifdef DEBUG_EMISSIVE\ngl_FragColor.rgb=LINEARtoSRGB(emissive);\n#endif\n#ifdef DEBUG_F0\ngl_FragColor.rgb=vec3(f0);\n#endif\n#ifdef DEBUG_ALPHA\ngl_FragColor.rgb=vec3(baseColor.a);\n#endif\ngl_FragColor.a=1.0;\n#endif\n}"; // eslint-disable-line
 
-  var primitiveShader = "#define GLSLIFY 1\n#include <animation.glsl>\n\nattribute vec4 a_Position;\nvarying vec3 v_Position;\n\n#ifdef HAS_NORMALS\nattribute vec4 a_Normal;\n#endif\n\n#ifdef HAS_TANGENTS\nattribute vec4 a_Tangent;\n#endif\n\n#ifdef HAS_NORMALS\n#ifdef HAS_TANGENTS\nvarying mat3 v_TBN;\n#else\nvarying vec3 v_Normal;\n#endif\n#endif\n\n#ifdef HAS_UV_SET1\nattribute vec2 a_UV1;\n#endif\n\n#ifdef HAS_UV_SET2\nattribute vec2 a_UV2;\n#endif\n\nvarying vec2 v_UVCoord1;\nvarying vec2 v_UVCoord2;\n\n#ifdef HAS_VERTEX_COLOR_VEC3\nattribute vec3 a_Color;\nvarying vec3 v_Color;\n#endif\n\n#ifdef HAS_VERTEX_COLOR_VEC4\nattribute vec4 a_Color;\nvarying vec4 v_Color;\n#endif\n\nuniform mat4 u_ViewProjectionMatrix;\nuniform mat4 u_ModelMatrix;\nuniform mat4 u_NormalMatrix;\n\nvec4 getPosition()\n{\n    vec4 pos = a_Position;\n\n#ifdef USE_MORPHING\n    pos += getTargetPosition();\n#endif\n\n#ifdef USE_SKINNING\n    pos = getSkinningMatrix() * pos;\n#endif\n\n    return pos;\n}\n\n#ifdef HAS_NORMALS\nvec4 getNormal()\n{\n    vec4 normal = a_Normal;\n\n#ifdef USE_MORPHING\n    normal += getTargetNormal();\n#endif\n\n#ifdef USE_SKINNING\n    normal = getSkinningNormalMatrix() * normal;\n#endif\n\n    return normalize(normal);\n}\n#endif\n\n#ifdef HAS_TANGENTS\nvec4 getTangent()\n{\n    vec4 tangent = a_Tangent;\n\n#ifdef USE_MORPHING\n    tangent += getTargetTangent();\n#endif\n\n#ifdef USE_SKINNING\n    tangent = getSkinningMatrix() * tangent;\n#endif\n\n    return normalize(tangent);\n}\n#endif\n\nvoid main()\n{\n    vec4 pos = u_ModelMatrix * getPosition();\n    v_Position = vec3(pos.xyz) / pos.w;\n\n    #ifdef HAS_NORMALS\n    #ifdef HAS_TANGENTS\n    vec4 tangent = getTangent();\n    vec3 normalW = normalize(vec3(u_NormalMatrix * vec4(getNormal().xyz, 0.0)));\n    vec3 tangentW = normalize(vec3(u_ModelMatrix * vec4(tangent.xyz, 0.0)));\n    vec3 bitangentW = cross(normalW, tangentW) * tangent.w;\n    v_TBN = mat3(tangentW, bitangentW, normalW);\n    #else // !HAS_TANGENTS\n    v_Normal = normalize(vec3(u_NormalMatrix * vec4(getNormal().xyz, 0.0)));\n    #endif\n    #endif // !HAS_NORMALS\n\n    v_UVCoord1 = vec2(0.0, 0.0);\n    v_UVCoord2 = vec2(0.0, 0.0);\n\n    #ifdef HAS_UV_SET1\n    v_UVCoord1 = a_UV1;\n    #endif\n\n    #ifdef HAS_UV_SET2\n    v_UVCoord2 = a_UV2;\n    #endif\n\n    #if defined(HAS_VERTEX_COLOR_VEC3) || defined(HAS_VERTEX_COLOR_VEC4)\n    v_Color = a_Color;\n    #endif\n\n    gl_Position = u_ViewProjectionMatrix * pos;\n}\n"; // eslint-disable-line
+  var primitiveShader = "#define GLSLIFY 1\n#include <animation.glsl>\nattribute vec4 a_Position;varying vec3 v_Position;\n#ifdef HAS_NORMALS\nattribute vec4 a_Normal;\n#endif\n#ifdef HAS_TANGENTS\nattribute vec4 a_Tangent;\n#endif\n#ifdef HAS_NORMALS\n#ifdef HAS_TANGENTS\nvarying mat3 v_TBN;\n#else\nvarying vec3 v_Normal;\n#endif\n#endif\n#ifdef HAS_UV_SET1\nattribute vec2 a_UV1;\n#endif\n#ifdef HAS_UV_SET2\nattribute vec2 a_UV2;\n#endif\nvarying vec2 v_UVCoord1;varying vec2 v_UVCoord2;\n#ifdef HAS_VERTEX_COLOR_VEC3\nattribute vec3 a_Color;varying vec3 v_Color;\n#endif\n#ifdef HAS_VERTEX_COLOR_VEC4\nattribute vec4 a_Color;varying vec4 v_Color;\n#endif\nuniform mat4 u_ViewProjectionMatrix;uniform mat4 u_ModelMatrix;uniform mat4 u_NormalMatrix;vec4 getPosition(){vec4 pos=a_Position;\n#ifdef USE_MORPHING\npos+=getTargetPosition();\n#endif\n#ifdef USE_SKINNING\npos=getSkinningMatrix()*pos;\n#endif\nreturn pos;}\n#ifdef HAS_NORMALS\nvec4 getNormal(){vec4 normal=a_Normal;\n#ifdef USE_MORPHING\nnormal+=getTargetNormal();\n#endif\n#ifdef USE_SKINNING\nnormal=getSkinningNormalMatrix()*normal;\n#endif\nreturn normalize(normal);}\n#endif\n#ifdef HAS_TANGENTS\nvec4 getTangent(){vec4 tangent=a_Tangent;\n#ifdef USE_MORPHING\ntangent+=getTargetTangent();\n#endif\n#ifdef USE_SKINNING\ntangent=getSkinningMatrix()*tangent;\n#endif\nreturn normalize(tangent);}\n#endif\nvoid main(){vec4 pos=u_ModelMatrix*getPosition();v_Position=vec3(pos.xyz)/pos.w;\n#ifdef HAS_NORMALS\n#ifdef HAS_TANGENTS\nvec4 tangent=getTangent();vec3 normalW=normalize(vec3(u_NormalMatrix*vec4(getNormal().xyz,0.0)));vec3 tangentW=normalize(vec3(u_ModelMatrix*vec4(tangent.xyz,0.0)));vec3 bitangentW=cross(normalW,tangentW)*tangent.w;v_TBN=mat3(tangentW,bitangentW,normalW);\n#else\nv_Normal=normalize(vec3(u_NormalMatrix*vec4(getNormal().xyz,0.0)));\n#endif\n#endif\nv_UVCoord1=vec2(0.0,0.0);v_UVCoord2=vec2(0.0,0.0);\n#ifdef HAS_UV_SET1\nv_UVCoord1=a_UV1;\n#endif\n#ifdef HAS_UV_SET2\nv_UVCoord2=a_UV2;\n#endif\n#if defined(HAS_VERTEX_COLOR_VEC3) || defined(HAS_VERTEX_COLOR_VEC4)\nv_Color=a_Color;\n#endif\ngl_Position=u_ViewProjectionMatrix*pos;}"; // eslint-disable-line
 
-  var texturesShader = "#define GLSLIFY 1\nvarying vec2 v_UVCoord1;\nvarying vec2 v_UVCoord2;\n\n// General Material\n#ifdef HAS_NORMAL_MAP\nuniform sampler2D u_NormalSampler;\nuniform float u_NormalScale;\nuniform int u_NormalUVSet;\nuniform mat3 u_NormalUVTransform;\n#endif\n\n#ifdef HAS_EMISSIVE_MAP\nuniform sampler2D u_EmissiveSampler;\nuniform int u_EmissiveUVSet;\nuniform vec3 u_EmissiveFactor;\nuniform mat3 u_EmissiveUVTransform;\n#endif\n\n#ifdef HAS_OCCLUSION_MAP\nuniform sampler2D u_OcclusionSampler;\nuniform int u_OcclusionUVSet;\nuniform float u_OcclusionStrength;\nuniform mat3 u_OcclusionUVTransform;\n#endif\n\n// Metallic Roughness Material\n#ifdef HAS_BASE_COLOR_MAP\nuniform sampler2D u_BaseColorSampler;\nuniform int u_BaseColorUVSet;\nuniform mat3 u_BaseColorUVTransform;\n#endif\n\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\nuniform sampler2D u_MetallicRoughnessSampler;\nuniform int u_MetallicRoughnessUVSet;\nuniform mat3 u_MetallicRoughnessUVTransform;\n#endif\n\n// Specular Glossiness Material\n#ifdef HAS_DIFFUSE_MAP\nuniform sampler2D u_DiffuseSampler;\nuniform int u_DiffuseUVSet;\nuniform mat3 u_DiffuseUVTransform;\n#endif\n\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\nuniform sampler2D u_SpecularGlossinessSampler;\nuniform int u_SpecularGlossinessUVSet;\nuniform mat3 u_SpecularGlossinessUVTransform;\n#endif\n\n// IBL\n#ifdef USE_IBL\nuniform samplerCube u_DiffuseEnvSampler;\nuniform samplerCube u_SpecularEnvSampler;\nuniform sampler2D u_brdfLUT;\n#endif\n\nvec2 getNormalUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_NORMAL_MAP\n    uv.xy = u_NormalUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_NORMAL_UV_TRANSFORM\n    uv *= u_NormalUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getEmissiveUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_EMISSIVE_MAP\n    uv.xy = u_EmissiveUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_EMISSIVE_UV_TRANSFORM\n    uv *= u_EmissiveUVTransform;\n    #endif\n#endif\n\n    return uv.xy;\n}\n\nvec2 getOcclusionUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_OCCLUSION_MAP\n    uv.xy = u_OcclusionUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_OCCLSION_UV_TRANSFORM\n    uv *= u_OcclusionUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getBaseColorUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_BASE_COLOR_MAP\n    uv.xy = u_BaseColorUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_BASECOLOR_UV_TRANSFORM\n    uv *= u_BaseColorUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getMetallicRoughnessUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\n    uv.xy = u_MetallicRoughnessUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_METALLICROUGHNESS_UV_TRANSFORM\n    uv *= u_MetallicRoughnessUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getSpecularGlossinessUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\n    uv.xy = u_SpecularGlossinessUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_SPECULARGLOSSINESS_UV_TRANSFORM\n    uv *= u_SpecularGlossinessUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n\nvec2 getDiffuseUV()\n{\n    vec3 uv = vec3(v_UVCoord1, 1.0);\n#ifdef HAS_DIFFUSE_MAP\n    uv.xy = u_DiffuseUVSet < 1 ? v_UVCoord1 : v_UVCoord2;\n    #ifdef HAS_DIFFUSE_UV_TRANSFORM\n    uv *= u_DiffuseUVTransform;\n    #endif\n#endif\n    return uv.xy;\n}\n"; // eslint-disable-line
+  var texturesShader = "#define GLSLIFY 1\nvarying vec2 v_UVCoord1;varying vec2 v_UVCoord2;\n#ifdef HAS_NORMAL_MAP\nuniform sampler2D u_NormalSampler;uniform float u_NormalScale;uniform int u_NormalUVSet;uniform mat3 u_NormalUVTransform;\n#endif\n#ifdef HAS_EMISSIVE_MAP\nuniform sampler2D u_EmissiveSampler;uniform int u_EmissiveUVSet;uniform vec3 u_EmissiveFactor;uniform mat3 u_EmissiveUVTransform;\n#endif\n#ifdef HAS_OCCLUSION_MAP\nuniform sampler2D u_OcclusionSampler;uniform int u_OcclusionUVSet;uniform float u_OcclusionStrength;uniform mat3 u_OcclusionUVTransform;\n#endif\n#ifdef HAS_BASE_COLOR_MAP\nuniform sampler2D u_BaseColorSampler;uniform int u_BaseColorUVSet;uniform mat3 u_BaseColorUVTransform;\n#endif\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\nuniform sampler2D u_MetallicRoughnessSampler;uniform int u_MetallicRoughnessUVSet;uniform mat3 u_MetallicRoughnessUVTransform;\n#endif\n#ifdef HAS_DIFFUSE_MAP\nuniform sampler2D u_DiffuseSampler;uniform int u_DiffuseUVSet;uniform mat3 u_DiffuseUVTransform;\n#endif\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\nuniform sampler2D u_SpecularGlossinessSampler;uniform int u_SpecularGlossinessUVSet;uniform mat3 u_SpecularGlossinessUVTransform;\n#endif\n#ifdef USE_IBL\nuniform samplerCube u_DiffuseEnvSampler;uniform samplerCube u_SpecularEnvSampler;uniform sampler2D u_brdfLUT;\n#endif\nvec2 getNormalUV(){vec3 uv=vec3(v_UVCoord1,1.0);\n#ifdef HAS_NORMAL_MAP\nuv.xy=u_NormalUVSet<1 ? v_UVCoord1 : v_UVCoord2;\n#ifdef HAS_NORMAL_UV_TRANSFORM\nuv*=u_NormalUVTransform;\n#endif\n#endif\nreturn uv.xy;}vec2 getEmissiveUV(){vec3 uv=vec3(v_UVCoord1,1.0);\n#ifdef HAS_EMISSIVE_MAP\nuv.xy=u_EmissiveUVSet<1 ? v_UVCoord1 : v_UVCoord2;\n#ifdef HAS_EMISSIVE_UV_TRANSFORM\nuv*=u_EmissiveUVTransform;\n#endif\n#endif\nreturn uv.xy;}vec2 getOcclusionUV(){vec3 uv=vec3(v_UVCoord1,1.0);\n#ifdef HAS_OCCLUSION_MAP\nuv.xy=u_OcclusionUVSet<1 ? v_UVCoord1 : v_UVCoord2;\n#ifdef HAS_OCCLSION_UV_TRANSFORM\nuv*=u_OcclusionUVTransform;\n#endif\n#endif\nreturn uv.xy;}vec2 getBaseColorUV(){vec3 uv=vec3(v_UVCoord1,1.0);\n#ifdef HAS_BASE_COLOR_MAP\nuv.xy=u_BaseColorUVSet<1 ? v_UVCoord1 : v_UVCoord2;\n#ifdef HAS_BASECOLOR_UV_TRANSFORM\nuv*=u_BaseColorUVTransform;\n#endif\n#endif\nreturn uv.xy;}vec2 getMetallicRoughnessUV(){vec3 uv=vec3(v_UVCoord1,1.0);\n#ifdef HAS_METALLIC_ROUGHNESS_MAP\nuv.xy=u_MetallicRoughnessUVSet<1 ? v_UVCoord1 : v_UVCoord2;\n#ifdef HAS_METALLICROUGHNESS_UV_TRANSFORM\nuv*=u_MetallicRoughnessUVTransform;\n#endif\n#endif\nreturn uv.xy;}vec2 getSpecularGlossinessUV(){vec3 uv=vec3(v_UVCoord1,1.0);\n#ifdef HAS_SPECULAR_GLOSSINESS_MAP\nuv.xy=u_SpecularGlossinessUVSet<1 ? v_UVCoord1 : v_UVCoord2;\n#ifdef HAS_SPECULARGLOSSINESS_UV_TRANSFORM\nuv*=u_SpecularGlossinessUVTransform;\n#endif\n#endif\nreturn uv.xy;}vec2 getDiffuseUV(){vec3 uv=vec3(v_UVCoord1,1.0);\n#ifdef HAS_DIFFUSE_MAP\nuv.xy=u_DiffuseUVSet<1 ? v_UVCoord1 : v_UVCoord2;\n#ifdef HAS_DIFFUSE_UV_TRANSFORM\nuv*=u_DiffuseUVTransform;\n#endif\n#endif\nreturn uv.xy;}"; // eslint-disable-line
 
-  var tonemappingShader = "#define GLSLIFY 1\nuniform float u_Exposure;\n\nconst float GAMMA = 2.2;\nconst float INV_GAMMA = 1.0 / GAMMA;\n\n// linear to sRGB approximation\n// see http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html\nvec3 LINEARtoSRGB(vec3 color)\n{\n    return pow(color, vec3(INV_GAMMA));\n}\n\n// sRGB to linear approximation\n// see http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html\nvec4 SRGBtoLINEAR(vec4 srgbIn)\n{\n    return vec4(pow(srgbIn.xyz, vec3(GAMMA)), srgbIn.w);\n}\n\n// Uncharted 2 tone map\n// see: http://filmicworlds.com/blog/filmic-tonemapping-operators/\nvec3 toneMapUncharted2Impl(vec3 color)\n{\n    const float A = 0.15;\n    const float B = 0.50;\n    const float C = 0.10;\n    const float D = 0.20;\n    const float E = 0.02;\n    const float F = 0.30;\n    return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;\n}\n\nvec3 toneMapUncharted(vec3 color)\n{\n    const float W = 11.2;\n    color = toneMapUncharted2Impl(color * 2.0);\n    vec3 whiteScale = 1.0 / toneMapUncharted2Impl(vec3(W));\n    return LINEARtoSRGB(color * whiteScale);\n}\n\n// Hejl Richard tone map\n// see: http://filmicworlds.com/blog/filmic-tonemapping-operators/\nvec3 toneMapHejlRichard(vec3 color)\n{\n    color = max(vec3(0.0), color - vec3(0.004));\n    return (color*(6.2*color+.5))/(color*(6.2*color+1.7)+0.06);\n}\n\n// ACES tone map\n// see: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/\nvec3 toneMapACES(vec3 color)\n{\n    const float A = 2.51;\n    const float B = 0.03;\n    const float C = 2.43;\n    const float D = 0.59;\n    const float E = 0.14;\n    return LINEARtoSRGB(clamp((color * (A * color + B)) / (color * (C * color + D) + E), 0.0, 1.0));\n}\n\nvec3 toneMap(vec3 color)\n{\n    color *= u_Exposure;\n\n#ifdef TONEMAP_UNCHARTED\n    return toneMapUncharted(color);\n#endif\n\n#ifdef TONEMAP_HEJLRICHARD\n    return toneMapHejlRichard(color);\n#endif\n\n#ifdef TONEMAP_ACES\n    return toneMapACES(color);\n#endif\n\n    return LINEARtoSRGB(color);\n}\n"; // eslint-disable-line
+  var tonemappingShader = "#define GLSLIFY 1\nuniform float u_Exposure;const float GAMMA=2.2;const float INV_GAMMA=1.0/GAMMA;vec3 LINEARtoSRGB(vec3 color){return pow(color,vec3(INV_GAMMA));}vec4 SRGBtoLINEAR(vec4 srgbIn){return vec4(pow(srgbIn.xyz,vec3(GAMMA)),srgbIn.w);}vec3 toneMapUncharted2Impl(vec3 color){const float A=0.15;const float B=0.50;const float C=0.10;const float D=0.20;const float E=0.02;const float F=0.30;return((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;}vec3 toneMapUncharted(vec3 color){const float W=11.2;color=toneMapUncharted2Impl(color*2.0);vec3 whiteScale=1.0/toneMapUncharted2Impl(vec3(W));return LINEARtoSRGB(color*whiteScale);}vec3 toneMapHejlRichard(vec3 color){color=max(vec3(0.0),color-vec3(0.004));return(color*(6.2*color+.5))/(color*(6.2*color+1.7)+0.06);}vec3 toneMapACES(vec3 color){const float A=2.51;const float B=0.03;const float C=2.43;const float D=0.59;const float E=0.14;return LINEARtoSRGB(clamp((color*(A*color+B))/(color*(C*color+D)+E),0.0,1.0));}vec3 toneMap(vec3 color){color*=u_Exposure;\n#ifdef TONEMAP_UNCHARTED\nreturn toneMapUncharted(color);\n#endif\n#ifdef TONEMAP_HEJLRICHARD\nreturn toneMapHejlRichard(color);\n#endif\n#ifdef TONEMAP_ACES\nreturn toneMapACES(color);\n#endif\nreturn LINEARtoSRGB(color);}"; // eslint-disable-line
 
-  var shaderFunctions = "#define GLSLIFY 1\n// textures.glsl needs to be included\n\nconst float M_PI = 3.141592653589793;\nconst float c_MinReflectance = 0.04;\n\nvarying vec3 v_Position;\n\n#ifdef HAS_NORMALS\n#ifdef HAS_TANGENTS\nvarying mat3 v_TBN;\n#else\nvarying vec3 v_Normal;\n#endif\n#endif\n\n#ifdef HAS_VERTEX_COLOR_VEC3\nvarying vec3 v_Color;\n#endif\n#ifdef HAS_VERTEX_COLOR_VEC4\nvarying vec4 v_Color;\n#endif\n\nstruct AngularInfo\n{\n    float NdotL;                  // cos angle between normal and light direction\n    float NdotV;                  // cos angle between normal and view direction\n    float NdotH;                  // cos angle between normal and half vector\n    float LdotH;                  // cos angle between light direction and half vector\n\n    float VdotH;                  // cos angle between view direction and half vector\n\n    vec3 padding;\n};\n\nvec4 getVertexColor()\n{\n   vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n\n#ifdef HAS_VERTEX_COLOR_VEC3\n    color.rgb = v_Color;\n#endif\n#ifdef HAS_VERTEX_COLOR_VEC4\n    color = v_Color;\n#endif\n\n   return color;\n}\n\n// Find the normal for this fragment, pulling either from a predefined normal map\n// or from the interpolated mesh normal and tangent attributes.\nvec3 getNormal()\n{\n    vec2 UV = getNormalUV();\n\n    // Retrieve the tangent space matrix\n#ifndef HAS_TANGENTS\n    vec3 pos_dx = dFdx(v_Position);\n    vec3 pos_dy = dFdy(v_Position);\n    vec3 tex_dx = dFdx(vec3(UV, 0.0));\n    vec3 tex_dy = dFdy(vec3(UV, 0.0));\n    vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);\n\n#ifdef HAS_NORMALS\n    vec3 ng = normalize(v_Normal);\n#else\n    vec3 ng = cross(pos_dx, pos_dy);\n#endif\n\n    t = normalize(t - ng * dot(ng, t));\n    vec3 b = normalize(cross(ng, t));\n    mat3 tbn = mat3(t, b, ng);\n#else // HAS_TANGENTS\n    mat3 tbn = v_TBN;\n#endif\n\n#ifdef HAS_NORMAL_MAP\n    vec3 n = texture2D(u_NormalSampler, UV).rgb;\n    n = normalize(tbn * ((2.0 * n - 1.0) * vec3(u_NormalScale, u_NormalScale, 1.0)));\n#else\n    // The tbn matrix is linearly interpolated, so we need to re-normalize\n    vec3 n = normalize(tbn[2].xyz);\n#endif\n\n    return n;\n}\n\nfloat getPerceivedBrightness(vec3 vector)\n{\n    return sqrt(0.299 * vector.r * vector.r + 0.587 * vector.g * vector.g + 0.114 * vector.b * vector.b);\n}\n\n// https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_pbrSpecularGlossiness/examples/convert-between-workflows/js/three.pbrUtilities.js#L34\nfloat solveMetallic(vec3 diffuse, vec3 specular, float oneMinusSpecularStrength) {\n    float specularBrightness = getPerceivedBrightness(specular);\n\n    if (specularBrightness < c_MinReflectance) {\n        return 0.0;\n    }\n\n    float diffuseBrightness = getPerceivedBrightness(diffuse);\n\n    float a = c_MinReflectance;\n    float b = diffuseBrightness * oneMinusSpecularStrength / (1.0 - c_MinReflectance) + specularBrightness - 2.0 * c_MinReflectance;\n    float c = c_MinReflectance - specularBrightness;\n    float D = b * b - 4.0 * a * c;\n\n    return clamp((-b + sqrt(D)) / (2.0 * a), 0.0, 1.0);\n}\n\nAngularInfo getAngularInfo(vec3 pointToLight, vec3 normal, vec3 view)\n{\n    // Standard one-letter names\n    vec3 n = normalize(normal);           // Outward direction of surface point\n    vec3 v = normalize(view);             // Direction from surface point to view\n    vec3 l = normalize(pointToLight);     // Direction from surface point to light\n    vec3 h = normalize(l + v);            // Direction of the vector between l and v\n\n    float NdotL = clamp(dot(n, l), 0.0, 1.0);\n    float NdotV = clamp(dot(n, v), 0.0, 1.0);\n    float NdotH = clamp(dot(n, h), 0.0, 1.0);\n    float LdotH = clamp(dot(l, h), 0.0, 1.0);\n    float VdotH = clamp(dot(v, h), 0.0, 1.0);\n\n    return AngularInfo(\n        NdotL,\n        NdotV,\n        NdotH,\n        LdotH,\n        VdotH,\n        vec3(0, 0, 0)\n    );\n}\n"; // eslint-disable-line
+  var shaderFunctions = "#define GLSLIFY 1\nconst float M_PI=3.141592653589793;const float c_MinReflectance=0.04;varying vec3 v_Position;\n#ifdef HAS_NORMALS\n#ifdef HAS_TANGENTS\nvarying mat3 v_TBN;\n#else\nvarying vec3 v_Normal;\n#endif\n#endif\n#ifdef HAS_VERTEX_COLOR_VEC3\nvarying vec3 v_Color;\n#endif\n#ifdef HAS_VERTEX_COLOR_VEC4\nvarying vec4 v_Color;\n#endif\nstruct AngularInfo{float NdotL;float NdotV;float NdotH;float LdotH;float VdotH;vec3 padding;};vec4 getVertexColor(){vec4 color=vec4(1.0,1.0,1.0,1.0);\n#ifdef HAS_VERTEX_COLOR_VEC3\ncolor.rgb=v_Color;\n#endif\n#ifdef HAS_VERTEX_COLOR_VEC4\ncolor=v_Color;\n#endif\nreturn color;}vec3 getNormal(){vec2 UV=getNormalUV();\n#ifndef HAS_TANGENTS\nvec3 pos_dx=dFdx(v_Position);vec3 pos_dy=dFdy(v_Position);vec3 tex_dx=dFdx(vec3(UV,0.0));vec3 tex_dy=dFdy(vec3(UV,0.0));vec3 t=(tex_dy.t*pos_dx-tex_dx.t*pos_dy)/(tex_dx.s*tex_dy.t-tex_dy.s*tex_dx.t);\n#ifdef HAS_NORMALS\nvec3 ng=normalize(v_Normal);\n#else\nvec3 ng=cross(pos_dx,pos_dy);\n#endif\nt=normalize(t-ng*dot(ng,t));vec3 b=normalize(cross(ng,t));mat3 tbn=mat3(t,b,ng);\n#else\nmat3 tbn=v_TBN;\n#endif\n#ifdef HAS_NORMAL_MAP\nvec3 n=texture2D(u_NormalSampler,UV).rgb;n=normalize(tbn*((2.0*n-1.0)*vec3(u_NormalScale,u_NormalScale,1.0)));\n#else\nvec3 n=normalize(tbn[2].xyz);\n#endif\nreturn n;}float getPerceivedBrightness(vec3 vector){return sqrt(0.299*vector.r*vector.r+0.587*vector.g*vector.g+0.114*vector.b*vector.b);}float solveMetallic(vec3 diffuse,vec3 specular,float oneMinusSpecularStrength){float specularBrightness=getPerceivedBrightness(specular);if(specularBrightness<c_MinReflectance){return 0.0;}float diffuseBrightness=getPerceivedBrightness(diffuse);float a=c_MinReflectance;float b=diffuseBrightness*oneMinusSpecularStrength/(1.0-c_MinReflectance)+specularBrightness-2.0*c_MinReflectance;float c=c_MinReflectance-specularBrightness;float D=b*b-4.0*a*c;return clamp((-b+sqrt(D))/(2.0*a),0.0,1.0);}AngularInfo getAngularInfo(vec3 pointToLight,vec3 normal,vec3 view){vec3 n=normalize(normal);vec3 v=normalize(view);vec3 l=normalize(pointToLight);vec3 h=normalize(l+v);float NdotL=clamp(dot(n,l),0.0,1.0);float NdotV=clamp(dot(n,v),0.0,1.0);float NdotH=clamp(dot(n,h),0.0,1.0);float LdotH=clamp(dot(l,h),0.0,1.0);float VdotH=clamp(dot(v,h),0.0,1.0);return AngularInfo(NdotL,NdotV,NdotH,LdotH,VdotH,vec3(0,0,0));}"; // eslint-disable-line
 
-  var animationShader = "#define GLSLIFY 1\n#ifdef HAS_TARGET_POSITION0\nattribute vec3 a_Target_Position0;\n#endif\n\n#ifdef HAS_TARGET_POSITION1\nattribute vec3 a_Target_Position1;\n#endif\n\n#ifdef HAS_TARGET_POSITION2\nattribute vec3 a_Target_Position2;\n#endif\n\n#ifdef HAS_TARGET_POSITION3\nattribute vec3 a_Target_Position3;\n#endif\n\n#ifdef HAS_TARGET_POSITION4\nattribute vec3 a_Target_Position4;\n#endif\n\n#ifdef HAS_TARGET_POSITION5\nattribute vec3 a_Target_Position5;\n#endif\n\n#ifdef HAS_TARGET_POSITION6\nattribute vec3 a_Target_Position6;\n#endif\n\n#ifdef HAS_TARGET_POSITION7\nattribute vec3 a_Target_Position7;\n#endif\n\n#ifdef HAS_TARGET_NORMAL0\nattribute vec3 a_Target_Normal0;\n#endif\n\n#ifdef HAS_TARGET_NORMAL1\nattribute vec3 a_Target_Normal1;\n#endif\n\n#ifdef HAS_TARGET_NORMAL2\nattribute vec3 a_Target_Normal2;\n#endif\n\n#ifdef HAS_TARGET_NORMAL3\nattribute vec3 a_Target_Normal3;\n#endif\n\n#ifdef HAS_TARGET_TANGENT0\nattribute vec3 a_Target_Tangent0;\n#endif\n\n#ifdef HAS_TARGET_TANGENT1\nattribute vec3 a_Target_Tangent1;\n#endif\n\n#ifdef HAS_TARGET_TANGENT2\nattribute vec3 a_Target_Tangent2;\n#endif\n\n#ifdef HAS_TARGET_TANGENT3\nattribute vec3 a_Target_Tangent3;\n#endif\n\n#ifdef USE_MORPHING\nuniform float u_morphWeights[WEIGHT_COUNT];\n#endif\n\n#ifdef HAS_JOINT_SET1\nattribute vec4 a_Joint1;\n#endif\n\n#ifdef HAS_JOINT_SET2\nattribute vec4 a_Joint2;\n#endif\n\n#ifdef HAS_WEIGHT_SET1\nattribute vec4 a_Weight1;\n#endif\n\n#ifdef HAS_WEIGHT_SET2\nattribute vec4 a_Weight2;\n#endif\n\n#ifdef USE_SKINNING\nuniform mat4 u_jointMatrix[JOINT_COUNT];\nuniform mat4 u_jointNormalMatrix[JOINT_COUNT];\n#endif\n\n#ifdef USE_SKINNING\nmat4 getSkinningMatrix()\n{\n    mat4 skin = mat4(0);\n\n    #if defined(HAS_WEIGHT_SET1) && defined(HAS_JOINT_SET1)\n    skin +=\n        a_Weight1.x * u_jointMatrix[int(a_Joint1.x)] +\n        a_Weight1.y * u_jointMatrix[int(a_Joint1.y)] +\n        a_Weight1.z * u_jointMatrix[int(a_Joint1.z)] +\n        a_Weight1.w * u_jointMatrix[int(a_Joint1.w)];\n    #endif\n\n    #if defined(HAS_WEIGHT_SET2) && defined(HAS_JOINT_SET2)\n    skin +=\n        a_Weight2.x * u_jointMatrix[int(a_Joint2.x)] +\n        a_Weight2.y * u_jointMatrix[int(a_Joint2.y)] +\n        a_Weight2.z * u_jointMatrix[int(a_Joint2.z)] +\n        a_Weight2.w * u_jointMatrix[int(a_Joint2.w)];\n    #endif\n\n    return skin;\n}\n\nmat4 getSkinningNormalMatrix()\n{\n    mat4 skin = mat4(0);\n\n    #if defined(HAS_WEIGHT_SET1) && defined(HAS_JOINT_SET1)\n    skin +=\n        a_Weight1.x * u_jointNormalMatrix[int(a_Joint1.x)] +\n        a_Weight1.y * u_jointNormalMatrix[int(a_Joint1.y)] +\n        a_Weight1.z * u_jointNormalMatrix[int(a_Joint1.z)] +\n        a_Weight1.w * u_jointNormalMatrix[int(a_Joint1.w)];\n    #endif\n\n    #if defined(HAS_WEIGHT_SET2) && defined(HAS_JOINT_SET2)\n    skin +=\n        a_Weight2.x * u_jointNormalMatrix[int(a_Joint2.x)] +\n        a_Weight2.y * u_jointNormalMatrix[int(a_Joint2.y)] +\n        a_Weight2.z * u_jointNormalMatrix[int(a_Joint2.z)] +\n        a_Weight2.w * u_jointNormalMatrix[int(a_Joint2.w)];\n    #endif\n\n    return skin;\n}\n#endif // !USE_SKINNING\n\n#ifdef USE_MORPHING\nvec4 getTargetPosition()\n{\n    vec4 pos = vec4(0);\n\n#ifdef HAS_TARGET_POSITION0\n    pos.xyz += u_morphWeights[0] * a_Target_Position0;\n#endif\n\n#ifdef HAS_TARGET_POSITION1\n    pos.xyz += u_morphWeights[1] * a_Target_Position1;\n#endif\n\n#ifdef HAS_TARGET_POSITION2\n    pos.xyz += u_morphWeights[2] * a_Target_Position2;\n#endif\n\n#ifdef HAS_TARGET_POSITION3\n    pos.xyz += u_morphWeights[3] * a_Target_Position3;\n#endif\n\n#ifdef HAS_TARGET_POSITION4\n    pos.xyz += u_morphWeights[4] * a_Target_Position4;\n#endif\n\n    return pos;\n}\n\nvec4 getTargetNormal()\n{\n    vec4 normal = vec4(0);\n\n#ifdef HAS_TARGET_NORMAL0\n    normal.xyz += u_morphWeights[0] * a_Target_Normal0;\n#endif\n\n#ifdef HAS_TARGET_NORMAL1\n    normal.xyz += u_morphWeights[1] * a_Target_Normal1;\n#endif\n\n#ifdef HAS_TARGET_NORMAL2\n    normal.xyz += u_morphWeights[2] * a_Target_Normal2;\n#endif\n\n#ifdef HAS_TARGET_NORMAL3\n    normal.xyz += u_morphWeights[3] * a_Target_Normal3;\n#endif\n\n#ifdef HAS_TARGET_NORMAL4\n    normal.xyz += u_morphWeights[4] * a_Target_Normal4;\n#endif\n\n    return normal;\n}\n\nvec4 getTargetTangent()\n{\n    vec4 tangent = vec4(0);\n\n#ifdef HAS_TARGET_TANGENT0\n    tangent.xyz += u_morphWeights[0] * a_Target_Tangent0;\n#endif\n\n#ifdef HAS_TARGET_TANGENT1\n    tangent.xyz += u_morphWeights[1] * a_Target_Tangent1;\n#endif\n\n#ifdef HAS_TARGET_TANGENT2\n    tangent.xyz += u_morphWeights[2] * a_Target_Tangent2;\n#endif\n\n#ifdef HAS_TARGET_TANGENT3\n    tangent.xyz += u_morphWeights[3] * a_Target_Tangent3;\n#endif\n\n#ifdef HAS_TARGET_TANGENT4\n    tangent.xyz += u_morphWeights[4] * a_Target_Tangent4;\n#endif\n\n    return tangent;\n}\n\n#endif // !USE_MORPHING\n"; // eslint-disable-line
+  var animationShader = "#define GLSLIFY 1\n#ifdef HAS_TARGET_POSITION0\nattribute vec3 a_Target_Position0;\n#endif\n#ifdef HAS_TARGET_POSITION1\nattribute vec3 a_Target_Position1;\n#endif\n#ifdef HAS_TARGET_POSITION2\nattribute vec3 a_Target_Position2;\n#endif\n#ifdef HAS_TARGET_POSITION3\nattribute vec3 a_Target_Position3;\n#endif\n#ifdef HAS_TARGET_POSITION4\nattribute vec3 a_Target_Position4;\n#endif\n#ifdef HAS_TARGET_POSITION5\nattribute vec3 a_Target_Position5;\n#endif\n#ifdef HAS_TARGET_POSITION6\nattribute vec3 a_Target_Position6;\n#endif\n#ifdef HAS_TARGET_POSITION7\nattribute vec3 a_Target_Position7;\n#endif\n#ifdef HAS_TARGET_NORMAL0\nattribute vec3 a_Target_Normal0;\n#endif\n#ifdef HAS_TARGET_NORMAL1\nattribute vec3 a_Target_Normal1;\n#endif\n#ifdef HAS_TARGET_NORMAL2\nattribute vec3 a_Target_Normal2;\n#endif\n#ifdef HAS_TARGET_NORMAL3\nattribute vec3 a_Target_Normal3;\n#endif\n#ifdef HAS_TARGET_TANGENT0\nattribute vec3 a_Target_Tangent0;\n#endif\n#ifdef HAS_TARGET_TANGENT1\nattribute vec3 a_Target_Tangent1;\n#endif\n#ifdef HAS_TARGET_TANGENT2\nattribute vec3 a_Target_Tangent2;\n#endif\n#ifdef HAS_TARGET_TANGENT3\nattribute vec3 a_Target_Tangent3;\n#endif\n#ifdef USE_MORPHING\nuniform float u_morphWeights[WEIGHT_COUNT];\n#endif\n#ifdef HAS_JOINT_SET1\nattribute vec4 a_Joint1;\n#endif\n#ifdef HAS_JOINT_SET2\nattribute vec4 a_Joint2;\n#endif\n#ifdef HAS_WEIGHT_SET1\nattribute vec4 a_Weight1;\n#endif\n#ifdef HAS_WEIGHT_SET2\nattribute vec4 a_Weight2;\n#endif\n#ifdef USE_SKINNING\nuniform mat4 u_jointMatrix[JOINT_COUNT];uniform mat4 u_jointNormalMatrix[JOINT_COUNT];\n#endif\n#ifdef USE_SKINNING\nmat4 getSkinningMatrix(){mat4 skin=mat4(0);\n#if defined(HAS_WEIGHT_SET1) && defined(HAS_JOINT_SET1)\nskin+=a_Weight1.x*u_jointMatrix[int(a_Joint1.x)]+a_Weight1.y*u_jointMatrix[int(a_Joint1.y)]+a_Weight1.z*u_jointMatrix[int(a_Joint1.z)]+a_Weight1.w*u_jointMatrix[int(a_Joint1.w)];\n#endif\n#if defined(HAS_WEIGHT_SET2) && defined(HAS_JOINT_SET2)\nskin+=a_Weight2.x*u_jointMatrix[int(a_Joint2.x)]+a_Weight2.y*u_jointMatrix[int(a_Joint2.y)]+a_Weight2.z*u_jointMatrix[int(a_Joint2.z)]+a_Weight2.w*u_jointMatrix[int(a_Joint2.w)];\n#endif\nreturn skin;}mat4 getSkinningNormalMatrix(){mat4 skin=mat4(0);\n#if defined(HAS_WEIGHT_SET1) && defined(HAS_JOINT_SET1)\nskin+=a_Weight1.x*u_jointNormalMatrix[int(a_Joint1.x)]+a_Weight1.y*u_jointNormalMatrix[int(a_Joint1.y)]+a_Weight1.z*u_jointNormalMatrix[int(a_Joint1.z)]+a_Weight1.w*u_jointNormalMatrix[int(a_Joint1.w)];\n#endif\n#if defined(HAS_WEIGHT_SET2) && defined(HAS_JOINT_SET2)\nskin+=a_Weight2.x*u_jointNormalMatrix[int(a_Joint2.x)]+a_Weight2.y*u_jointNormalMatrix[int(a_Joint2.y)]+a_Weight2.z*u_jointNormalMatrix[int(a_Joint2.z)]+a_Weight2.w*u_jointNormalMatrix[int(a_Joint2.w)];\n#endif\nreturn skin;}\n#endif\n#ifdef USE_MORPHING\nvec4 getTargetPosition(){vec4 pos=vec4(0);\n#ifdef HAS_TARGET_POSITION0\npos.xyz+=u_morphWeights[0]*a_Target_Position0;\n#endif\n#ifdef HAS_TARGET_POSITION1\npos.xyz+=u_morphWeights[1]*a_Target_Position1;\n#endif\n#ifdef HAS_TARGET_POSITION2\npos.xyz+=u_morphWeights[2]*a_Target_Position2;\n#endif\n#ifdef HAS_TARGET_POSITION3\npos.xyz+=u_morphWeights[3]*a_Target_Position3;\n#endif\n#ifdef HAS_TARGET_POSITION4\npos.xyz+=u_morphWeights[4]*a_Target_Position4;\n#endif\nreturn pos;}vec4 getTargetNormal(){vec4 normal=vec4(0);\n#ifdef HAS_TARGET_NORMAL0\nnormal.xyz+=u_morphWeights[0]*a_Target_Normal0;\n#endif\n#ifdef HAS_TARGET_NORMAL1\nnormal.xyz+=u_morphWeights[1]*a_Target_Normal1;\n#endif\n#ifdef HAS_TARGET_NORMAL2\nnormal.xyz+=u_morphWeights[2]*a_Target_Normal2;\n#endif\n#ifdef HAS_TARGET_NORMAL3\nnormal.xyz+=u_morphWeights[3]*a_Target_Normal3;\n#endif\n#ifdef HAS_TARGET_NORMAL4\nnormal.xyz+=u_morphWeights[4]*a_Target_Normal4;\n#endif\nreturn normal;}vec4 getTargetTangent(){vec4 tangent=vec4(0);\n#ifdef HAS_TARGET_TANGENT0\ntangent.xyz+=u_morphWeights[0]*a_Target_Tangent0;\n#endif\n#ifdef HAS_TARGET_TANGENT1\ntangent.xyz+=u_morphWeights[1]*a_Target_Tangent1;\n#endif\n#ifdef HAS_TARGET_TANGENT2\ntangent.xyz+=u_morphWeights[2]*a_Target_Tangent2;\n#endif\n#ifdef HAS_TARGET_TANGENT3\ntangent.xyz+=u_morphWeights[3]*a_Target_Tangent3;\n#endif\n#ifdef HAS_TARGET_TANGENT4\ntangent.xyz+=u_morphWeights[4]*a_Target_Tangent4;\n#endif\nreturn tangent;}\n#endif\n"; // eslint-disable-line
 
   class gltfRenderer {
       constructor(canvas, defaultCamera, parameters) {
