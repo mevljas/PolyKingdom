@@ -11,7 +11,7 @@
     "dev:electron": "concurrently \"rollup -c -w\" \"npm start\""
   },
   "devDependencies": {
-    "electron": "^15.5.5",
+    "electron": "^18.3.7",
     "electron-packager": "^15.5.1",
     "rollup": "^0.67.4",
     "rollup-plugin-commonjs": "^9.2.0",
